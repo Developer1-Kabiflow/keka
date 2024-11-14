@@ -1,27 +1,16 @@
-"use client";
+'use client';
 import React, { useState, useEffect } from "react";
 import BASE_URL from "@/utils/utils";
 import axios from "axios";
 import ProgressStepsContainer from "./ProgressStepsContainer";
 
-const Modal = ({ isOpen, handleClose, employeeData }) => {
+const Modal = ({ isOpen, handleClose }) => {
   const [formSchema, setFormSchema] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [formData, setFormData] = useState({});
   const [formType, setFormType] = useState("");
   const formId = "671735d9d058568c8258da76";
-
-  const fields = [
-    {
-      name: "employeeId",
-      value: "EMP0124",
-      type: "text",
-      placeholder: "Employee ID",
-      required: true,
-    },
-    // other fields here
-  ];
 
   useEffect(() => {
     if (isOpen) {
@@ -107,18 +96,17 @@ const Modal = ({ isOpen, handleClose, employeeData }) => {
         <h3 className="text-md font-semibold text-blue-500 mb-4">Submitted Form Details</h3>
 
         <form onSubmit={handleSubmit}>
-          {fields.map((field) => (
+          {formSchema.data && formSchema.data.map((field) => (
             <div className="mb-4" key={field.name}>
               <label className="block text-gray-700 mb-1">{field.placeholder}</label>
               <input
                 type={field.type}
                 name={field.name}
-                placeholder={field.placeholder}
                 value={formData[field.name] || ""}
                 onChange={handleChange}
                 required={field.required}
-                disabled
                 className="w-full px-3 py-2 border rounded"
+                disabled={field.type === "checkbox"}
               />
             </div>
           ))}

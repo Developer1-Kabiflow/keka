@@ -39,12 +39,10 @@ const EmployeeNewRequest = ({ requests, formTemplates }) => {
         return (
           <div className="p-4 bg-white w-[100%]">
             {links.map((link, index) => (
-              <Link key={index} href={link.path}>
-                <a className="font-semibold">
-                  <p className="bg-green-100 p-2 rounded-md hover:bg-green-200 mb-2 ">
-                    {link.text}
-                  </p>
-                </a>
+              <Link key={index} href={link.path} className="font-semibold">
+                <p className="bg-green-100 p-2 rounded-md hover:bg-green-200 mb-2">
+                  {link.text}
+                </p>
               </Link>
             ))}
           </div>
@@ -142,22 +140,20 @@ const EmployeeNewRequest = ({ requests, formTemplates }) => {
             {/* Tab navigation */}
             <ul className="flex flex-wrap text-sm font-medium text-center text-gray-500 border-b border-gray-200 dark:border-gray-700 dark:text-gray-400">
               <li className="me-2">
-                <a
-                  href="#"
+                <button
                   onClick={() => setActiveTab("New Request")}
                   className={`inline-block p-4 rounded-t-lg ${activeTab === "New Request" ? "text-blue-600 bg-white" : "hover:text-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800 dark:hover:text-gray-300"}`}
                 >
                   New Request
-                </a>
+                </button>
               </li>
               <li className="me-2">
-                <a
-                  href="#"
+                <button
                   onClick={() => setActiveTab("Track Request")}
                   className={`inline-block p-4 rounded-t-lg ${activeTab === "Track Request" ? "text-blue-600 bg-white" : "hover:text-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800 dark:hover:text-gray-300"}`}
                 >
                   Track Request
-                </a>
+                </button>
               </li>
             </ul>
 
@@ -172,7 +168,6 @@ const EmployeeNewRequest = ({ requests, formTemplates }) => {
     </div>
   );
 };
-
 
 export async function getServerSideProps() {
   const employeeId = "12345"; 

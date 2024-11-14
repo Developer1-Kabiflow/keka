@@ -20,7 +20,7 @@ export default function CompletedProgressStepsContainer () {
   ];
 
   const handleNext = () => {
-    setActiveStep((prevActiveStep) => Math.min(prevActiveStep + 1, steps.length));
+    setActiveStep((prevActiveStep) => Math.min(prevActiveStep + 1, steps.length - 1));
   };
 
   const handleBack = () => {
@@ -35,12 +35,13 @@ export default function CompletedProgressStepsContainer () {
     <Box sx={{ width: '100%' }}>
       <Stepper activeStep={activeStep} alternativeLabel>
         {steps.map((label, index) => (
-          <Step key={label} completed={index < activeStep}>
+          <Step key={label} completed={index <= activeStep}>
             <StepLabel>
-              {label} {index < 3 && (
+              {label} 
+              {index < 3 && (
                 <Typography variant="caption" color="primary">
                   <p>Approved</p>
-                  <p>{employee[index]?.name}</p>
+                  <p>{employee[index]?.name || 'N/A'}</p>
                 </Typography>
               )}
             </StepLabel>
@@ -48,7 +49,7 @@ export default function CompletedProgressStepsContainer () {
             {index === steps.length - 1 && (
               <Typography variant="caption" color="primary">
                 <p className="ml-[65px]">Completed</p>
-                <p className="ml-[65px]">{employee[index]?.name}</p>
+                <p className="ml-[65px]">{employee[index]?.name || 'N/A'}</p>
               </Typography>
             )}
           </Step>

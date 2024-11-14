@@ -1,7 +1,7 @@
-'use client'
+'use client';
 import React, { useState, useEffect } from "react";
 import EmployeeSidebar from "../EmployeeSidebarPage/EmployeeSidebar";
-import Link from "next/link"; 
+import Link from "next/link";
 import Modal from "./Modal";
 import axios from "axios";
 import BASE_URL from "@/utils/utils";
@@ -16,8 +16,7 @@ const EmployeeBankRequest = () => {
   const [activeTab, setActiveTab] = useState("New Request");
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [selectedTask, setSelectedTask] = useState(null);
-  const [isModalOpen, setIsModalOpen] = useState(false); 
-  const [selectedRequestId, setSelectedRequestId] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const [links] = useState([
     { text: "Bank", path: "/employee/bankRequest" },
@@ -40,8 +39,6 @@ const EmployeeBankRequest = () => {
         const { requests, formTemplates } = response.data;
         setRequestData(requests);
         setFormTemplateData(formTemplates);
-
-        console.log("requests: ", requests, "formTemplates: ", formTemplates);
         setLoading(false);
       } catch (error) {
         console.error("Error fetching request data:", error);
@@ -54,10 +51,11 @@ const EmployeeBankRequest = () => {
   }, []);
 
   const handleModalToggle = () => {
-    setIsModalOpen(!isModalOpen); 
+    setIsModalOpen(!isModalOpen);
   };
 
-  const openViewModal = () => {
+  const openViewModal = (requestId) => {
+    setSelectedTask(requestId);
     setIsViewModalOpen(true);
   };
 
@@ -152,9 +150,7 @@ const EmployeeBankRequest = () => {
           }`}
         />
         <div
-          className={`h-1 w-8 bg-blue-600 mb-1 ${
-            isSidebarOpen ? "opacity-0" : ""
-          }`}
+          className={`h-1 w-8 bg-blue-600 mb-1 ${isSidebarOpen ? "opacity-0" : ""}`}
         />
         <div
           className={`h-1 w-8 bg-blue-600 mt-1 transition-transform ${

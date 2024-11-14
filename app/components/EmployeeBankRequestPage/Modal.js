@@ -17,18 +17,25 @@ const Modal = ({ isOpen, handleClose, employeeData }) => {
       axios
         .get(`${BASE_URL}/template/fetchForm/${formId}`)
         .then((response) => {
+          console.log("Form Schema Data:", response.data); // Debug the response
           setFormSchema(response.data);
           setFormType(response.data.formType);
 
           const initialData = response.data.data.reduce((acc, field) => {
-            acc[field.name] = field.type === "checkbox" ? [] : "";
+            // Initialize formData based on the field type
+            if (field.type === "checkbox") {
+              acc[field.name] = [];
+            } else {
+              acc[field.name] = "";
+            }
             return acc;
           }, {});
-          
+
           setFormData(initialData);
           setLoading(false);
         })
         .catch((err) => {
+          console.error("Error fetching form data:", err);
           setError(err.message);
           setLoading(false);
         });
@@ -60,14 +67,18 @@ const Modal = ({ isOpen, handleClose, employeeData }) => {
   const handleSubmit = (e) => {
     e.preventDefault();
 
+    // Build the submitted data
     const submittedData = formSchema.data.reduce((acc, field) => {
       acc[field.name] = formData[field.name];
       return acc;
     }, {});
 
-    submittedData.employeeId = "12345";
-    submittedData.employeeName = "John Doe";
+    submittedData.employeeId = employeeData?.employeeId || "12345"; // Ensure employeeId is passed correctly
+    submittedData.employeeName = employeeData?.employeeName || "John Doe"; // Ensure employeeName is passed correctly
 
+    console.log("Submitted Data:", submittedData);
+
+    // Submit the form data
     axios
       .post(`${BASE_URL}/request/addRequest/${formId}`, submittedData)
       .then((response) => {
@@ -135,11 +146,11 @@ const Modal = ({ isOpen, handleClose, employeeData }) => {
                     type={field.type}
                     name={field.name}
                     placeholder={field.placeholder}
-                    value={formData[field.name]}
+                    value={formData[field.name] || ""}
                     onChange={handleChange}
                     required={field.required}
                     disabled={
-                      field.name === "employeeId" || field.name === "employeeName"
+                      ["employeeId", "employeeName"].includes(field.name)
                     }
                     className="w-full px-3 py-2 border rounded"
                   />

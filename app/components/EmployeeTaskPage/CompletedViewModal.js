@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import BASE_URL from "@/utils/utils";  // Ensure the URL is correctly configured for Next.js
-import CompletedProgressStepsContainer from "./CompletedProgressStepsContainer "; // Ensure this component exists
+import CompletedProgressStepsContainer from "./CompletedProgressStepsContainer ";
 
 const ViewModal = ({
   isOpen,

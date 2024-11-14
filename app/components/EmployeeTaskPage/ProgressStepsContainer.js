@@ -28,11 +28,12 @@ export default function ProgressStepsContainer() {
 
   return (
     <Box sx={{ width: '100%' }}>
-      <Stepper activeStep={activeStep + 2}>
+      <Stepper activeStep={activeStep}>
         {steps.map((label, index) => (
           <Step key={label}>
             <StepLabel>
-              {label} {index < 2 && (
+              {label} 
+              {index < 2 && (
                 <Typography variant="caption" color="primary">
                   <p>Approved</p>
                   <p>{employee[index]?.name}</p>
@@ -42,6 +43,7 @@ export default function ProgressStepsContainer() {
           </Step>
         ))}
       </Stepper>
+
       {activeStep === steps.length ? (
         <React.Fragment>
           <Typography sx={{ mt: 2, mb: 1 }}>
@@ -61,16 +63,13 @@ export default function ProgressStepsContainer() {
               onClick={handleBack}
               sx={{ mr: 1 }}
             >
-               {/* Back */}
+              Back
             </Button>
             <Box sx={{ flex: '1 1 auto' }} />
             <Button onClick={handleNext}>
-              {/* {activeStep === steps.length - 1 ? 'Finish' : 'Next'} */}
+              {activeStep === steps.length - 1 ? 'Finish' : 'Next'}
             </Button>
           </Box>
-          <Typography sx={{ mt: 2, mb: 1, textAlign: 'center' }}>
-            {activeStep > 0 ? `Step ${activeStep + 1} is finished` : ''}
-          </Typography>
         </React.Fragment>
       )}
     </Box>
