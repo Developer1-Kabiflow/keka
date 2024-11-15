@@ -25,13 +25,41 @@ const EmployeeNewRequest = ({ requests, formTemplates }) => {
   };
 
   const openViewModal = (task) => {
-    setSelectedTask(task);
+    //setSelectedTask(task);
     setIsViewModalOpen(true);
   };
 
   const closeViewModal = () => {
     setIsViewModalOpen(false);
   };
+  useEffect(() => {
+    const fetchRequestData = async () => {
+      try {
+        const employeeId = "12345";
+        const response = await axios.get(
+          `${BASE_URL}/trackRequest/myRequest/${employeeId}`
+        );
+        const { requests, formTemplates } = response.data;
+        setRequestData(requests);
+        setFormTemplateData(formTemplates);
+
+        console.log("requests: ", requests, "formTemplates: ", formTemplates);
+
+        setLoading(false);
+      } catch (error) {
+        console.error("Error fetching request data:", error);
+        setError(error.message);
+        setLoading(false);
+      }
+    };
+
+    fetchRequestData();
+  }, []);
+
+  useEffect(() => {
+    console.log("Updated request data:", requestData);
+  }, [requestData]);
+
 
   const renderContent = () => {
     switch (activeTab) {
