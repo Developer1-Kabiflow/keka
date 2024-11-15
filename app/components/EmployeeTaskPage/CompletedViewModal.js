@@ -75,23 +75,24 @@ const ViewModal = ({
 
   useEffect(() => {
     if (isOpen) {
-      axios
-        .get(`${BASE_URL}/template/fetchForm/${formTemplateId}`)
-        .then((response) => {
-          setFormSchema(response.data); 
-          setFormType(response.data.formType);
-          const initialData = response.data.data.reduce((acc, field) => {
-            acc[field.name] = field.type === "checkbox" ? [] : "";
-            return acc;
-          }, {});
+    //   axios
+    //     .get(`${BASE_URL}/template/fetchForm/${formTemplateId}`)
+    //     .then((response) => {
+    //       setFormSchema(response.data); 
+    //       setFormType(response.data.formType);
+    //       const initialData = response.data.data.reduce((acc, field) => {
+    //         acc[field.name] = field.type === "checkbox" ? [] : "";
+    //         return acc;
+    //       }, {});
 
-          setFormData(initialData);
-          setLoading(false);
-        })
-        .catch((err) => {
-          setError(err.message);
-          setLoading(false);
-        });
+    //       setFormData(initialData);
+    //       setLoading(false);
+    //     })
+    //     .catch((err) => {
+    //       setError(err.message);
+    //       setLoading(false);
+    //     });
+    
     }
   }, [isOpen, formTemplateId]);
 
@@ -140,16 +141,16 @@ const ViewModal = ({
     submittedData.employeeId = "12345";
     submittedData.employeeName = "John Doe";
 
-    axios
-      .post(`${BASE_URL}/request/addRequest/${taskId}`, submittedData)
-      .then((response) => {
-        console.log("Form submitted successfully:", response.data);
-        handleClose(); 
-      })
-      .catch((err) => {
-        console.error("Error submitting form:", err);
-        setError("Failed to submit the form. Please try again.");
-      });
+    // axios
+    //   .post(`${BASE_URL}/request/addRequest/${taskId}`, submittedData)
+    //   .then((response) => {
+    //     console.log("Form submitted successfully:", response.data);
+    //     handleClose(); 
+    //   })
+    //   .catch((err) => {
+    //     console.error("Error submitting form:", err);
+    //     setError("Failed to submit the form. Please try again.");
+    //   });
   };
 
   if (!isOpen) return null;
@@ -173,13 +174,64 @@ const ViewModal = ({
         <div className="mt-4">
           <h2 className="text-xl font-semibold mb-4 text-blue-500">Submitted Form Details</h2>
           <form onSubmit={handleSubmit}>
+            {/* {Array.isArray(formSchema.data) &&
+            formSchema.data.map((field) => (
+              <div className="mb-4" key={field.name}>
+                <label className="block text-gray-700">{field.label}:</label>
+                {field.type === "radio" ? (
+                  field.options.map((option) => (
+                    <div key={option} className="flex items-center mb-2">
+                      <input
+                        type="radio"
+                        name={field.name}
+                        value={option}
+                        checked={formData[field.name] === option}
+                        onChange={handleChange}
+                        required={field.required}
+                        className="mr-2"
+                      />
+                      <label className="text-gray-700">{option}</label>
+                    </div>
+                  ))
+                ) : field.type === "checkbox" ? (
+                  field.options.map((option) => (
+                    <div key={option} className="flex items-center mb-2">
+                      <input
+                        type="checkbox"
+                        name={field.name}
+                        value={option}
+                        checked={formData[field.name].includes(option)}
+                        onChange={handleChange}
+                        className="mr-2"
+                      />
+                      <label className="text-gray-700">{option}</label>
+                    </div>
+                  ))
+                ) : (
+                  <input
+                    type={field.type}
+                    name={field.name}
+                    placeholder={field.placeholder}
+                    value={formData[field.name]}
+                    onChange={handleChange}
+                    required={field.required}
+                    disabled
+                    // ={
+                    //   field.name === "employeeId" || field.name === "employeeName"
+                    // }
+                    className="w-full px-3 py-2 border rounded"
+                  />
+                )}
+              </div>
+            ))} */}
             {fields.map((field) => (
               <div className="mb-4" key={field.name}>
                 <label className="block text-gray-700">{field.placeholder}:</label>
                 <input
+                 key={field.name}
                   type={field.type}
                   name={field.name}
-                  placeholder={field.placeholder}
+                  placeholder={field.value}
                   value={formData[field.name] || ""}
                   onChange={handleChange}
                   required={field.required}
@@ -188,6 +240,21 @@ const ViewModal = ({
                 />
               </div>
             ))}
+              {/* <div className="flex justify-between mr-48 ml-48">
+              <button
+                type="submit"
+                className="mt-4 px-4 py-2 w-24 bg-green-500 text-white rounded"
+              >
+                Approve
+              </button>
+              <button
+                type="button"
+                onClick={handleRejectClick}
+                className="mt-4 px-4 py-2 w-24 bg-red-500 text-white rounded"
+              >
+                Reject
+              </button>
+            </div> */}
             <div className="flex justify-center">
               {showRejectTextbox && (
                 <div className="flex flex-col items-center mt-4 w-3/4">

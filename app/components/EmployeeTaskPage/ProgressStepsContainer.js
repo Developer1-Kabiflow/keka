@@ -63,11 +63,11 @@ export default function ProgressStepsContainer() {
               onClick={handleBack}
               sx={{ mr: 1 }}
             >
-              Back
+              {/* Back */}
             </Button>
             <Box sx={{ flex: '1 1 auto' }} />
             <Button onClick={handleNext}>
-              {activeStep === steps.length - 1 ? 'Finish' : 'Next'}
+              {/* {activeStep === steps.length - 1 ? 'Finish' : 'Next'} */}
             </Button>
           </Box>
         </React.Fragment>
