@@ -1,15 +1,18 @@
 "use client";
+
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import axios from "axios";
 import BASE_URL from "@/utils/utils";
-import EmployeeSidebar from "../../components/EmployeeSidebarPage/EmployeeSidebar";
-import ViewModal from "../../components/EmployeeBankRequestPage/ViewModal";
+import ViewModal from "../EmployeeBankRequestPage/ViewModal";
+import EmployeeSidebar from "../EmployeeSidebarPage/EmployeeSidebar";
 
-const EmployeeNewRequest = ({ requests, formTemplates }) => {
+const EmployeeTaskPage = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [requestData, setRequestData] = useState(requests || []);
-  const [formTemplateData, setFormTemplateData] = useState(formTemplates || []);
+  const [requestData, setRequestData] = useState([]);
+  const [formTemplateData, setFormTemplateData] = useState([]);
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("New Request");
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [selectedTask, setSelectedTask] = useState(null);
@@ -24,14 +27,6 @@ const EmployeeNewRequest = ({ requests, formTemplates }) => {
     setIsSidebarOpen(!isSidebarOpen);
   };
 
-  const openViewModal = (task) => {
-    //setSelectedTask(task);
-    setIsViewModalOpen(true);
-  };
-
-  const closeViewModal = () => {
-    setIsViewModalOpen(false);
-  };
   useEffect(() => {
     const fetchRequestData = async () => {
       try {
@@ -56,19 +51,23 @@ const EmployeeNewRequest = ({ requests, formTemplates }) => {
     fetchRequestData();
   }, []);
 
-  useEffect(() => {
-    console.log("Updated request data:", requestData);
-  }, [requestData]);
+  const openViewModal = (task) => {
+    setSelectedTask(task);
+    setIsViewModalOpen(true);
+  };
 
+  const closeViewModal = () => {
+    setIsViewModalOpen(false);
+  };
 
   const renderContent = () => {
     switch (activeTab) {
       case "New Request":
         return (
-          <div className="p-4 bg-white w-[100%]">
+          <div className="p-4 bg-white w-full">
             {links.map((link, index) => (
-              <Link key={index} href={link.path} className="font-semibold">
-                <p className="bg-green-100 p-2 rounded-md hover:bg-green-200 mb-2">
+              <Link key={index} className="font-semibold" href={link.path}>
+                <p className="bg-green-100 p-2 rounded-md hover:bg-green-200 cursor-pointer mb-2">
                   {link.text}
                 </p>
               </Link>
@@ -89,7 +88,7 @@ const EmployeeNewRequest = ({ requests, formTemplates }) => {
                 </tr>
               </thead>
               <tbody>
-                {requestData.length > 0 ? (
+                {requestData && requestData.length > 0 ? (
                   requestData.map((request, index) => {
                     const formTemplate = formTemplateData.find(
                       (template) => template._id === request.formTemplateId
@@ -102,7 +101,9 @@ const EmployeeNewRequest = ({ requests, formTemplates }) => {
                           {formTemplate ? formTemplate.templateName : "N/A"}
                         </td>
                         <td className="border px-4 py-2">
-                          {new Date(request.submittedDate || request.created_at).toLocaleString()}
+                          {new Date(
+                            request.submittedDate || request.created_at
+                          ).toLocaleString()}
                         </td>
                         <td className="border px-4 py-2">
                           {request.current_status || "Pending"}
@@ -142,16 +143,26 @@ const EmployeeNewRequest = ({ requests, formTemplates }) => {
         aria-label={isSidebarOpen ? "Close Sidebar" : "Open Sidebar"}
       >
         <div
-          className={`h-1 w-8 bg-blue-600 mb-1 transition-transform ${isSidebarOpen ? "rotate-45" : ""}`}
+          className={`h-1 w-8 bg-blue-600 mb-1 transition-transform ${
+            isSidebarOpen ? "rotate-45" : ""
+          }`}
         />
-        <div className={`h-1 w-8 bg-blue-600 mb-1 ${isSidebarOpen ? "opacity-0" : ""}`} />
         <div
-          className={`h-1 w-8 bg-blue-600 mt-1 transition-transform ${isSidebarOpen ? "-rotate-45" : ""}`}
+          className={`h-1 w-8 bg-blue-600 mb-1 ${
+            isSidebarOpen ? "opacity-0" : ""
+          }`}
+        />
+        <div
+          className={`h-1 w-8 bg-blue-600 mt-1 transition-transform ${
+            isSidebarOpen ? "-rotate-45" : ""
+          }`}
         />
       </button>
 
       <div
-        className={`fixed inset-0 z-40 md:hidden bg-gray-800 bg-opacity-75 ${isSidebarOpen ? "block" : "hidden"}`}
+        className={`fixed inset-0 z-40 md:hidden bg-gray-800 bg-opacity-75 ${
+          isSidebarOpen ? "block" : "hidden"
+        }`}
       >
         <EmployeeSidebar closeSidebar={toggleSidebar} />
       </div>
@@ -161,52 +172,49 @@ const EmployeeNewRequest = ({ requests, formTemplates }) => {
       </div>
 
       <div
-        className={`flex-1 p-6 bg-gray-100 transition-all duration-300 ${isSidebarOpen ? "ml-0" : "md:ml-0"}`}
+        className={`flex-1 p-6 bg-gray-100 transition-all duration-300 ${
+          isSidebarOpen ? "ml-0" : "md:ml-0"
+        }`}
       >
         <div className="container mx-auto px-4">
-          <div>
-            {/* Tab navigation */}
-            <ul className="flex flex-wrap text-sm font-medium text-center text-gray-500 border-b border-gray-200 dark:border-gray-700 dark:text-gray-400">
-              <li className="me-2">
-                <button
-                  onClick={() => setActiveTab("New Request")}
-                  className={`inline-block p-4 rounded-t-lg ${activeTab === "New Request" ? "text-blue-600 bg-white" : "hover:text-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800 dark:hover:text-gray-300"}`}
-                >
-                  New Request
-                </button>
-              </li>
-              <li className="me-2">
-                <button
-                  onClick={() => setActiveTab("Track Request")}
-                  className={`inline-block p-4 rounded-t-lg ${activeTab === "Track Request" ? "text-blue-600 bg-white" : "hover:text-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800 dark:hover:text-gray-300"}`}
-                >
-                  Track Request
-                </button>
-              </li>
-            </ul>
-
-            {/* Content area */}
-            <div className="flex bg-white shadow-lg mt-4 rounded-lg justify-between">
-              <div className="w-full">{renderContent()}</div>
-            </div>
+          <ul className="flex flex-wrap text-sm font-medium text-center text-gray-500 border-b border-gray-200">
+            <li className="me-2">
+              <button
+                onClick={() => setActiveTab("New Request")}
+                className={`inline-block p-4 rounded-t-lg ${
+                  activeTab === "New Request"
+                    ? "text-blue-600 bg-white"
+                    : "hover:text-gray-600 hover:bg-gray-50"
+                }`}
+              >
+                New Request
+              </button>
+            </li>
+            <li className="me-2">
+              <button
+                onClick={() => setActiveTab("Track Request")}
+                className={`inline-block p-4 rounded-t-lg ${
+                  activeTab === "Track Request"
+                    ? "text-blue-600 bg-white"
+                    : "hover:text-gray-600 hover:bg-gray-50"
+                }`}
+              >
+                Track Request
+              </button>
+            </li>
+          </ul>
+          <div className="flex bg-white shadow-lg mt-4 rounded-lg justify-between">
+            <div className="w-full">{renderContent()}</div>
           </div>
         </div>
       </div>
-      <ViewModal isOpen={isViewModalOpen} handleClose={closeViewModal} task={selectedTask} />
+      <ViewModal
+        isOpen={isViewModalOpen}
+        handleClose={closeViewModal}
+        task={selectedTask}
+      />
     </div>
   );
 };
 
-export async function getServerSideProps() {
-  const employeeId = "12345"; 
-  try {
-    const response = await axios.get(`${BASE_URL}/trackRequest/myRequest/${employeeId}`);
-    const { requests, formTemplates } = response.data;
-    return { props: { requests, formTemplates } };
-  } catch (error) {
-    console.error("Error fetching request data:", error);
-    return { props: { requests: [], formTemplates: [] } };
-  }
-}
-
-export default EmployeeNewRequest;
+export default EmployeeTaskPage;
