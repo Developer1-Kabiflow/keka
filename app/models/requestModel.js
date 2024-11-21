@@ -1,6 +1,7 @@
 import axios from "axios";
 import BASE_URL from "@/utils/utils";
 
+// Fetch all requests for an employee (Server-side or Client-side based on usage)
 export const fetchAllRequests = async (employeeId) => {
   try {
     const response = await axios.get(`${BASE_URL}/trackRequest/myRequest/${employeeId}`);

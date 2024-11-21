@@ -1,5 +1,4 @@
-"use client";
-
+'use client';
 const LoadingSpinner = () => {
   return (
     <div className="flex justify-center items-center h-full">

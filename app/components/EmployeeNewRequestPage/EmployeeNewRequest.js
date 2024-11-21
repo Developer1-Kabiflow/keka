@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import axios from "axios";
 import BASE_URL from "@/utils/utils";
-import ViewModal from "../EmployeeBankRequestPage/Model";
+import ViewModal from "../EmployeeBankRequestPage/ViewModal";
 import EmployeeSidebar from "../EmployeeSidebarPage/EmployeeSidebar";
 
 const EmployeeNewRequest = () => {
@@ -15,7 +15,7 @@ const EmployeeNewRequest = () => {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("New Request");
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
-  const [selectedTask, setSelectedTask] = useState(null);
+  const [SelectedRequestId, setSelectedRequestId] = useState(null);
   const [links] = useState([
     { text: "Bank", path: "/employee/bankRequest" },
     { text: "Address", path: "/employee/bankRequest" },
@@ -51,15 +51,15 @@ const EmployeeNewRequest = () => {
     fetchRequestData();
   }, []);
 
-  const openViewModal = (task) => {
-    setSelectedTask(task);
+  const openViewModal = (requestId) => {
+    setSelectedRequestId(requestId);
     setIsViewModalOpen(true);
   };
 
   const closeViewModal = () => {
     setIsViewModalOpen(false);
+    setSelectedRequestId(null);
   };
-
   const renderContent = () => {
     switch (activeTab) {
       case "New Request":
@@ -211,8 +211,9 @@ const EmployeeNewRequest = () => {
       <ViewModal
         isOpen={isViewModalOpen}
         handleClose={closeViewModal}
-        task={selectedTask}
+        requestId={SelectedRequestId}
       />
+     
     </div>
   );
 };

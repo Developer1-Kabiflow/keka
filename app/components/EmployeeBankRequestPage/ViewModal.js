@@ -1,43 +1,15 @@
 'use client';
 import React, { useState, useEffect } from "react";
 import ProgressStepsContainer from "./ProgressStepsContainer";
-import { getMyFormData, getProcessedFormSchema } from "@/app/controllers/formController";
+import { getMyFormData } from "@/app/controllers/formController";
 const ViewModal = ({ isOpen, handleClose, requestId }) => {
-  const [formSchema, setFormSchema] = useState({});
+
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [formData, setFormData] = useState({});
-  const [formType, setFormType] = useState("");
    const [approvalData,setApprovalData] = useState({});
-   const formId = "671735d9d058568c8258da76";
+
  console.log("requestId:", requestId);
-  // useEffect(() => {
-  //   if (isOpen) {
-  //     const fetchFormSchema = async () => {
-  //       try {
-  //         // Call `getProcessedFormSchema` to fetch and process the form schema
-  //         const { formSchema, formType, initialData } = await getProcessedFormSchema(formId);
-
-  //         // Update state variables with the processed data
-  //         setFormSchema(formSchema);
-  //         setFormType(formType);
-  //         setFormData(initialData);
-      
-  //         setError(null); // Clear any previous errors
-  //       } catch (err) {
-  //         console.error("Error fetching and processing form schema:", err.message);
-      
-  //         // Set a user-friendly error message
-  //         setError("Failed to load form schema. Please try again.");
-  //       } finally {
-  //         // Mark loading as complete regardless of success or failure
-  //         setLoading(false);
-  //       }
-  //     }
-  //     fetchFormSchema();
-  //   }
-  // }, [isOpen]);
-
   useEffect(() => {
     if (requestId) {
       setLoading(true);

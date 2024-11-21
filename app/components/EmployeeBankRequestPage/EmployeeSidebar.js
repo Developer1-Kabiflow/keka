@@ -1,5 +1,4 @@
-"use client";
-
+'use client';
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import EmployeeSidebar from "../EmployeeSidebarPage/EmployeeSidebar";
@@ -7,6 +6,7 @@ import Modal from "./Model";
 import axios from "axios";
 import ViewModal from "./ViewModal";
 import BASE_URL from "@/utils/utils";
+import { fetchEmployeeRequests } from "@/app/controllers/requestController";
 
 const EmployeeBankRequest = () => {
   const [requestData, setRequestData] = useState([]);
@@ -33,11 +33,8 @@ const EmployeeBankRequest = () => {
   useEffect(() => {
     const fetchRequestData = async () => {
       try {
-        const employeeId = "12345";
-        const response = await axios.get(
-          `${BASE_URL}/trackRequest/myRequest/${employeeId}`
-        );
-        const { requests, formTemplates } = response.data;
+        const employeeId = "12345"; // Replace this with a dynamic value
+        const { requests, formTemplates } = await fetchEmployeeRequests(employeeId);
         setRequestData(requests);
         setFormTemplateData(formTemplates);
         setLoading(false);
@@ -46,6 +43,7 @@ const EmployeeBankRequest = () => {
         setError(error.message);
         setLoading(false);
       }
+    
     };
     fetchRequestData();
   }, []);
