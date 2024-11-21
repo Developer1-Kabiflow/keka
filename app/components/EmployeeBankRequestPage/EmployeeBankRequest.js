@@ -2,10 +2,9 @@
 import React, { useState, useEffect } from "react";
 import EmployeeSidebar from "../EmployeeSidebarPage/EmployeeSidebar";
 import Link from "next/link";
-import Modal from "./Modal";
-import axios from "axios";
-import BASE_URL from "@/utils/utils";
+import Modal from "./Model";
 import ViewModal from "./ViewModal";
+import { fetchEmployeeRequests } from "@/app/controllers/requestController";
 
 const EmployeeBankRequest = () => {
   const [requestData, setRequestData] = useState([]);
@@ -15,7 +14,7 @@ const EmployeeBankRequest = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("New Request");
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
-  const [selectedTask, setSelectedTask] = useState(null);
+  const [SelectedRequestId, setSelectedRequestId] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const [links] = useState([
@@ -30,13 +29,10 @@ const EmployeeBankRequest = () => {
   };
 
   useEffect(() => {
-    const fetchRequestData = async () => {
+    const loadRequestData = async () => {
       try {
-        const employeeId = "12345";
-        const response = await axios.get(
-          `${BASE_URL}/trackRequest/myRequest/${employeeId}`
-        );
-        const { requests, formTemplates } = response.data;
+        const employeeId = "12345"; // Replace this with a dynamic value
+        const { requests, formTemplates } = await fetchEmployeeRequests(employeeId);
         setRequestData(requests);
         setFormTemplateData(formTemplates);
         setLoading(false);
@@ -47,7 +43,7 @@ const EmployeeBankRequest = () => {
       }
     };
 
-    fetchRequestData();
+    loadRequestData();
   }, []);
 
   const handleModalToggle = () => {
@@ -55,12 +51,13 @@ const EmployeeBankRequest = () => {
   };
 
   const openViewModal = (requestId) => {
-    setSelectedTask(requestId);
+    setSelectedRequestId(requestId);
     setIsViewModalOpen(true);
   };
 
   const closeViewModal = () => {
     setIsViewModalOpen(false);
+    setSelectedRequestId(null);
   };
 
   const renderContent = () => {
@@ -115,7 +112,7 @@ const EmployeeBankRequest = () => {
                             className="text-blue-500 hover:underline"
                             onClick={() => openViewModal(request._id)}
                           >
-                            View
+                            View 
                           </button>
                         </td>
                       </tr>
@@ -229,7 +226,7 @@ const EmployeeBankRequest = () => {
       <ViewModal
         isOpen={isViewModalOpen}
         handleClose={closeViewModal}
-        selectedTask={selectedTask}
+        requestId={SelectedRequestId}
       />
     </div>
   );

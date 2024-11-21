@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import EmployeeSidebar from "../EmployeeSidebarPage/EmployeeSidebar";
-import Modal from "./Modal";
+import Modal from "./Model";
 import axios from "axios";
 import ViewModal from "./ViewModal";
 import BASE_URL from "@/utils/utils";

@@ -4,10 +4,10 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import axios from "axios";
 import BASE_URL from "@/utils/utils";
-import ViewModal from "../EmployeeBankRequestPage/ViewModal";
+import ViewModal from "../EmployeeBankRequestPage/Model";
 import EmployeeSidebar from "../EmployeeSidebarPage/EmployeeSidebar";
 
-const EmployeeTaskPage = () => {
+const EmployeeNewRequest = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [requestData, setRequestData] = useState([]);
   const [formTemplateData, setFormTemplateData] = useState([]);
@@ -217,4 +217,4 @@ const EmployeeTaskPage = () => {
   );
 };
 
-export default EmployeeTaskPage;
+export default EmployeeNewRequest;

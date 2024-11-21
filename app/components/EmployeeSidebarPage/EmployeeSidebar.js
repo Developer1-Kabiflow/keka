@@ -19,6 +19,7 @@ const EmployeeSidebar = ({ closeSidebar }) => {
               src="/1.jpg"
               alt="profile_pic"
               className="w-16 h-16 rounded-full mt-4"
+              priority 
               width={64}
               height={64}
             />

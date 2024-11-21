@@ -1,14 +1,14 @@
 import React from "react";
 import Navbar from "@/app/components/NavbarPage/Navbar";
-import EmployeeNewRequest from "@/app/components/EmployeeNewRequestPage/EmployeeNewRequest";
+import EmployeeBankRequest from "@/app/components/EmployeeBankRequestPage/EmployeeBankRequest";
 
-const EmployeeNewRequestPage = () => {
+const EmployeeBankRequestPage = () => {
   return (
     <div>
       <Navbar />
-      <EmployeeNewRequest />
+      <EmployeeBankRequest />
     </div>
   );
 };
 
-export default EmployeeNewRequestPage;
+export default EmployeeBankRequestPage;

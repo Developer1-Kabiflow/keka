@@ -10,8 +10,9 @@ import Typography from '@mui/material/Typography';
 
 const steps = ['Step 1', 'Step 2', 'Step 3', 'Step 4'];
 
-export default function ProgressStepsContainer() {
+export default function ProgressStepsContainer({approvalData}) {
   const [activeStep, setActiveStep] = useState(0);
+  console.log(approvalData)
   const employee = [{ name: 'Employee 1' }, { name: 'Employee 2' }, { name: 'Employee 3' }];
 
   const handleNext = () => {
@@ -29,19 +30,28 @@ export default function ProgressStepsContainer() {
   return (
     <Box sx={{ width: '100%' }}>
       <Stepper activeStep={activeStep}>
-        {steps.map((label, index) => (
-          <Step key={label}>
-            <StepLabel>
-              {label} {index < 3 && (
-                <Typography variant="caption" color="primary">
-                  <p>Approved</p>
-                  <p>{employee[index].name}</p>
-                </Typography>
-              )}
-            </StepLabel>
-          </Step>
-        ))}
-      </Stepper>
+  {steps.map((label, index) => (
+    <Step key={label}>
+      <StepLabel>
+        {label}
+        {approvalData?.approval_step?.[index]?.approval_list?.length >
+              0 ? (
+                approvalData.approval_step[index].approval_list.map(
+                  (approval, i) => (
+                    <Typography variant="caption" color="primary" key={i}>
+                    <p>Approvers: {approval.employee_id}</p>
+                  </Typography>
+          ))
+        ) : (
+          <Typography variant="caption" color="textSecondary">
+            <p>No approvers available</p>
+          </Typography>
+        )}
+      </StepLabel>
+    </Step>
+  ))}
+</Stepper>
+
       {activeStep === steps.length ? (
         <React.Fragment>
           <Typography sx={{ mt: 2, mb: 1 }}>
