@@ -5,6 +5,7 @@ import Link from "next/link";
 import ViewModal from "../EmployeeBankRequestPage/ViewModal";
 import EmployeeSidebar from "../EmployeeSidebarPage/EmployeeSidebar";
 import { fetchEmployeeRequests } from "@/app/controllers/employeeController";
+import { fetchCategoryList } from "@/app/controllers/categoryController";
 
 const EmployeeNewRequest = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -15,13 +16,13 @@ const EmployeeNewRequest = () => {
   const [activeTab, setActiveTab] = useState("New Request");
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [SelectedRequestId, setSelectedRequestId] = useState(null);
+  const [category, setCategory] = useState([]);
   const [links] = useState([
-    { text: "Bank", path: "/employee/bankRequest" },
-    { text: "Address", path: "/employee/bankRequest" },
-    { text: "Payment", path: "/employee/bankRequest" },
-    { text: "Leave", path: "/employee/bankRequest" },
+    { path: "/employee/bankRequest", label: "Bank" },
+    { path: "/employee/addressRequest", label: "Address Change" },
+    { path: "/employee/medicalInsuranceRequest", label: "Medical Insurance" },
+    { path: "/employee/visaRequest", label: "Visa" },
   ]);
-
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
   };
@@ -29,11 +30,15 @@ const EmployeeNewRequest = () => {
   useEffect(() => {
     const fetchRequestData = async () => {
       try {
-        const employeeId = "12345"; // Replace this with a dynamic value
-        const { requests, formTemplates } = await fetchEmployeeRequests(employeeId);
+        const employeeId = "12345";
+        const { requests, formTemplates } = await fetchEmployeeRequests(
+          employeeId
+        );
         setRequestData(requests.employee_request_list);
         setFormTemplateData(formTemplates);
         setLoading(false);
+
+        console.log("requestData: ", requestData);
       } catch (error) {
         console.error("Error fetching request data:", error);
         setError(error.message);
@@ -42,6 +47,23 @@ const EmployeeNewRequest = () => {
     };
 
     fetchRequestData();
+  }, []);
+
+  useEffect(() => {
+    const fetchCategoryData = async () => {
+      try {
+        const categoryList = await fetchCategoryList();
+        console.log("Category List:", categoryList.category); // This should now be an array
+        setCategory(categoryList.category); // Set the array into state
+        setLoading(false);
+      } catch (error) {
+        console.error("Error fetching category data:", error.message);
+        setError(error.message);
+        setLoading(false);
+      }
+    };
+
+    fetchCategoryData();
   }, []);
 
   const openViewModal = (requestId) => {
@@ -58,13 +80,30 @@ const EmployeeNewRequest = () => {
       case "New Request":
         return (
           <div className="p-4 bg-white w-full">
-            {links.map((link, index) => (
-              <Link key={index} className="font-semibold" href={link.path}>
-                <p className="bg-green-100 p-2 rounded-md hover:bg-green-200 cursor-pointer mb-2">
-                  {link.text}
-                </p>
-              </Link>
-            ))}
+            {loading && <p>Loading...</p>}
+            {error && <p>Error: {error}</p>}
+            {!loading && !error && category.length > 0 && (
+              <div>
+                {category.map((item, index) => {
+                  // Find the corresponding link object for the current category item
+                  const link = links.find(
+                    (link) => link.label === item.categoryName
+                  );
+
+                  return link ? (
+                    <Link
+                      key={index}
+                      className="font-semibold"
+                      href={`${link.path}/${item._id}`}
+                    >
+                      <p className="bg-green-100 p-2 rounded-md hover:bg-green-200 cursor-pointer mb-2">
+                        {item.categoryName}
+                      </p>
+                    </Link>
+                  ) : null; // If no link matches, do not render anything
+                })}
+              </div>
+            )}
           </div>
         );
       case "Track Request":
@@ -206,7 +245,6 @@ const EmployeeNewRequest = () => {
         handleClose={closeViewModal}
         requestId={SelectedRequestId}
       />
-     
     </div>
   );
 };

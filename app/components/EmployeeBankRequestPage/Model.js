@@ -2,13 +2,14 @@
 import { useState, useEffect } from "react";
 import { getProcessedFormSchema, handleFormSubmissionWithData } from "@/app/controllers/formController";
 
-const Modal = ({ isOpen, handleClose, employeeData }) => {
+const Modal = ({ isOpen, handleClose, employeeData, itemId }) => {
   const [formSchema, setFormSchema] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [formData, setFormData] = useState({});
   const [formType, setFormType] = useState("");
-  const formId = "671735d9d058568c8258da76";
+  const formId = itemId;
+  console.log("item: ",itemId);
 
   useEffect(() => {
     if (isOpen) {
