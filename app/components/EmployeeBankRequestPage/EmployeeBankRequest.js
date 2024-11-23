@@ -4,7 +4,7 @@ import EmployeeSidebar from "../EmployeeSidebarPage/EmployeeSidebar";
 import Link from "next/link";
 import Modal from "./Model";
 import ViewModal from "./ViewModal";
-import { fetchEmployeeRequests } from "@/app/controllers/requestController";
+import { fetchEmployeeRequests } from "@/app/controllers/employeeController";
 
 const EmployeeBankRequest = () => {
   const [requestData, setRequestData] = useState([]);
@@ -33,7 +33,7 @@ const EmployeeBankRequest = () => {
       try {
         const employeeId = "12345"; // Replace this with a dynamic value
         const { requests, formTemplates } = await fetchEmployeeRequests(employeeId);
-        setRequestData(requests);
+        setRequestData(requests.employee_request_list);
         setFormTemplateData(formTemplates);
         setLoading(false);
       } catch (error) {
@@ -89,6 +89,7 @@ const EmployeeBankRequest = () => {
               </thead>
               <tbody>
                 {requestData && requestData.length > 0 ? (
+  
                   requestData.map((request, index) => {
                     const formTemplate = formTemplateData.find(
                       (template) => template._id === request.formTemplateId
@@ -101,16 +102,16 @@ const EmployeeBankRequest = () => {
                         </td>
                         <td className="border px-4 py-2">
                           {new Date(
-                            request.submittedDate || request.created_at
+                            request.date || request.created_at
                           ).toLocaleString()}
                         </td>
                         <td className="border px-4 py-2">
-                          {request.current_status || "Pending"}
+                          {request.status || "Pending"}
                         </td>
                         <td className="border px-4 py-2">
                           <button
                             className="text-blue-500 hover:underline"
-                            onClick={() => openViewModal(request._id)}
+                            onClick={() => openViewModal(request.request_id)}
                           >
                             View 
                           </button>

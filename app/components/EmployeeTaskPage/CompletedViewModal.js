@@ -137,7 +137,7 @@ const ViewModal = ({
       return acc;
     }, {});
 
-    console.log("Submitted data:", submittedData);
+    // console.log("Submitted data:", submittedData);
     submittedData.employeeId = "12345";
     submittedData.employeeName = "John Doe";
 

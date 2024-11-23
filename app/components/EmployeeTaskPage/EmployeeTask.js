@@ -33,15 +33,15 @@ const EmployeeTask = () => {
 
     const fetchTasks = async () => {
       try {
-        const approverId = "junior_002";
+        const approverId = "E001";
         setLoading(true); // Start loading
 
         const response = await axios.get(
-          `${BASE_URL}/task/myTask/${approverId}`
+          `${BASE_URL}/trackApprovals/myApprovalsList/${approverId}`
         );
 
         if (isMounted) {
-          setTasks(response.data.tasks);
+          setTasks(response.data.employee_approval_list);
           setLoading(false);
         }
       } catch (error) {

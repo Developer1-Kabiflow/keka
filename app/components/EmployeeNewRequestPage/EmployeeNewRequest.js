@@ -2,10 +2,9 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import axios from "axios";
-import BASE_URL from "@/utils/utils";
 import ViewModal from "../EmployeeBankRequestPage/ViewModal";
 import EmployeeSidebar from "../EmployeeSidebarPage/EmployeeSidebar";
+import { fetchEmployeeRequests } from "@/app/controllers/employeeController";
 
 const EmployeeNewRequest = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -30,16 +29,10 @@ const EmployeeNewRequest = () => {
   useEffect(() => {
     const fetchRequestData = async () => {
       try {
-        const employeeId = "12345";
-        const response = await axios.get(
-          `${BASE_URL}/trackRequest/myRequest/${employeeId}`
-        );
-        const { requests, formTemplates } = response.data;
-        setRequestData(requests);
+        const employeeId = "12345"; // Replace this with a dynamic value
+        const { requests, formTemplates } = await fetchEmployeeRequests(employeeId);
+        setRequestData(requests.employee_request_list);
         setFormTemplateData(formTemplates);
-
-        console.log("requests: ", requests, "formTemplates: ", formTemplates);
-
         setLoading(false);
       } catch (error) {
         console.error("Error fetching request data:", error);
@@ -102,16 +95,16 @@ const EmployeeNewRequest = () => {
                         </td>
                         <td className="border px-4 py-2">
                           {new Date(
-                            request.submittedDate || request.created_at
+                            request.date || request.created_at
                           ).toLocaleString()}
                         </td>
                         <td className="border px-4 py-2">
-                          {request.current_status || "Pending"}
+                          {request.status || "Pending"}
                         </td>
                         <td className="border px-4 py-2">
                           <button
                             className="text-blue-500 hover:underline"
-                            onClick={() => openViewModal(request._id)}
+                            onClick={() => openViewModal(request.request_id)}
                           >
                             View
                           </button>

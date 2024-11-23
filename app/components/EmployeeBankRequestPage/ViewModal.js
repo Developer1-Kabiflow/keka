@@ -9,9 +9,9 @@ const ViewModal = ({ isOpen, handleClose, requestId }) => {
   const [formData, setFormData] = useState({});
    const [approvalData,setApprovalData] = useState({});
 
- console.log("requestId:", requestId);
+//  console.log("requestId:", requestId);
   useEffect(() => {
-    if (requestId) {
+    if (isOpen && requestId) {
       setLoading(true);
     
       const fetchForm = async () => {
@@ -28,9 +28,9 @@ const ViewModal = ({ isOpen, handleClose, requestId }) => {
   
       fetchForm();
     }
-  }, [requestId]);
+  }, [isOpen, requestId]);
   // Log formData to see the updated state value
-  console.log("formData", formData);
+  // console.log("formData", formData);
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
 

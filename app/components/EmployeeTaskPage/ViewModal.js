@@ -3,8 +3,9 @@ import { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import BASE_URL from "@/utils/utils";
 import ProgressStepsContainer from "./ProgressStepsContainer";
+import { fetchFormSchema } from "@/app/models/formModel";
 
-const ViewModal = ({ isOpen, handleClose, taskId, formTemplateId ,employeeData}) => {
+const ViewModal = ({ isOpen, handleClose, taskId , requestId }) => {
   const [formSchema, setFormSchema] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -64,25 +65,43 @@ const ViewModal = ({ isOpen, handleClose, taskId, formTemplateId ,employeeData})
     },
   ];
   useEffect(() => {
-    if (isOpen && formTemplateId) {
-      axios
-        .get(`${BASE_URL}/template/fetchForm/${formTemplateId}`)
-        .then((response) => {
-          setFormSchema(response.data);
-          setFormType(response.data.formType);
-          const initialData = response.data.data.reduce((acc, field) => {
-            acc[field.name] = field.type === "checkbox" ? [] : "";
-            return acc;
-          }, {});
-          setFormData(initialData);
-          setLoading(false);
-        })
-        .catch((err) => {
-          setError(err.message);
-          setLoading(false);
-        });
-    }
-  }, [isOpen, formTemplateId]);
+    if (isOpen && requestId) {
+      
+        setLoading(true);
+      
+        const fetchForm = async () => {
+          try {
+            const  { formSchema, formType, initialData }= await fetchFormSchema(requestId);
+            setFormSchema(formSchema);
+            setFormType(formType);
+            setFormData(initialData);
+          } catch (err) {
+            setError("Failed to load form schema. Please try again.");
+          } finally {
+            setLoading(false);
+          }
+        };
+    
+        fetchForm();
+      }
+      // axios
+      //   .get(`${BASE_URL}/template/fetchForm/${formTemplateId}`)
+      //   .then((response) => {
+      //     setFormSchema(response.data);
+      //     setFormType(response.data.formType);
+      //     const initialData = response.data.data.reduce((acc, field) => {
+      //       acc[field.name] = field.type === "checkbox" ? [] : "";
+      //       return acc;
+      //     }, {});
+      //     setFormData(initialData);
+      //     setLoading(false);
+      //   })
+      //   .catch((err) => {
+      //     setError(err.message);
+      //     setLoading(false);
+      //   });
+    
+  }, [isOpen, requestId]);
 
   const handleRejectClick = () => {
     setShowRejectTextbox(true);
@@ -107,27 +126,47 @@ const ViewModal = ({ isOpen, handleClose, taskId, formTemplateId ,employeeData})
     }
   };
 
-  const handleSubmit = (e) => {
+  // const handleSubmit = (e) => {
+  //   e.preventDefault();
+
+  //   const submittedData = formSchema.data.reduce((acc, field) => {
+  //     acc[field.name] = formData[field.name];
+  //     return acc;
+  //   }, {});
+  //   // console.log("Submitted data:", submittedData);
+  //   submittedData.employeeId = "12345";
+  //   submittedData.employeeName = "John Doe";
+  //   axios
+  //     .post(`${BASE_URL}/request/addRequest/${taskId}`, submittedData)
+  //     .then(() => {
+  //       handleClose();
+  //     })
+  //     .catch((err) => {
+  //       console.error("Error submitting form:", err);
+  //       setError("Failed to submit the form. Please try again.");
+  //     });
+  // };
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
+    try {
+      // Build the submitted data
     const submittedData = formSchema.data.reduce((acc, field) => {
       acc[field.name] = formData[field.name];
       return acc;
     }, {});
-    console.log("Submitted data:", submittedData);
-    submittedData.employeeId = "12345";
-    submittedData.employeeName = "John Doe";
-    axios
-      .post(`${BASE_URL}/request/addRequest/${taskId}`, submittedData)
-      .then(() => {
-        handleClose();
-      })
-      .catch((err) => {
-        console.error("Error submitting form:", err);
-        setError("Failed to submit the form. Please try again.");
-      });
-  };
 
+    submittedData.employeeId = employeeData?.employeeId || "12345"; // Ensure employeeId is passed correctly
+    submittedData.employeeName = employeeData?.employeeName || "John Doe"; // Ensure employeeName is passed correctly
+    // console.log("Submitted Data:", submittedData);
+
+      await handleFormSubmissionWithData(formId, submittedData);
+      handleClose();
+    } catch (err) {
+      console.error("Error submitting form:", err);
+      setError(err.message);
+    }
+  };
   if (!isOpen) return null;
 
   return (
@@ -188,7 +227,7 @@ const ViewModal = ({ isOpen, handleClose, taskId, formTemplateId ,employeeData})
                 </button>
                 <button
                   type="button"
-                  onClick={handleCloseClick}
+                  // onClick={handleCloseClick}
                   className="px-4 py-2 bg-gray-500 text-white rounded"
                   
                 >

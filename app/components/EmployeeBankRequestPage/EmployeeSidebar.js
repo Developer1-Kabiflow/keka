@@ -3,10 +3,8 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import EmployeeSidebar from "../EmployeeSidebarPage/EmployeeSidebar";
 import Modal from "./Model";
-import axios from "axios";
 import ViewModal from "./ViewModal";
-import BASE_URL from "@/utils/utils";
-import { fetchEmployeeRequests } from "@/app/controllers/requestController";
+import { fetchEmployeeRequests } from "@/app/controllers/employeeController";
 
 const EmployeeBankRequest = () => {
   const [requestData, setRequestData] = useState([]);
@@ -35,7 +33,7 @@ const EmployeeBankRequest = () => {
       try {
         const employeeId = "12345"; // Replace this with a dynamic value
         const { requests, formTemplates } = await fetchEmployeeRequests(employeeId);
-        setRequestData(requests);
+        setRequestData(requests.employee_request_list);
         setFormTemplateData(formTemplates);
         setLoading(false);
       } catch (error) {
@@ -52,13 +50,16 @@ const EmployeeBankRequest = () => {
     setIsModalOpen(!isModalOpen);
   };
 
-  const openViewModal = () => {
+  const openViewModal = (requestId) => {
+    setSelectedRequestId(requestId);
     setIsViewModalOpen(true);
   };
 
   const closeViewModal = () => {
     setIsViewModalOpen(false);
+    setSelectedRequestId(null);
   };
+
 
   const renderContent = () => {
     switch (activeTab) {
@@ -101,11 +102,11 @@ const EmployeeBankRequest = () => {
                         </td>
                         <td className="border px-4 py-2">
                           {new Date(
-                            request.submittedDate || request.created_at
+                            request.date || request.created_at
                           ).toLocaleString()}
                         </td>
                         <td className="border px-4 py-2">
-                          {request.current_status || "Pending"}
+                          {request.status || "Pending"}
                         </td>
                         <td className="border px-4 py-2">
                           <button
@@ -225,6 +226,7 @@ const EmployeeBankRequest = () => {
       <ViewModal
         isOpen={isViewModalOpen}
         handleClose={closeViewModal}
+        requestId={selectedRequestId}
       />
     </div>
   );

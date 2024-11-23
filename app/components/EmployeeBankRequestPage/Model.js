@@ -18,7 +18,7 @@ const Modal = ({ isOpen, handleClose, employeeData }) => {
           setFormSchema(formSchema);
           setFormType(formType);
           setFormData(initialData);
-          console.log("Form schema loaded successfully:", formSchema); 
+          // console.log("Form schema loaded successfully:", formSchema); 
         } catch (err) {
           console.error("Error fetching form schema:", err);
           setError("Failed to load form schema. Please try again.");
@@ -56,7 +56,7 @@ const Modal = ({ isOpen, handleClose, employeeData }) => {
 
     submittedData.employeeId = employeeData?.employeeId || "12345"; // Ensure employeeId is passed correctly
     submittedData.employeeName = employeeData?.employeeName || "John Doe"; // Ensure employeeName is passed correctly
-    console.log("Submitted Data:", submittedData);
+    // console.log("Submitted Data:", submittedData);
 
       await handleFormSubmissionWithData(formId, submittedData);
       handleClose();
