@@ -1,15 +1,14 @@
-// 'use client'; directive ensures this component is client-side
-'use client';
+"use client";
 
-import React, { useState, useEffect } from 'react';
-import Box from '@mui/material/Box';
-import Stepper from '@mui/material/Stepper';
-import Step from '@mui/material/Step';
-import StepLabel from '@mui/material/StepLabel';
-import Button from '@mui/material/Button';
-import Typography from '@mui/material/Typography';
+import React, { useState, useEffect } from "react";
+import Box from "@mui/material/Box";
+import Stepper from "@mui/material/Stepper";
+import Step from "@mui/material/Step";
+import StepLabel from "@mui/material/StepLabel";
+import Button from "@mui/material/Button";
+import Typography from "@mui/material/Typography";
 
-const steps = ['Step 1', 'Step 2', 'Step 3', 'Step 4'];
+const steps = ["Step 1", "Step 2", "Step 3", "Step 4"];
 
 export default function ProgressStepsContainer({ approvalData }) {
   const [activeStep, setActiveStep] = useState(0);
@@ -35,7 +34,7 @@ export default function ProgressStepsContainer({ approvalData }) {
   };
 
   return (
-    <Box sx={{ width: '100%' }}>
+    <Box sx={{ width: "100%" }}>
       <Stepper activeStep={activeStep}>
         {steps.map((label, index) => (
           <Step key={label}>
@@ -44,7 +43,7 @@ export default function ProgressStepsContainer({ approvalData }) {
               {approvals?.[index]?.approval_list?.length > 0 ? (
                 approvals[index].approval_list.map((approval, i) => (
                   <Typography variant="caption" color="primary" key={i}>
-                    <p>Approvers: {approval.employee_id}</p>
+                    <p>Approvers: {approval.role}</p>
                   </Typography>
                 ))
               ) : (
@@ -62,14 +61,14 @@ export default function ProgressStepsContainer({ approvalData }) {
           <Typography sx={{ mt: 2, mb: 1 }}>
             All steps completed - you&apos;re finished
           </Typography>
-          <Box sx={{ display: 'flex', flexDirection: 'row', pt: 2 }}>
-            <Box sx={{ flex: '1 1 auto' }} />
+          <Box sx={{ display: "flex", flexDirection: "row", pt: 2 }}>
+            <Box sx={{ flex: "1 1 auto" }} />
             <Button onClick={handleReset}>Reset</Button>
           </Box>
         </React.Fragment>
       ) : (
         <React.Fragment>
-          <Box sx={{ display: 'flex', flexDirection: 'row', pt: 2 }}>
+          <Box sx={{ display: "flex", flexDirection: "row", pt: 2 }}>
             <Button
               color="inherit"
               disabled={activeStep === 0}
@@ -78,13 +77,13 @@ export default function ProgressStepsContainer({ approvalData }) {
             >
               {/* Back */}
             </Button>
-            <Box sx={{ flex: '1 1 auto' }} />
+            <Box sx={{ flex: "1 1 auto" }} />
             <Button onClick={handleNext}>
               {/* {activeStep === steps.length - 1 ? 'Finish' : 'Next'} */}
             </Button>
           </Box>
-          <Typography sx={{ mt: 2, mb: 1, textAlign: 'center' }}>
-            {activeStep > 0 ? `Step ${activeStep + 1} is finished` : ''}
+          <Typography sx={{ mt: 2, mb: 1, textAlign: "center" }}>
+            {activeStep > 0 ? `Step ${activeStep + 1} is finished` : ""}
           </Typography>
         </React.Fragment>
       )}

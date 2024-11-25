@@ -1,300 +1,229 @@
 "use client";
+
 import React, { useEffect, useState } from "react";
 import EmployeeSidebar from "../EmployeeSidebarPage/EmployeeSidebar";
-import axios from "axios";
-import BASE_URL from "@/utils/utils";
 import ViewModal from "./ViewModal";
-import CompletedViewModal from './CompletedViewModal'; 
+import { toast } from "react-toastify";
+import {
+  fetchAll,
+  fetchApproved,
+  fetchPending,
+  fetchRejected,
+} from "@/app/controllers/approvalController";
 
 const EmployeeTask = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState("Pending for approval");
-  const [tasks, setTasks] = useState([]);
+  const [activeTab, setActiveTab] = useState("All Requests");
+  const [requestData, setRequestData] = useState({
+    all: [],
+    approved: [],
+    rejected: [],
+    pending: [],
+  });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [selectedRequestId, setSelectedRequestId] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedTask, setSelectedTask] = useState(null); // State to hold the selected task for the modal
-  const [selectedFormTemplateId, setSelectedFormTemplateId] = useState(null);
-  const [isCompletedModalOpen, setCompletedModalOpen] = useState(false);
-  const [selectedRequest, setSelectedRequest] = useState(null); // State for selected request
-  const requests = [
-    {
-      id: 1,
-      requestType: "Bank Name Change",
-      requestDate: "2024-10-01",
-      completedDate: "2024-10-05",
-      status: "Completed",
-      action: "View",
-    },
-  ];
+  const [showAcceptReject, setShowAcceptReject] = useState(false);
+  const fetchRequestData = async (approverId) => {
+    try {
+      const responses = await Promise.all([
+        fetchAll(approverId),
+        fetchApproved(approverId),
+        fetchRejected(approverId),
+        fetchPending(approverId),
+      ]);
 
-  useEffect(() => {
-    let isMounted = true; // Track mounted state
+      const newRequestData = {
+        all: responses[0].Allrequests || [],
+        approved: responses[1].Approvedrequests || [],
+        rejected: responses[2].Rejectedrequests || [],
+        pending: responses[3].PendingRequests || [],
+      };
 
-    const fetchTasks = async () => {
-      try {
-        const approverId = "E001";
-        setLoading(true); // Start loading
+      console.log("Fetched data:", newRequestData); // Check if data is updated correctly
 
-        const response = await axios.get(
-          `${BASE_URL}/trackApprovals/myApprovalsList/${approverId}`
-        );
-
-        if (isMounted) {
-          setTasks(response.data.employee_approval_list);
-          setLoading(false);
-        }
-      } catch (error) {
-        if (isMounted) {
-          setError(error.message); // Capture error
-          setLoading(false);
-        }
-      }
-    };
-
-    fetchTasks();
-
-    return () => {
-      isMounted = false; // Clean up on unmount
-    };
-  }, []);
-
-  const handleViewClick = ({ taskId, formTemplateId }) => {
-    setSelectedTask(taskId); // Store the task ID
-    setSelectedFormTemplateId(formTemplateId);
-    setIsModalOpen(true);
+      setRequestData(newRequestData); // Update the state
+    } catch (error) {
+      console.error("Error fetching request data:", error);
+      setError("Failed to load request data. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleCompletedViewClick = (request) => {
-    setSelectedRequest(request); // Set the selected request
-    setCompletedModalOpen(true);  // Open the completed modal
+  useEffect(() => {
+    const approverId = "E001";
+    fetchRequestData(approverId);
+  }, []);
+
+  const openModal = (requestId, isPending) => {
+    console.log("inside openModal-->" + isPending);
+    setSelectedRequestId(requestId);
+    setIsModalOpen(true);
+    setShowAcceptReject(isPending);
   };
 
   const closeModal = () => {
     setIsModalOpen(false);
-    setSelectedTask(null); // Clear selected task when modal closes
+    setSelectedRequestId(null);
   };
+  const handleToast = (message, type) => {
+    if (type === "success") {
+      toast.success(message);
+    } else if (type === "error") {
+      toast.error(message);
+    }
+  };
+  const refreshData = () => {
+    // Trigger data refresh after approval/rejection
+    fetchRequestData("E001");
+  };
+  const RequestTable = ({ requests }) => {
+    console.log("Rendering RequestTable with requests:", requests);
 
-  const closeCompletedModal = () => {
-    setCompletedModalOpen(false);
-    setSelectedRequest(null); // Clear selected request when modal closes
+    return (
+      <div className="p-4 bg-white overflow-auto">
+        <table className="table-auto w-full text-left">
+          <thead className="bg-gray-200">
+            <tr>
+              <th className="px-4 py-2">No.</th>
+              <th className="px-4 py-2">Request Type</th>
+              <th className="px-4 py-2">Request Date</th>
+              <th className="px-4 py-2">Status</th>
+              <th className="px-4 py-2">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {Array.isArray(requests) && requests.length > 0 ? (
+              requests.map((request, index) => (
+                <tr key={request.request_id || index}>
+                  <td className="border px-4 py-2">{index + 1}</td>
+                  <td className="border px-4 py-2">
+                    {request.request_name || "N/A"}
+                  </td>
+                  <td className="border px-4 py-2">
+                    {request.request_raised_time
+                      ? new Date(request.request_raised_time).toLocaleString()
+                      : "N/A"}
+                  </td>
+                  <td className="border px-4 py-2">
+                    {request.status || "N/A"}
+                  </td>
+                  <td className="border px-4 py-2">
+                    <button
+                      className="text-blue-500 hover:underline"
+                      onClick={() =>
+                        openModal(
+                          request.request_id,
+                          request.status === "In-progress"
+                        )
+                      }
+                    >
+                      View
+                    </button>
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan="5" className="text-center py-4">
+                  No Task Found.
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+    );
   };
 
   const renderContent = () => {
+    if (loading) return <div>Loading...</div>;
+    if (error) return <div className="text-red-500">{error}</div>;
+
     switch (activeTab) {
-      case "Pending for approval":
-        return (
-          <div className="p-4 bg-white overflow-auto">
-            <table className="table-auto w-full text-left">
-              <thead className="bg-gray-200">
-                <tr>
-                  <th className="px-4 py-2">No.</th>
-                  <th className="px-4 py-2">Request Type</th>
-                  <th className="px-4 py-2">Request Date</th>
-                  <th className="px-4 py-2">Status</th>
-                  <th className="px-4 py-2">Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                {tasks.length > 0 ? (
-                  tasks.map((task, index) => (
-                    <tr key={task._id}>
-                      <td className="border px-4 py-2">{index + 1}</td>
-                      <td className="border px-4 py-2">{task.task_type}</td>
-                      <td className="border px-4 py-2">
-                        {new Date(task.task_date).toLocaleDateString()}
-                      </td>
-                      <td className="border px-4 py-2">{task.status}</td>
-                      <td className="border px-4 py-2">
-                        <button
-                          className="text-blue-500 hover:underline"
-                          onClick={() =>
-                            handleViewClick({
-                              taskId: task.pending_task,
-                              formTemplateId: task.form_template_id,
-                            })
-                          }
-                        >
-                          View
-                        </button>
-                      </td>
-                    </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan="5" className="text-center py-4">
-                      No tasks found
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
-        );
-        case "Approved Requests":
-          return (
-            <div className="p-4 bg-white">
-              <table className="table-auto w-full text-left">
-                <thead className="bg-gray-200">
-                  <tr>
-                    <th className="px-4 py-2">No.</th>
-                    <th className="px-4 py-2">Request Type</th>
-                    <th className="px-4 py-2">Request Date</th>
-                    <th className="px-4 py-2">Completed Date</th>
-                    <th className="px-4 py-2">Status</th>
-                    <th className="px-4 py-2">Action</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {requests.map((request, index) => (
-                    <tr key={request.id}>
-                      <td className="border px-4 py-2">{index + 1}</td>
-                      <td className="border px-4 py-2">{request.requestType}</td>
-                      <td className="border px-4 py-2">{request.requestDate}</td>
-                      <td className="border px-4 py-2">
-                        {request.completedDate}
-                      </td>
-                      <td className="border px-4 py-2">{request.status}</td>
-                      <td className="border px-4 py-2"><button
-                            className="text-blue-500 hover:underline"
-                            onClick={() =>
-                              handleCompletedViewClick({
-                                
-                              })
-                            }
-                          >
-                            View
-                          </button></td>
-                    </tr>
-                  ))}
-                </tbody>  
-              </table>
-            </div>
-          );
-        case "Rejected Requests":
-          return (
-            <div className="p-4 bg-white">This is the Rejected Requests content.</div>
-          );
-        case "contacts":
-          return (
-            <div className="p-4 bg-white">This is the Contacts content.</div>
-          );
-        default:
-          return null;
-      }
-    
+      case "Pending for Approval":
+        return <RequestTable requests={requestData.pending} />;
+      case "Approved by Me":
+        return <RequestTable requests={requestData.approved} />;
+      case "Rejected by Me":
+        return <RequestTable requests={requestData.rejected} />;
+      case "All Requests":
+        return <RequestTable requests={requestData.all} />;
+      default:
+        return null;
+    }
   };
 
   return (
     <div className="flex flex-col md:flex-row h-screen">
       <button
         onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-        className="md:hidden flex flex-col items-center justify-center p-4"
-        aria-label={isSidebarOpen ? "Close Sidebar" : "Open Sidebar"}
+        className="md:hidden p-4"
+        aria-label="Toggle Sidebar"
       >
-        <div
-          className={`h-1 w-8 bg-blue-600 mb-1 transition-transform ${
-            isSidebarOpen ? "rotate-45" : ""
-          }`}
-        />
-        <div
-          className={`h-1 w-8 bg-blue-600 mb-1 ${
-            isSidebarOpen ? "opacity-0" : ""
-          }`}
-        />
-        <div
-          className={`h-1 w-8 bg-blue-600 mt-1 transition-transform ${
-            isSidebarOpen ? "-rotate-45" : ""
-          }`}
-        />
+        <div className="w-8 h-1 bg-blue-600 mb-1" />
+        <div className="w-8 h-1 bg-blue-600 mb-1" />
+        <div className="w-8 h-1 bg-blue-600" />
       </button>
 
-      {/* Sidebar for mobile */}
       <div
-        className={`fixed inset-0 z-40 md:hidden bg-gray-800 bg-opacity-75 ${
+        className={`fixed inset-0 z-40 bg-gray-800 bg-opacity-75 md:hidden ${
           isSidebarOpen ? "block" : "hidden"
         }`}
       >
         <EmployeeSidebar closeSidebar={() => setIsSidebarOpen(false)} />
       </div>
 
-      {/* Sidebar for desktop */}
       <div className="hidden md:block">
         <EmployeeSidebar />
       </div>
 
-      <div
-        className={`flex-1 p-6 bg-gray-100 transition-all duration-300 ${
-          isSidebarOpen ? "ml-0" : "md:ml-0"
-        }`}
-      >
-        <div className="container mx-auto px-4">
-          <div>
-          <ul className="flex text-sm font-medium text-center text-gray-500 border-b border-gray-200">
-          <li className="me-2">
-              <a
-                href="#"
-                onClick={() => setActiveTab("Pending for approval")}
-                className={`inline-block p-4 rounded-t-lg ${
-                  activeTab === "Pending for approval"
+      <div className="flex-1 p-6 bg-gray-100">
+        <ul className="flex text-sm font-medium text-gray-500 border-b">
+          {[
+            "All Requests",
+            "Pending for Approval",
+            "Approved by Me",
+            "Rejected by Me",
+          ].map((tab) => (
+            <li key={tab} className="mr-2">
+              <button
+                className={`p-4 rounded-t-lg ${
+                  activeTab === tab
                     ? "text-blue-600 bg-white"
                     : "hover:text-gray-600 hover:bg-gray-50"
                 }`}
+                onClick={() => setActiveTab(tab)}
               >
-                Pending for approval
-              </a>
+                {tab}
+              </button>
             </li>
-            <li className="me-2">
-              <a
-                href="#"
-                onClick={() => setActiveTab("Approved Requests")}
-                className={`inline-block p-4 rounded-t-lg ${
-                  activeTab === "Approved Requests"
-                    ? "text-blue-600 bg-white"
-                    : "hover:text-gray-600 hover:bg-gray-50"
-                }`}
-              >
-                Approved Requests
-              </a>
-            </li>
-            <li className="me-2">
-              <a
-                href="#"
-                onClick={() => setActiveTab("Rejected Requests")}
-                className={`inline-block p-4 rounded-t-lg ${
-                  activeTab === "Rejected Requests"
-                    ? "text-blue-600 bg-white"
-                    : "hover:text-gray-600 hover:bg-gray-50"
-                }`}
-              >
-                Rejected Requests
-              </a>
-            </li>
-          </ul>
-
-          <div className="flex flex-row bg-white shadow-lg mt-4 rounded-lg justify-between">
-              <div className="w-full">{renderContent()}</div>
-            </div>
-            </div>
-      </div>
+          ))}
+        </ul>
+        <div>{renderContent()}</div>
       </div>
 
-      {/* Modals */}
-      {isModalOpen && selectedTask && (
+      {isModalOpen && (
         <ViewModal
           isOpen={isModalOpen}
           handleClose={closeModal}
-          taskId={selectedTask}
-          formTemplateId={selectedFormTemplateId}
+          requestId={selectedRequestId}
+          showAcceptReject={showAcceptReject}
+          onToast={handleToast}
+          refreshData={refreshData} // Pass the refreshData callback
         />
       )}
-      {isCompletedModalOpen && (
+
+      {/* {modalState.isCompletedModalOpen && (
         <CompletedViewModal
-          isOpen={isCompletedModalOpen}
-          handleClose={closeCompletedModal}
-          request={selectedRequest}
+          isOpen={modalState.isCompletedModalOpen}
+          handleClose={closeModal}
+          requestId={modalState.selectedRequestId}
+          formTemplateId={modalState.selectedFormTemplateId}
         />
-      )}
+      )} */}
     </div>
   );
 };
