@@ -1,11 +1,11 @@
-'use client';
+"use client";
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import EmployeeSidebar from "../EmployeeSidebarPage/EmployeeSidebar";
 import Modal from "./Model";
 import ViewModal from "./ViewModal";
-import { fetchEmployeeRequests } from "@/app/controllers/employeeController";
-
+import { fetchAllEmployeeRequests } from "@/app/controllers/requestController";
+import { toast } from "react-toastify";
 const EmployeeBankRequest = () => {
   const [requestData, setRequestData] = useState([]);
   const [formTemplateData, setFormTemplateData] = useState([]);
@@ -27,12 +27,20 @@ const EmployeeBankRequest = () => {
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
   };
-
+  const handleToast = (message, type) => {
+    if (type === "success") {
+      toast.success(message);
+    } else if (type === "error") {
+      toast.error(message);
+    }
+  };
   useEffect(() => {
     const fetchRequestData = async () => {
       try {
         const employeeId = "12345"; // Replace this with a dynamic value
-        const { requests, formTemplates } = await fetchEmployeeRequests(employeeId);
+        const { requests, formTemplates } = await fetchAllEmployeeRequests(
+          employeeId
+        );
         setRequestData(requests.employee_request_list);
         setFormTemplateData(formTemplates);
         setLoading(false);
@@ -41,7 +49,6 @@ const EmployeeBankRequest = () => {
         setError(error.message);
         setLoading(false);
       }
-    
     };
     fetchRequestData();
   }, []);
@@ -59,7 +66,6 @@ const EmployeeBankRequest = () => {
     setIsViewModalOpen(false);
     setSelectedRequestId(null);
   };
-
 
   const renderContent = () => {
     switch (activeTab) {
@@ -203,18 +209,33 @@ const EmployeeBankRequest = () => {
 
             <div className="flex flex-col md:flex-row bg-white shadow-lg mt-4 rounded-lg">
               <div className="w-full">{renderContent()}</div>
+
               {activeTab === "New Request" && (
-                <div className="flex flex-col p-4 bg-white md:w-1/2 text-center">
-                  <span className="font-semibold text-lg mb-4 underline decoration-4 decoration-blue-500">
-                    Bank Request
-                  </span>
-                  <span
-                    className="font-semibold cursor-pointer hover:text-blue-500"
-                    onClick={handleModalToggle}
-                  >
-                    Update Bank Name
-                  </span>
-                  <span className="font-semibold">Update Bank Account</span>
+                <div className="flex flex-col md:flex-row">
+                  {/* Links Section */}
+                  <div className="p-4 bg-white md:w-1/2">
+                    {links.map((link, index) => (
+                      <Link key={index} href={link.path}>
+                        <p className="bg-green-100 p-2 rounded-md hover:bg-green-200 hover:cursor-pointer mb-2 w-full">
+                          {link.text}
+                        </p>
+                      </Link>
+                    ))}
+                  </div>
+
+                  {/* Additional Options Section */}
+                  <div className="flex flex-col p-4 bg-white md:w-1/2 text-center">
+                    <span className="font-semibold text-lg mb-4 underline decoration-4 decoration-blue-500">
+                      Bank Request
+                    </span>
+                    <span
+                      className="font-semibold cursor-pointer hover:text-blue-500"
+                      onClick={toggleModal}
+                    >
+                      Update Bank Name
+                    </span>
+                    <span className="font-semibold">Update Bank Account</span>
+                  </div>
                 </div>
               )}
             </div>
@@ -222,7 +243,11 @@ const EmployeeBankRequest = () => {
         </div>
       </div>
 
-      <Modal isOpen={isModalOpen} handleClose={handleModalToggle} />
+      <Modal
+        isOpen={isModalOpen}
+        handleClose={handleModalToggle}
+        onToast={handleToast}
+      />
       <ViewModal
         isOpen={isViewModalOpen}
         handleClose={closeViewModal}

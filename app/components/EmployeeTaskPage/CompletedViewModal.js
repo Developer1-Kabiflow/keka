@@ -1,15 +1,14 @@
-"use client";  // Required to ensure client-side rendering for this component
+"use client"; // Required to ensure client-side rendering for this component
 
 import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
-import BASE_URL from "@/utils/utils";  // Ensure the URL is correctly configured for Next.js
+import BASE_URL from "@/utils/utils"; // Ensure the URL is correctly configured for Next.js
 import CompletedProgressStepsContainer from "./CompletedProgressStepsContainer ";
 
-const ViewModal = ({
+const CompletedViewModal = ({
   isOpen,
   handleClose,
-  employeeData,
-  taskId,
+  requestId,
   formTemplateId,
 }) => {
   const [formSchema, setFormSchema] = useState({}); // Initialized as an object
@@ -18,7 +17,7 @@ const ViewModal = ({
   const [formData, setFormData] = useState({});
   const [formType, setFormType] = useState("");
   const [showRejectTextbox, setShowRejectTextbox] = useState(false);
-  
+
   const fields = [
     {
       name: "employeeId",
@@ -75,31 +74,29 @@ const ViewModal = ({
 
   useEffect(() => {
     if (isOpen) {
-    //   axios
-    //     .get(`${BASE_URL}/template/fetchForm/${formTemplateId}`)
-    //     .then((response) => {
-    //       setFormSchema(response.data); 
-    //       setFormType(response.data.formType);
-    //       const initialData = response.data.data.reduce((acc, field) => {
-    //         acc[field.name] = field.type === "checkbox" ? [] : "";
-    //         return acc;
-    //       }, {});
-
-    //       setFormData(initialData);
-    //       setLoading(false);
-    //     })
-    //     .catch((err) => {
-    //       setError(err.message);
-    //       setLoading(false);
-    //     });
-    
+      //   axios
+      //     .get(`${BASE_URL}/template/fetchForm/${formTemplateId}`)
+      //     .then((response) => {
+      //       setFormSchema(response.data);
+      //       setFormType(response.data.formType);
+      //       const initialData = response.data.data.reduce((acc, field) => {
+      //         acc[field.name] = field.type === "checkbox" ? [] : "";
+      //         return acc;
+      //       }, {});
+      //       setFormData(initialData);
+      //       setLoading(false);
+      //     })
+      //     .catch((err) => {
+      //       setError(err.message);
+      //       setLoading(false);
+      //     });
     }
   }, [isOpen, formTemplateId]);
 
   const handleRejectClick = () => {
     setShowRejectTextbox(true);
     setTimeout(() => {
-      bottomRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      bottomRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
     }, 0);
   };
 
@@ -145,7 +142,7 @@ const ViewModal = ({
     //   .post(`${BASE_URL}/request/addRequest/${taskId}`, submittedData)
     //   .then((response) => {
     //     console.log("Form submitted successfully:", response.data);
-    //     handleClose(); 
+    //     handleClose();
     //   })
     //   .catch((err) => {
     //     console.error("Error submitting form:", err);
@@ -159,7 +156,9 @@ const ViewModal = ({
     <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center z-50">
       <div className="bg-white p-6 rounded-lg w-[900px] h-[600px] overflow-y-auto">
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-semibold text-blue-500">Approvals Status</h2>
+          <h2 className="text-xl font-semibold text-blue-500">
+            Approvals Status
+          </h2>
           <button
             onClick={handleClose}
             className="bg-blue-200 rounded-full w-8 h-8 flex items-center justify-center font-bold text-red-600 hover:text-gray-900"
@@ -172,7 +171,9 @@ const ViewModal = ({
           <CompletedProgressStepsContainer />
         </div>
         <div className="mt-4">
-          <h2 className="text-xl font-semibold mb-4 text-blue-500">Submitted Form Details</h2>
+          <h2 className="text-xl font-semibold mb-4 text-blue-500">
+            Submitted Form Details
+          </h2>
           <form onSubmit={handleSubmit}>
             {/* {Array.isArray(formSchema.data) &&
             formSchema.data.map((field) => (
@@ -226,9 +227,11 @@ const ViewModal = ({
             ))} */}
             {fields.map((field) => (
               <div className="mb-4" key={field.name}>
-                <label className="block text-gray-700">{field.placeholder}:</label>
+                <label className="block text-gray-700">
+                  {field.placeholder}:
+                </label>
                 <input
-                 key={field.name}
+                  key={field.name}
                   type={field.type}
                   name={field.name}
                   placeholder={field.value}
@@ -240,7 +243,7 @@ const ViewModal = ({
                 />
               </div>
             ))}
-              {/* <div className="flex justify-between mr-48 ml-48">
+            {/* <div className="flex justify-between mr-48 ml-48">
               <button
                 type="submit"
                 className="mt-4 px-4 py-2 w-24 bg-green-500 text-white rounded"
@@ -289,4 +292,4 @@ const ViewModal = ({
   );
 };
 
-export default ViewModal;
+export default CompletedViewModal;

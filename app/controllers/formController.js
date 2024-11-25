@@ -1,4 +1,8 @@
-import { fetchFormSchema, fetchMyFormdata, submitFormData } from "../models/formModel";
+import {
+  fetchFormSchema,
+  fetchMyFormdata,
+  submitFormData,
+} from "../models/formModels";
 
 // Process form schema and prepare initial data
 export const getProcessedFormSchema = async (formId) => {
@@ -13,7 +17,10 @@ export const getProcessedFormSchema = async (formId) => {
     }, {});
     return { formSchema: schema, formType: schema.formType, initialData };
   } catch (error) {
-    console.error("Error in getProcessedFormSchema:", error.response?.data || error.message);
+    console.error(
+      "Error in getProcessedFormSchema:",
+      error.response?.data || error.message
+    );
     throw error;
   }
 };
@@ -27,11 +34,13 @@ export const getMyFormData = async (requestId) => {
     }
     return { requestData, approvalData };
   } catch (error) {
-    console.error("Error in getMyFormData:", error.response?.data || error.message);
+    console.error(
+      "Error in getMyFormData:",
+      error.response?.data || error.message
+    );
     throw error;
   }
 };
-
 
 // Prepare form submission data and handle submission
 export const handleFormSubmissionWithData = async (formId, submittedData) => {
