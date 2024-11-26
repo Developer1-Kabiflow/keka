@@ -215,15 +215,6 @@ const EmployeeTask = () => {
           refreshData={refreshData} // Pass the refreshData callback
         />
       )}
-
-      {/* {modalState.isCompletedModalOpen && (
-        <CompletedViewModal
-          isOpen={modalState.isCompletedModalOpen}
-          handleClose={closeModal}
-          requestId={modalState.selectedRequestId}
-          formTemplateId={modalState.selectedFormTemplateId}
-        />
-      )} */}
     </div>
   );
 };

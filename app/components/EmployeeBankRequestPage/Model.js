@@ -1,11 +1,12 @@
 "use client";
+
 import { useState, useEffect } from "react";
 import {
   getProcessedFormSchema,
   handleFormSubmissionWithData,
 } from "@/app/controllers/formController";
 
-const Modal = ({ isOpen, handleClose, employeeData, onToast }) => {
+const Modal = ({ isOpen, handleClose, employeeData, onToast, refreshData }) => {
   const [formSchema, setFormSchema] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -22,7 +23,6 @@ const Modal = ({ isOpen, handleClose, employeeData, onToast }) => {
           setFormSchema(formSchema);
           setFormType(formType);
           setFormData(initialData);
-          // console.log("Form schema loaded successfully:", formSchema);
         } catch (err) {
           console.error("Error fetching form schema:", err);
           setError("Failed to load form schema. Please try again.");
@@ -33,7 +33,7 @@ const Modal = ({ isOpen, handleClose, employeeData, onToast }) => {
 
       fetchForm();
     }
-  }, [isOpen, employeeData]);
+  }, [isOpen]);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -53,22 +53,21 @@ const Modal = ({ isOpen, handleClose, employeeData, onToast }) => {
     e.preventDefault();
 
     try {
-      // Build the submitted data
       const submittedData = formSchema.data.reduce((acc, field) => {
         acc[field.name] = formData[field.name];
         return acc;
       }, {});
 
-      submittedData.employeeId = employeeData?.employeeId || "12345"; // Ensure employeeId is passed correctly
-      submittedData.employeeName = employeeData?.employeeName || "John Doe"; // Ensure employeeName is passed correctly
-      // console.log("Submitted Data:", submittedData);
+      submittedData.employeeId = employeeData?.employeeId || "12345";
+      submittedData.employeeName = employeeData?.employeeName || "John Doe";
 
       await handleFormSubmissionWithData(formId, submittedData);
       onToast("Created Request Successfully", "success");
+      refreshData();
       handleClose();
     } catch (err) {
-      onToast("Failed to Create Request", "error");
       console.error("Error submitting form:", err);
+      onToast("Failed to Create Request", "error");
       setError(err.message);
     }
   };
@@ -80,13 +79,6 @@ const Modal = ({ isOpen, handleClose, employeeData, onToast }) => {
       <div className="bg-white p-6 rounded-lg w-[900px] h-[600px] overflow-y-auto">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-semibold">{formType || "Form"}</h2>
-          {/* <button
-            onClick={handleClose}
-            className="bg-blue-200 rounded-full w-8 h-8 flex items-center justify-center font-bold text-red-600 hover:text-gray-900"
-            style={{ lineHeight: "0" }}
-          >
-            &times;
-          </button> */}
         </div>
 
         <form onSubmit={handleSubmit}>
@@ -150,17 +142,9 @@ const Modal = ({ isOpen, handleClose, employeeData, onToast }) => {
         {error && <div className="text-red-500 mt-2">{error}</div>}
       </div>
 
-      {/* Close Button Outside the Modal but Positioned Close */}
       <button
         onClick={handleClose}
-        className="absolute transition-all duration-300 ease-in-out 
-            top-[30px] right-[1px] 
-            sm:top-[40px] sm:right-[1px] 
-            md:top-[40px] md:right-[calc(50%-400px)] 
-            lg:top-[50px] lg:right-[calc(50%-450px)] 
-            xl:top-[50px] xl:right-[calc(50%-470px)] 
-            bg-blue-200 rounded-full w-10 h-10 flex items-center justify-center font-bold hover:bg-red-300 shadow-md z-20"
-        style={{ lineHeight: "0" }}
+        className="absolute top-[50px] right-[calc(50%-450px)] bg-blue-200 rounded-full w-10 h-10 flex items-center justify-center font-bold hover:bg-red-300 shadow-md z-20"
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
