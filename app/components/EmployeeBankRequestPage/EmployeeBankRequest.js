@@ -4,12 +4,18 @@ import EmployeeSidebar from "../EmployeeSidebarPage/EmployeeSidebar";
 import Link from "next/link";
 import Modal from "./Model";
 import ViewModal from "./ViewModal";
-import { fetchEmployeeRequests } from "@/app/controllers/employeeController";
+import {
+  fetchEmployeeDetails,
+  fetchEmployeeRequests,
+} from "@/app/controllers/employeeController";
 import { fetchSubCategoryList } from "@/app/controllers/subCategoryController";
+import { fetchCategoryList } from "@/app/controllers/categoryController";
+
+import Cookies from "js-cookie";
 
 const EmployeeBankRequest = (params) => {
   const { categoryId } = params;
-
+  const [employeeDetails, setEmployeeDetails] = useState([]);
   const [requestData, setRequestData] = useState([]);
   const [formTemplateData, setFormTemplateData] = useState([]);
   const [subCategoryList, setSubCategoryList] = useState([]);
@@ -21,6 +27,7 @@ const EmployeeBankRequest = (params) => {
   const [SelectedRequestId, setSelectedRequestId] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedSubCategoryId, setSubCategoryId] = useState(null);
+  const [category, setCategory] = useState([]);
 
   const [links] = useState([
     { text: "Bank", path: "/employee/bankRequest" },
@@ -34,9 +41,38 @@ const EmployeeBankRequest = (params) => {
   };
 
   useEffect(() => {
+    const fetchEmployee = async () => {
+      try {
+        // Fetch employeeId from cookies
+        const employeeId = Cookies.get("userId");
+
+        console.log("employeeId first: ", employeeId);
+
+        // Proceed only if the employeeId exists
+        if (employeeId) {
+          const { userData } = await fetchEmployeeDetails(employeeId);
+          setEmployeeDetails(userData.employeeDetails);
+        } else {
+          console.error("No employeeId found in cookies.");
+          setError("Employee ID not found.");
+        }
+        setLoading(false); // Turn off the loading state after fetching
+      } catch (error) {
+        console.error(
+          "Error fetching employee details:",
+          error.message || error
+        );
+        setError(
+          error.message || "An error occurred while fetching employee data."
+        );
+        setLoading(false); // Make sure to stop loading even on error
+      }
+    };
     const loadRequestData = async () => {
       try {
         const employeeId = "12345"; // Replace this with a dynamic value
+
+        console.log("employeeId: ", employeeId);
         const { requests, formTemplates } = await fetchEmployeeRequests(
           employeeId
         );
@@ -50,12 +86,19 @@ const EmployeeBankRequest = (params) => {
       }
     };
 
-    loadRequestData();
-  }, []);
+    const fetchCategoryData = async () => {
+      try {
+        const categoryList = await fetchCategoryList();
+        console.log("Category List:", categoryList.category); // This should now be an array
+        setCategory(categoryList.category); // Set the array into state
+        setLoading(false);
+      } catch (error) {
+        console.error("Error fetching category data:", error.message);
+        setError(error.message);
+        setLoading(false);
+      }
+    };
 
-  console.log("categoryId", categoryId);
-
-  useEffect(() => {
     const fetchSubcategories = async () => {
       try {
         if (!categoryId) {
@@ -71,12 +114,17 @@ const EmployeeBankRequest = (params) => {
         setLoading(false);
       }
     };
-  
+
+    fetchEmployee();
+    loadRequestData();
+    fetchCategoryData();
     fetchSubcategories();
-  }, [categoryId]); 
+  }, [categoryId]);
+
+  console.log("categoryId", categoryId);
 
   const handleModalToggle = (itemId) => {
-    setSubCategoryId(itemId)
+    setSubCategoryId(itemId);
     setIsModalOpen(!isModalOpen);
   };
 
@@ -94,14 +142,26 @@ const EmployeeBankRequest = (params) => {
     switch (activeTab) {
       case "New Request":
         return (
-          <div className="p-4 bg-white">
-            {links.map((link, index) => (
-              <Link key={index} href={link.path} passHref>
-                <p className="bg-green-100 p-2 rounded-md hover:bg-green-200 hover:cursor-pointer mb-2 w-full md:w-[600px] font-semibold">
-                  {link.text}
-                </p>
-              </Link>
-            ))}
+          <div className="p-4 bg-white w-full max-w-[600px]">
+            {loading && <p>Loading...</p>}
+            {error && (
+              <p className="text-center text-red-500">Error: {error}</p>
+            )}
+            {!loading && !error && category.length > 0 && (
+              <div>
+                {category.map((item) => (
+                  <Link
+                    key={item._id}
+                    className="font-semibold block"
+                    href={`${item.pageLink}/${item._id}`}
+                  >
+                    <p className="bg-green-100 p-2 rounded-md hover:bg-green-200 cursor-pointer mb-2 text-center">
+                      {item.categoryName}
+                    </p>
+                  </Link>
+                ))}
+              </div>
+            )}
           </div>
         );
       case "Track Request":
@@ -237,37 +297,39 @@ const EmployeeBankRequest = (params) => {
             <div className="flex flex-col md:flex-row bg-white shadow-lg mt-4 rounded-lg">
               <div className="w-full">{renderContent()}</div>
               {activeTab === "New Request" && (
-
                 <div className="flex flex-col p-4 bg-white md:w-1/2 text-center">
-                <span className="font-semibold text-lg mb-4 underline decoration-4 decoration-blue-500">
+                  <span className="font-semibold text-lg mb-4 underline decoration-4 decoration-blue-500">
                     Bank Request
                   </span>
-                {loading ? (
-                  <p>Loading subcategories...</p>
-                ) : subCategoryList.length > 0 ? (
-                  subCategoryList.map((item) => (
-                    <div key={item._id} className="mb-4">
-                      <span
-                    className="font-semibold cursor-pointer hover:text-blue-500"
-                    onClick={() => handleModalToggle(item.form_template_id)}
-                  >
-                        {item.subcategoryName} 
-                      </span>
-                      {/* <span className="font-semibold block">{item.form_template_name}</span> */}
-                    </div>
-                  ))
-                ) : (
-                  <p>No subcategories available</p>
-                )}
-              </div>
+                  {loading ? (
+                    <p>Loading subcategories...</p>
+                  ) : subCategoryList.length > 0 ? (
+                    subCategoryList.map((item) => (
+                      <div key={item._id} className="mb-4">
+                        <span
+                          className="font-semibold cursor-pointer hover:text-blue-500"
+                          onClick={() =>
+                            handleModalToggle(item.form_template_id)
+                          }
+                        >
+                          {item.subcategoryName}
+                        </span>
+                        {/* <span className="font-semibold block">{item.form_template_name}</span> */}
+                      </div>
+                    ))
+                  ) : (
+                    <p>No subcategories available</p>
+                  )}
+                </div>
               )}
             </div>
           </div>
         </div>
       </div>
-      <Modal isOpen={isModalOpen} 
-      handleClose={handleModalToggle} 
-      itemId = {selectedSubCategoryId}
+      <Modal
+        isOpen={isModalOpen}
+        handleClose={handleModalToggle}
+        itemId={selectedSubCategoryId}
       />
       <ViewModal
         isOpen={isViewModalOpen}

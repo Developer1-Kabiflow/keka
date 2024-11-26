@@ -17,13 +17,7 @@ const EmployeeNewRequest = () => {
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [SelectedRequestId, setSelectedRequestId] = useState(null);
   const [category, setCategory] = useState([]);
-  const [links] = useState([
-    { path: "/employee/bankRequest", label: "Bank" },
-    { path: "/employee/addressRequest", label: "Address Change" },
-    { path: "/employee/medicalInsuranceRequest", label: "Medical Insurance" },
-    { path: "/employee/visaRequest", label: "Visa" },
-  ]);
-  const toggleSidebar = () => {
+   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
   };
 
@@ -83,26 +77,22 @@ const EmployeeNewRequest = () => {
             {loading && <p>Loading...</p>}
             {error && <p>Error: {error}</p>}
             {!loading && !error && category.length > 0 && (
-              <div>
-                {category.map((item, index) => {
-                  // Find the corresponding link object for the current category item
-                  const link = links.find(
-                    (link) => link.label === item.categoryName
-                  );
-
-                  return link ? (
-                    <Link
-                      key={index}
-                      className="font-semibold"
-                      href={`${link.path}/${item._id}`}
-                    >
-                      <p className="bg-green-100 p-2 rounded-md hover:bg-green-200 cursor-pointer mb-2">
-                        {item.categoryName}
-                      </p>
-                    </Link>
-                  ) : null; // If no link matches, do not render anything
-                })}
-              </div>
+            <div>
+            {category.map((item, index) => {
+              return (
+                <Link
+                  key={index}
+                  className="font-semibold"
+                  href={`${item.pageLink}/${item._id}`}
+                >
+                  <p className="bg-green-100 p-2 rounded-md hover:bg-green-200 cursor-pointer mb-2">
+                    {item.categoryName}
+                  </p>
+                </Link>
+              );
+            })}
+          </div>
+          
             )}
           </div>
         );
