@@ -46,37 +46,39 @@ const EmployeeBankRequest = () => {
     ],
     []
   );
+  const loadRequestData = async (employeeId) => {
+    try {
+      const { Allrequests, formTemplateData } = await fetchAllEmployeeRequests(
+        employeeId
+      );
+      const { Approvedrequests } = await fetchApprovedEmployeeRequests(
+        employeeId
+      );
+      const { Rejectedrequests } = await fetchRejectedEmployeeRequests(
+        employeeId
+      );
 
+      setRequestData({
+        all: Allrequests,
+        approved: Approvedrequests,
+        rejected: Rejectedrequests,
+      });
+      setFormTemplateData(formTemplateData);
+    } catch (err) {
+      console.error("Error fetching request data:", err);
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
   useEffect(() => {
-    const loadRequestData = async () => {
-      try {
-        const employeeId = "12345";
-        const { Allrequests, formTemplateData } =
-          await fetchAllEmployeeRequests(employeeId);
-        const { Approvedrequests } = await fetchApprovedEmployeeRequests(
-          employeeId
-        );
-        const { Rejectedrequests } = await fetchRejectedEmployeeRequests(
-          employeeId
-        );
-
-        setRequestData({
-          all: Allrequests,
-          approved: Approvedrequests,
-          rejected: Rejectedrequests,
-        });
-        setFormTemplateData(formTemplateData);
-      } catch (err) {
-        console.error("Error fetching request data:", err);
-        setError(err.message);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadRequestData();
+    const employeeId = "12345";
+    loadRequestData(employeeId);
   }, []);
-
+  const refreshData = () => {
+    // Trigger data refresh after approval/rejection
+    loadRequestData("12345");
+  };
   const toggleSidebar = () => setIsSidebarOpen((prev) => !prev);
 
   const openViewModal = (requestId) => {
@@ -266,6 +268,7 @@ const EmployeeBankRequest = () => {
         isOpen={isModalOpen}
         handleClose={() => setIsModalOpen(false)}
         onToast={handleToast}
+        refreshData={refreshData} // Pass the refreshData callback
       />
       <ViewModal
         isOpen={isViewModalOpen}
