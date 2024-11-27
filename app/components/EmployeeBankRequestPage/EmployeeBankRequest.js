@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useCallback, useMemo } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import EmployeeSidebar from "../EmployeeSidebarPage/EmployeeSidebar";
 import Link from "next/link";
 import Modal from "./Model";
@@ -11,8 +11,17 @@ import {
   fetchApprovedEmployeeRequests,
   fetchRejectedEmployeeRequests,
 } from "@/app/controllers/requestController";
+import { fetchEmployeeDetails } from "@/app/controllers/employeeController";
+import {
+  fetchCategoryList,
+  fetchSubCategoryList,
+} from "@/app/controllers/categoryController";
+import Cookies from "js-cookie";
 
-const EmployeeBankRequest = () => {
+const EmployeeBankRequest = ({ categoryId }) => {
+  //const { categoryId } = params;
+  const [employeeDetails, setEmployeeDetails] = useState([]);
+  const [subCategoryList, setSubCategoryList] = useState([]);
   const [requestData, setRequestData] = useState({
     all: [],
     approved: [],
@@ -26,6 +35,8 @@ const EmployeeBankRequest = () => {
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [selectedRequestId, setSelectedRequestId] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedSubCategoryId, setSubCategoryId] = useState(null);
+  const [category, setCategory] = useState([]);
 
   const tabs = useMemo(
     () => [
@@ -36,16 +47,13 @@ const EmployeeBankRequest = () => {
     ],
     []
   );
-
-  const links = useMemo(
-    () => [
-      { text: "Bank", path: "/employee/bankRequest" },
-      { text: "Address", path: "/employee/addressRequest" },
-      { text: "Payment", path: "/employee/paymentRequest" },
-      { text: "Leave", path: "/employee/leaveRequest" },
-    ],
-    []
-  );
+  const handleToast = (message, type) => {
+    if (type === "success") {
+      toast.success(message);
+    } else if (type === "error") {
+      toast.error(message);
+    }
+  };
   const loadRequestData = async (employeeId) => {
     try {
       const { Allrequests, formTemplateData } = await fetchAllEmployeeRequests(
@@ -57,7 +65,6 @@ const EmployeeBankRequest = () => {
       const { Rejectedrequests } = await fetchRejectedEmployeeRequests(
         employeeId
       );
-
       setRequestData({
         all: Allrequests,
         approved: Approvedrequests,
@@ -65,20 +72,69 @@ const EmployeeBankRequest = () => {
       });
       setFormTemplateData(formTemplateData);
     } catch (err) {
-      console.error("Error fetching request data:", err);
-      setError(err.message);
+      setError(err.message || "Error fetching request data.");
     } finally {
       setLoading(false);
     }
   };
+
   useEffect(() => {
-    const employeeId = "12345";
-    loadRequestData(employeeId);
-  }, []);
+    const employeeId = Cookies.get("userId");
+    if (employeeId) {
+      loadRequestData(employeeId);
+    }
+    const fetchEmployee = async () => {
+      try {
+        const employeeId = Cookies.get("userId");
+        if (!employeeId) {
+          throw new Error("No employee ID found in cookies.");
+        }
+        const { userData } = await fetchEmployeeDetails(employeeId);
+        setEmployeeDetails(userData.employeeDetails);
+      } catch (err) {
+        setError(err.message || "Error fetching employee details.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    const fetchCategoryData = async () => {
+      try {
+        const { category } = await fetchCategoryList();
+        setCategory(category || []);
+      } catch (err) {
+        setError(err.message || "Error fetching categories.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    const fetchSubcategories = async () => {
+      try {
+        if (!categoryId) return;
+        const { subCategoryList } = await fetchSubCategoryList(categoryId);
+        setSubCategoryList(subCategoryList || []);
+      } catch (err) {
+        console.error("Error fetching subcategories:", err.message);
+      }
+    };
+    fetchEmployee();
+    fetchCategoryData();
+    fetchSubcategories();
+  }, [categoryId]);
+
   const refreshData = () => {
-    // Trigger data refresh after approval/rejection
-    loadRequestData("12345");
+    const employeeId = Cookies.get("userId");
+    if (employeeId) {
+      loadRequestData(employeeId);
+    }
   };
+
+  const handleModalToggle = (itemId) => {
+    setSubCategoryId(itemId);
+    setIsModalOpen(!isModalOpen);
+  };
+
   const toggleSidebar = () => setIsSidebarOpen((prev) => !prev);
 
   const openViewModal = (requestId) => {
@@ -89,24 +145,6 @@ const EmployeeBankRequest = () => {
   const closeViewModal = () => {
     setIsViewModalOpen(false);
     setSelectedRequestId(null);
-  };
-  const handleToast = (message, type) => {
-    if (type === "success") {
-      toast.success(message);
-    } else if (type === "error") {
-      toast.error(message);
-    }
-  };
-  const toggleModal = () => setIsModalOpen((prev) => !prev);
-
-  const getRequestType = (request, formTemplateData, isTrackAllRequest) => {
-    if (isTrackAllRequest) {
-      const formTemplate = formTemplateData.find(
-        (template) => template._id === request.formTemplateId
-      );
-      return formTemplate ? formTemplate.templateName : "N/A";
-    }
-    return request.request_name || "N/A";
   };
 
   const renderTable = (data) => (
@@ -127,7 +165,7 @@ const EmployeeBankRequest = () => {
               <tr key={request._id}>
                 <td className="border px-4 py-2">{index + 1}</td>
                 <td className="border px-4 py-2">
-                  {getRequestType(request, formTemplateData, true)}
+                  {request.request_name || "N/A"}
                 </td>
                 <td className="border px-4 py-2">
                   {new Date(
@@ -166,31 +204,16 @@ const EmployeeBankRequest = () => {
     switch (activeTab) {
       case "New Request":
         return (
-          <div className="flex flex-col md:flex-row">
-            {/* Links Section */}
-            <div className="p-4 bg-white md:w-1/2">
-              {links.map((link, index) => (
-                <Link key={index} href={link.path}>
-                  <p className="bg-green-100 p-2 rounded-md hover:bg-green-200 hover:cursor-pointer mb-2 w-full">
-                    {link.text}
-                  </p>
-                </Link>
-              ))}
-            </div>
-
-            {/* Additional Options Section */}
-            <div className="flex flex-col p-4 bg-white md:w-1/2 text-center">
-              <span className="font-semibold text-lg mb-4 underline decoration-4 decoration-blue-500">
-                Bank Request
-              </span>
-              <span
-                className="font-semibold cursor-pointer hover:text-blue-500"
-                onClick={toggleModal}
+          <div className="p-4 bg-white">
+            {category.map((item) => (
+              <Link
+                key={item._id}
+                href={`${item.pageLink}/${item._id}`}
+                className="block p-2 bg-green-100 rounded-md hover:bg-green-200 mb-2 text-center"
               >
-                Update Bank Name
-              </span>
-              <span className="font-semibold">Update Bank Account</span>
-            </div>
+                {item.categoryName}
+              </Link>
+            ))}
           </div>
         );
       case "Track All Request":
@@ -206,69 +229,136 @@ const EmployeeBankRequest = () => {
 
   return (
     <div className="flex flex-col md:flex-row h-screen">
-      {/* Sidebar Toggle */}
       <button
         onClick={toggleSidebar}
         className="md:hidden flex flex-col items-center justify-center p-4"
         aria-label={isSidebarOpen ? "Close Sidebar" : "Open Sidebar"}
       >
         <div
-          className={`h-1 w-8 bg-blue-600 mb-1 ${
+          className={`h-1 w-8 bg-blue-600 mb-1 transition-transform ${
             isSidebarOpen ? "rotate-45" : ""
           }`}
         />
         <div
-          className={`h-1 w-8 bg-blue-600 ${isSidebarOpen ? "opacity-0" : ""}`}
+          className={`h-1 w-8 bg-blue-600 mb-1 ${
+            isSidebarOpen ? "opacity-0" : ""
+          }`}
         />
         <div
-          className={`h-1 w-8 bg-blue-600 ${isSidebarOpen ? "-rotate-45" : ""}`}
+          className={`h-1 w-8 bg-blue-600 mt-1 transition-transform ${
+            isSidebarOpen ? "-rotate-45" : ""
+          }`}
         />
       </button>
 
-      {/* Sidebar */}
       <div
-        className={`fixed inset-0 z-40 md:hidden ${
+        className={`fixed inset-0 z-40 md:hidden bg-gray-800 bg-opacity-75 ${
           isSidebarOpen ? "block" : "hidden"
         }`}
       >
         <EmployeeSidebar closeSidebar={toggleSidebar} />
       </div>
+
       <div className="hidden md:block">
         <EmployeeSidebar />
       </div>
 
-      {/* Main Content */}
-      <div className="flex-1 p-6 bg-gray-100">
-        <div>
-          {/* Tabs */}
-          <ul className="flex flex-wrap text-sm font-medium text-center text-gray-500 border-b">
-            {tabs.map((tab) => (
-              <li key={tab.key} className="me-2">
+      <div
+        className={`flex-1 p-6 bg-gray-100 transition-all duration-300 ${
+          isSidebarOpen ? "ml-0" : "md:ml-0"
+        }`}
+      >
+        <div className="container mx-auto px-4">
+          <div>
+            <ul className="flex flex-wrap text-sm font-medium text-center text-gray-500 border-b border-gray-200 dark:border-gray-700 dark:text-gray-400">
+              <li className="me-2">
                 <a
-                  onClick={() => setActiveTab(tab.key)}
-                  className={`inline-block p-4 rounded-t-lg ${
-                    activeTab === tab.key
+                  onClick={() => setActiveTab("New Request")}
+                  className={`inline-block p-4 rounded-t-lg hover:cursor-pointer ${
+                    activeTab === "New Request"
                       ? "text-blue-600 bg-white"
-                      : "hover:text-gray-600 hover:bg-gray-50"
+                      : "hover:text-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800 dark:hover:text-gray-300"
                   }`}
                 >
-                  {tab.label}
+                  New Request
                 </a>
               </li>
-            ))}
-          </ul>
+              <li className="me-2">
+                <a
+                  onClick={() => setActiveTab("Track All Request")}
+                  className={`inline-block p-4 rounded-t-lg hover:cursor-pointer ${
+                    activeTab === "Track All Request"
+                      ? "text-blue-600 bg-white"
+                      : "hover:text-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800 dark:hover:text-gray-300"
+                  }`}
+                >
+                  Track All Request
+                </a>
+              </li>
+              <li className="me-2">
+                <a
+                  onClick={() => setActiveTab("Track Approved Requests")}
+                  className={`inline-block p-4 rounded-t-lg hover:cursor-pointer ${
+                    activeTab === "Track Approved Requests"
+                      ? "text-blue-600 bg-white"
+                      : "hover:text-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800 dark:hover:text-gray-300"
+                  }`}
+                >
+                  Track Approved Requests
+                </a>
+              </li>
+              <li className="me-2">
+                <a
+                  onClick={() => setActiveTab("Track Rejected Requests")}
+                  className={`inline-block p-4 rounded-t-lg hover:cursor-pointer ${
+                    activeTab === "Track Rejected Requests"
+                      ? "text-blue-600 bg-white"
+                      : "hover:text-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800 dark:hover:text-gray-300"
+                  }`}
+                >
+                  Track Rejected Requests
+                </a>
+              </li>
+            </ul>
 
-          {/* Tab Content */}
-          <div>{renderContent()}</div>
+            <div className="flex flex-col md:flex-row bg-white shadow-lg mt-4 rounded-lg">
+              <div className="w-full">{renderContent()}</div>
+              {activeTab === "New Request" && (
+                <div className="flex flex-col p-4 bg-white md:w-1/2 text-center">
+                  <span className="font-semibold text-lg mb-4 underline decoration-4 decoration-blue-500">
+                    Bank Request
+                  </span>
+                  {loading ? (
+                    <p>Loading subcategories...</p>
+                  ) : subCategoryList.length > 0 ? (
+                    subCategoryList.map((item) => (
+                      <div key={item._id} className="mb-4">
+                        <span
+                          className="font-semibold cursor-pointer hover:text-blue-500"
+                          onClick={() =>
+                            handleModalToggle(item.form_template_id)
+                          }
+                        >
+                          {item.subcategoryName}
+                        </span>
+                        {/* <span className="font-semibold block">{item.form_template_name}</span> */}
+                      </div>
+                    ))
+                  ) : (
+                    <p>No subcategories available</p>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
         </div>
       </div>
-
-      {/* Modals */}
       <Modal
         isOpen={isModalOpen}
-        handleClose={() => setIsModalOpen(false)}
+        handleClose={handleModalToggle}
+        refreshData={refreshData}
+        itemId={selectedSubCategoryId}
         onToast={handleToast}
-        refreshData={refreshData} // Pass the refreshData callback
       />
       <ViewModal
         isOpen={isViewModalOpen}

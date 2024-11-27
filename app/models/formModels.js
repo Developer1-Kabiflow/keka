@@ -2,15 +2,21 @@ import axios from "axios";
 import BASE_URL from "@/utils/utils";
 
 // Fetch form schema from backend
-export const fetchFormSchema = async (formId) => {
+export const fetchFormSchema = async (formId, employeeId) => {
   try {
     const response = await axios.get(
-      `${BASE_URL}/template/fetchForm/${formId}`
+      `${BASE_URL}/template/fetchForm/${formId}/${employeeId}`
     );
-    if (!response.data || !response.data.data) {
-      throw new Error("Invalid form schema response");
+
+    if (!response?.data?.data || !response?.data?.employeeData) {
+      throw new Error("Incomplete or invalid form schema response");
     }
-    return response.data;
+
+    return {
+      fields: response.data.data, // Schema fields
+      employeeData: response.data.employeeData, // Employee-specific data
+    };
+    log;
   } catch (error) {
     console.error("Error in fetchFormSchema:", error.message);
     throw error;

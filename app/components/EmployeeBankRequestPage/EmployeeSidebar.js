@@ -1,11 +1,12 @@
 "use client";
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import EmployeeSidebar from "../EmployeeSidebarPage/EmployeeSidebar";
+import EmployeeSidebar from "../EmployeeSidebarPage/EmployeeSidebar"; // Importing Sidebar
 import Modal from "./Model";
 import ViewModal from "./ViewModal";
 import { fetchAllEmployeeRequests } from "@/app/controllers/requestController";
 import { toast } from "react-toastify";
+
 const EmployeeBankRequest = () => {
   const [requestData, setRequestData] = useState([]);
   const [formTemplateData, setFormTemplateData] = useState([]);
@@ -27,6 +28,7 @@ const EmployeeBankRequest = () => {
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
   };
+
   const handleToast = (message, type) => {
     if (type === "success") {
       toast.success(message);
@@ -34,6 +36,7 @@ const EmployeeBankRequest = () => {
       toast.error(message);
     }
   };
+
   useEffect(() => {
     const fetchRequestData = async () => {
       try {
@@ -143,6 +146,7 @@ const EmployeeBankRequest = () => {
 
   return (
     <div className="flex flex-col md:flex-row h-screen">
+      {/* Sidebar Button */}
       <button
         onClick={toggleSidebar}
         className="md:hidden flex flex-col items-center justify-center p-4"
@@ -165,6 +169,7 @@ const EmployeeBankRequest = () => {
         />
       </button>
 
+      {/* Sidebar */}
       <div
         className={`fixed inset-0 z-40 md:hidden bg-gray-800 bg-opacity-75 ${
           isSidebarOpen ? "block" : "hidden"
@@ -243,6 +248,7 @@ const EmployeeBankRequest = () => {
         </div>
       </div>
 
+      {/* Modals */}
       <Modal
         isOpen={isModalOpen}
         handleClose={handleModalToggle}
@@ -250,8 +256,8 @@ const EmployeeBankRequest = () => {
       />
       <ViewModal
         isOpen={isViewModalOpen}
-        handleClose={closeViewModal}
         requestId={selectedRequestId}
+        closeViewModal={closeViewModal}
       />
     </div>
   );
