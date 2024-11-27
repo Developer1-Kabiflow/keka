@@ -10,7 +10,7 @@ import {
   fetchRejectedEmployeeRequests,
 } from "@/app/controllers/requestController";
 import { fetchCategoryList } from "@/app/controllers/categoryController";
-
+import Cookies from "js-cookie";
 const EmployeeNewRequest = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [requestData, setRequestData] = useState({
@@ -37,34 +37,35 @@ const EmployeeNewRequest = () => {
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
   };
+  const loadRequestData = async (employeeId) => {
+    try {
+      const { Allrequests, formTemplateData } = await fetchAllEmployeeRequests(
+        employeeId
+      );
+      const { Approvedrequests } = await fetchApprovedEmployeeRequests(
+        employeeId
+      );
+      const { Rejectedrequests } = await fetchRejectedEmployeeRequests(
+        employeeId
+      );
 
+      setRequestData({
+        all: Allrequests,
+        approved: Approvedrequests,
+        rejected: Rejectedrequests,
+      });
+      setFormTemplateData(formTemplateData);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
   useEffect(() => {
-    const loadRequestData = async () => {
-      try {
-        const employeeId = "12345";
-        const { Allrequests, formTemplateData } =
-          await fetchAllEmployeeRequests(employeeId);
-        const { Approvedrequests } = await fetchApprovedEmployeeRequests(
-          employeeId
-        );
-        const { Rejectedrequests } = await fetchRejectedEmployeeRequests(
-          employeeId
-        );
-
-        setRequestData({
-          all: Allrequests,
-          approved: Approvedrequests,
-          rejected: Rejectedrequests,
-        });
-        setFormTemplateData(formTemplateData);
-      } catch (err) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadRequestData();
+    const employeeId = Cookies.get("userId");
+    if (employeeId) {
+      loadRequestData(employeeId);
+    }
   }, []);
 
   useEffect(() => {
