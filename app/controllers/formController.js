@@ -5,23 +5,29 @@ import {
 } from "../models/formModels";
 
 // Process form schema and prepare initial data
-export const getProcessedFormSchema = async (formId) => {
+export const getProcessedFormSchema = async (formId, employeeId) => {
   try {
-    const schema = await fetchFormSchema(formId);
-    if (!schema || !schema.data) {
-      throw new Error("Schema data is undefined");
+    const { fields, employeeData } = await fetchFormSchema(formId, employeeId);
+
+    if (!fields || fields.length === 0) {
+      throw new Error("Schema fields are empty or undefined");
     }
-    const initialData = schema.data.reduce((acc, field) => {
+
+    const initialData = fields.reduce((acc, field) => {
       acc[field.name] = field.type === "checkbox" ? [] : "";
       return acc;
     }, {});
-    return { formSchema: schema, formType: schema.formType, initialData };
+    console.log("employeeData: - ", employeeData);
+
+    return {
+      formSchema: fields,
+      formType: fields.formType || null, // Default to null if not present
+      initialData,
+      employeeData,
+    };
   } catch (error) {
-    console.error(
-      "Error in getProcessedFormSchema:",
-      error.response?.data || error.message
-    );
-    throw error;
+    console.error("Error in getProcessedFormSchema:", error.message);
+    throw new Error("Failed to process form schema");
   }
 };
 

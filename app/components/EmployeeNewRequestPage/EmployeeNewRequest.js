@@ -9,6 +9,7 @@ import {
   fetchApprovedEmployeeRequests,
   fetchRejectedEmployeeRequests,
 } from "@/app/controllers/requestController";
+import { fetchCategoryList } from "@/app/controllers/categoryController";
 
 const EmployeeNewRequest = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -23,7 +24,7 @@ const EmployeeNewRequest = () => {
   const [activeTab, setActiveTab] = useState("New Request");
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [selectedRequestId, setSelectedRequestId] = useState(null);
-
+  const [category, setCategory] = useState([]);
   const tabs = useMemo(
     () => [
       { key: "New Request", label: "New Request" },
@@ -33,18 +34,9 @@ const EmployeeNewRequest = () => {
     ],
     []
   );
-
-  const links = useMemo(
-    () => [
-      { text: "Bank", path: "/employee/bankRequest" },
-      { text: "Address", path: "/employee/bankRequest" },
-      { text: "Payment", path: "/employee/bankRequest" },
-      { text: "Leave", path: "/employee/bankRequest" },
-    ],
-    []
-  );
-
-  const toggleSidebar = () => setIsSidebarOpen((prev) => !prev);
+  const toggleSidebar = () => {
+    setIsSidebarOpen(!isSidebarOpen);
+  };
 
   useEffect(() => {
     const loadRequestData = async () => {
@@ -73,6 +65,23 @@ const EmployeeNewRequest = () => {
     };
 
     loadRequestData();
+  }, []);
+
+  useEffect(() => {
+    const fetchCategoryData = async () => {
+      try {
+        const categoryList = await fetchCategoryList();
+        console.log("Category List:", categoryList.category); // This should now be an array
+        setCategory(categoryList.category); // Set the array into state
+        setLoading(false);
+      } catch (error) {
+        console.error("Error fetching category data:", error.message);
+        setError(error.message);
+        setLoading(false);
+      }
+    };
+
+    fetchCategoryData();
   }, []);
 
   const openViewModal = (requestId) => {
@@ -149,14 +158,26 @@ const EmployeeNewRequest = () => {
     switch (activeTab) {
       case "New Request":
         return (
-          <div className="p-4 bg-white">
-            {links.map((link, index) => (
-              <Link key={index} href={link.path}>
-                <p className="bg-green-100 p-2 rounded-md hover:bg-green-200 cursor-pointer mb-2">
-                  {link.text}
-                </p>
-              </Link>
-            ))}
+          <div className="p-4 bg-white w-full">
+            {loading && <p>Loading...</p>}
+            {error && <p>Error: {error}</p>}
+            {!loading && !error && category.length > 0 && (
+              <div>
+                {category.map((item, index) => {
+                  return (
+                    <Link
+                      key={index}
+                      className="font-semibold"
+                      href={`${item.pageLink}/${item._id}`}
+                    >
+                      <p className="bg-green-100 p-2 rounded-md hover:bg-green-200 cursor-pointer mb-2">
+                        {item.categoryName}
+                      </p>
+                    </Link>
+                  );
+                })}
+              </div>
+            )}
           </div>
         );
       case "Track All Request":
