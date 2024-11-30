@@ -21,21 +21,13 @@ export default function ProgressStepsContainer({ approvalData }) {
     }
   }, [approvalData]);
 
-  const handleNext = () => {
-    setActiveStep((prevActiveStep) => prevActiveStep + 1);
-  };
-
-  const handleBack = () => {
-    setActiveStep((prevActiveStep) => prevActiveStep - 1);
-  };
-
   const handleReset = () => {
     setActiveStep(0);
   };
 
   return (
     <Box sx={{ width: "100%" }}>
-      <Stepper activeStep={activeStep}>
+      <Stepper activeStep={activeStep} alternativeLabel>
         {steps.map((label, index) => (
           <Step key={label}>
             <StepLabel>
@@ -58,30 +50,17 @@ export default function ProgressStepsContainer({ approvalData }) {
 
       {activeStep === steps.length ? (
         <React.Fragment>
-          <Typography sx={{ mt: 2, mb: 1 }}>
+          <Typography sx={{ mt: 2, mb: 1, textAlign: "center" }}>
             All steps completed - you&apos;re finished
           </Typography>
-          <Box sx={{ display: "flex", flexDirection: "row", pt: 2 }}>
-            <Box sx={{ flex: "1 1 auto" }} />
-            <Button onClick={handleReset}>Reset</Button>
+          <Box sx={{ display: "flex", justifyContent: "center", pt: 2 }}>
+            <Button onClick={handleReset} variant="contained" color="primary">
+              Reset
+            </Button>
           </Box>
         </React.Fragment>
       ) : (
         <React.Fragment>
-          <Box sx={{ display: "flex", flexDirection: "row", pt: 2 }}>
-            <Button
-              color="inherit"
-              disabled={activeStep === 0}
-              onClick={handleBack}
-              sx={{ mr: 1 }}
-            >
-              {/* Back */}
-            </Button>
-            <Box sx={{ flex: "1 1 auto" }} />
-            <Button onClick={handleNext}>
-              {/* {activeStep === steps.length - 1 ? 'Finish' : 'Next'} */}
-            </Button>
-          </Box>
           <Typography sx={{ mt: 2, mb: 1, textAlign: "center" }}>
             {activeStep > 0 ? `Step ${activeStep + 1} is finished` : ""}
           </Typography>

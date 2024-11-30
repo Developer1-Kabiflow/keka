@@ -1,9 +1,9 @@
 "use client";
 
 import React, { useState, useEffect, useMemo } from "react";
-import EmployeeSidebar from "../EmployeeSidebarPage/EmployeeSidebar";
+// import EmployeeSidebar from "../EmployeeSidebarPage/EmployeeSidebar";
 import Link from "next/link";
-import Modal from "./Model";
+import Modal from "./Modal";
 import ViewModal from "./ViewModal";
 import { toast } from "react-toastify";
 import {
@@ -135,8 +135,6 @@ const EmployeeBankRequest = ({ categoryId }) => {
     setIsModalOpen(!isModalOpen);
   };
 
-  const toggleSidebar = () => setIsSidebarOpen((prev) => !prev);
-
   const openViewModal = (requestId) => {
     setSelectedRequestId(requestId);
     setIsViewModalOpen(true);
@@ -229,44 +227,8 @@ const EmployeeBankRequest = ({ categoryId }) => {
 
   return (
     <div className="flex flex-col md:flex-row h-screen">
-      <button
-        onClick={toggleSidebar}
-        className="md:hidden flex flex-col items-center justify-center p-4"
-        aria-label={isSidebarOpen ? "Close Sidebar" : "Open Sidebar"}
-      >
-        <div
-          className={`h-1 w-8 bg-blue-600 mb-1 transition-transform ${
-            isSidebarOpen ? "rotate-45" : ""
-          }`}
-        />
-        <div
-          className={`h-1 w-8 bg-blue-600 mb-1 ${
-            isSidebarOpen ? "opacity-0" : ""
-          }`}
-        />
-        <div
-          className={`h-1 w-8 bg-blue-600 mt-1 transition-transform ${
-            isSidebarOpen ? "-rotate-45" : ""
-          }`}
-        />
-      </button>
-
       <div
-        className={`fixed inset-0 z-40 md:hidden bg-gray-800 bg-opacity-75 ${
-          isSidebarOpen ? "block" : "hidden"
-        }`}
-      >
-        <EmployeeSidebar closeSidebar={toggleSidebar} />
-      </div>
-
-      <div className="hidden md:block">
-        <EmployeeSidebar />
-      </div>
-
-      <div
-        className={`flex-1 p-6 bg-gray-100 transition-all duration-300 ${
-          isSidebarOpen ? "ml-0" : "md:ml-0"
-        }`}
+        className={`flex-1 p-6 bg-gray-100 transition-all duration-300 md:ml-0`}
       >
         <div className="container mx-auto px-4">
           <div>
