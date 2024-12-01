@@ -1,4 +1,5 @@
 "use client";
+
 import { useState, useEffect } from "react";
 import {
   getProcessedFormSchema,
@@ -7,12 +8,12 @@ import {
 import Cookies from "js-cookie";
 
 const Modal = ({ isOpen, handleClose, itemId, onToast, refreshData }) => {
-  const [formSchema, setFormSchema] = useState({});
+  const [formSchema, setFormSchema] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [formData, setFormData] = useState({});
   const [formType, setFormType] = useState("");
-  const [employeeDetails, setEmployeeDetails] = useState("");
+  const [employeeDetails, setEmployeeDetails] = useState(null);
 
   const formId = itemId;
 
@@ -21,6 +22,7 @@ const Modal = ({ isOpen, handleClose, itemId, onToast, refreshData }) => {
       const fetchForm = async () => {
         try {
           setLoading(true);
+          console.log("formId-->" + formId);
           const employeeId = Cookies.get("userId");
           const { formSchema, formType, initialData, employeeData } =
             await getProcessedFormSchema(formId, employeeId);
@@ -131,7 +133,7 @@ const Modal = ({ isOpen, handleClose, itemId, onToast, refreshData }) => {
 
   return (
     <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center z-50">
-      <div className="bg-white p-6 rounded-lg w-[900px] h-[600px] overflow-y-auto">
+      <div className="bg-white p-6 rounded-lg w-full sm:w-[600px] md:w-[900px] h-[600px] overflow-y-auto">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-semibold">{formType || "Form"}</h2>
         </div>

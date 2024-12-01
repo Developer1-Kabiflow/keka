@@ -1,10 +1,10 @@
 // app/employee/bankRequest/[id]/page.js
-import React from 'react';
-import Navbar from '@/app/components/NavbarPage/Navbar';
-import EmployeeBankRequest from '@/app/components/EmployeeBankRequestPage/EmployeeBankRequest';
+import React from "react";
+import Navbar from "@/app/components/NavbarPage/Navbar";
+import EmployeeBankRequest from "@/app/components/EmployeeRequest/EmployeeBankRequest";
 
 const EmployeeBankRequestPage = ({ params }) => {
-  const { id } = params; 
+  const { id } = params;
   return (
     <div>
       <Navbar />
