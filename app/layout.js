@@ -6,7 +6,8 @@ import "react-toastify/dist/ReactToastify.css";
 import { useState } from "react";
 import { usePathname } from "next/navigation";
 import EmployeeSidebar from "@/app/components/EmployeeSidebarPage/EmployeeSidebar";
-
+import { metadata } from "./metadata";
+export const Metadata = metadata;
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
   variable: "--font-geist-sans",
@@ -36,6 +37,11 @@ export default function RootLayout({ children }) {
 
   return (
     <html lang="en">
+      <head>
+        <title>{metadata.title}</title> {/* Set the global title */}
+        <meta name="description" content={metadata.description} />{" "}
+        {/* Set global description */}
+      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
