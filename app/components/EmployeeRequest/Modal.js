@@ -1,5 +1,4 @@
 "use client";
-
 import { useState, useEffect } from "react";
 import {
   getProcessedFormSchema,
@@ -8,12 +7,13 @@ import {
 import Cookies from "js-cookie";
 
 const Modal = ({ isOpen, handleClose, itemId, onToast, refreshData }) => {
-  const [formSchema, setFormSchema] = useState([]);
+  const [formSchema, setFormSchema] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [formData, setFormData] = useState({});
   const [formType, setFormType] = useState("");
-  const [employeeDetails, setEmployeeDetails] = useState(null);
+  const [employeeDetails, setEmployeeDetails] = useState("");
+  const [formErrors, setFormErrors] = useState({});
 
   const formId = itemId;
 
@@ -22,7 +22,6 @@ const Modal = ({ isOpen, handleClose, itemId, onToast, refreshData }) => {
       const fetchForm = async () => {
         try {
           setLoading(true);
-          console.log("formId-->" + formId);
           const employeeId = Cookies.get("userId");
           const { formSchema, formType, initialData, employeeData } =
             await getProcessedFormSchema(formId, employeeId);
@@ -42,9 +41,20 @@ const Modal = ({ isOpen, handleClose, itemId, onToast, refreshData }) => {
     }
   }, [isOpen, formId]);
 
+
+  const validateField = (name, value, validationRules) => {
+    for (const rule of validationRules) {
+      const regex = new RegExp(rule.pattern);
+      if (!regex.test(value)) {
+        return rule.message;
+      }
+    }
+    return null;
+  };
+
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
-
+  
     setFormData((prevData) => ({
       ...prevData,
       [name]:
@@ -54,22 +64,62 @@ const Modal = ({ isOpen, handleClose, itemId, onToast, refreshData }) => {
             : (prevData[name] || []).filter((item) => item !== value)
           : value,
     }));
+  
+    const fieldSchema = formSchema.find((field) => field.name === name);
+    const errorMessage = validateField(name, value, fieldSchema?.validation || []);
+  
+    setFormErrors((prevErrors) => ({
+      ...prevErrors,
+      [name]: errorMessage,
+    }));
   };
 
+
+  const handleRadioChange = (e, fieldName) => {
+    const { value } = e.target;
+  
+    // Update the formData state with the selected radio value
+    setFormData((prevData) => ({
+      ...prevData,
+      [fieldName]: value,  // Use fieldName (i.e., field.name) here to set the correct field in formData
+    }));
+  
+    // Optionally, you can still update employeeDetails if needed
+    setEmployeeDetails((prev) => ({
+      ...prev,
+      [fieldName]: value,
+    }));
+  };
+  
+  
   const handleSubmit = async (e) => {
     e.preventDefault();
+  
+    const errors = formSchema.reduce((acc, field) => {
+      const fieldValue = formData[field.name] || "";  // Use formData for the value
+      const error = validateField(field.name, fieldValue, field.validation || []);
+      if (error) {
+        acc[field.name] = error;
+      }
+      return acc;
+    }, {});
+  
+    setFormErrors(errors);
+  
+    if (Object.keys(errors).length > 0) {
+      return; // Prevent submission if there are validation errors
+    }
+  
     try {
       const submittedData = formSchema.reduce((acc, field) => {
         if (field.disabled && employeeDetails && employeeDetails[field.label]) {
           acc[field.name] = employeeDetails[field.label] || "";
         } else {
-          acc[field.name] = formData[field.name] || "";
+          acc[field.name] = formData[field.name] || "";  // Ensure you're using formData here
         }
         return acc;
       }, {});
-
-      console.log("Submitted data: ", submittedData);
-
+  
       await handleFormSubmissionWithData(formId, submittedData);
       onToast("Created Request Successfully", "success");
       refreshData();
@@ -80,24 +130,26 @@ const Modal = ({ isOpen, handleClose, itemId, onToast, refreshData }) => {
       setError(err.message);
     }
   };
+  
+  
 
   const renderField = (field) => {
-    if (field.type === "radio" || field.type === "checkbox") {
+    if (field.type === "radio") {
       return (
         <div className="mb-4" key={field.name}>
           <label className="block text-gray-700">{field.label}:</label>
           {field.options.map((option) => (
             <div key={option} className="flex items-center mb-2">
               <input
-                type={field.type}
-                name={field.name}
+                type="radio"
+                name={field.label}  
                 value={option}
                 checked={
                   field.type === "radio"
-                    ? formData[field.name] === option
-                    : formData[field.name]?.includes(option)
+                    ? employeeDetails[field.label] === option
+                    : employeeDetails[field.label]?.includes(option)
                 }
-                onChange={handleChange}
+                onChange={(e) => handleRadioChange(e, field.name)}
                 required={field.required}
                 className="mr-2"
               />
@@ -106,7 +158,34 @@ const Modal = ({ isOpen, handleClose, itemId, onToast, refreshData }) => {
           ))}
         </div>
       );
-    } else {
+    }
+    else if (field.type === "select") {
+      return (
+        <div className="mb-4" key={field.name}>
+          <label className="block text-gray-700">{field.label}:</label>
+          <select
+            name={field.name}
+            value={formData[field.name] || ""}
+            onChange={handleChange}
+            required={field.required}
+            className="w-full px-3 py-2 border rounded"
+          >
+            <option value="" disabled>
+              Select an option
+            </option>
+            {field.options.map((option) => (
+              <option key={option} value={option}>
+                {option}
+              </option>
+            ))}
+          </select>
+          {formErrors[field.name] && (
+            <p className="text-red-500 text-sm mt-1">{formErrors[field.name]}</p>
+          )}
+        </div>
+      );
+    } 
+    else {
       return (
         <div className="mb-4" key={field.name}>
           <label className="block text-gray-700">{field.display}:</label>
@@ -124,6 +203,9 @@ const Modal = ({ isOpen, handleClose, itemId, onToast, refreshData }) => {
             disabled={field.disabled}
             className="w-full px-3 py-2 border rounded"
           />
+           {formErrors[field.name] && (
+          <p className="text-red-500 text-sm mt-1">{formErrors[field.name]}</p>
+        )}
         </div>
       );
     }
@@ -133,7 +215,7 @@ const Modal = ({ isOpen, handleClose, itemId, onToast, refreshData }) => {
 
   return (
     <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center z-50">
-      <div className="bg-white p-6 rounded-lg w-full sm:w-[600px] md:w-[900px] h-[600px] overflow-y-auto">
+      <div className="bg-white p-6 rounded-lg w-[900px] h-[600px] overflow-y-auto">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-semibold">{formType || "Form"}</h2>
         </div>

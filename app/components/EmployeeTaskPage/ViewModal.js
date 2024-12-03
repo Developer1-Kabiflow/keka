@@ -7,6 +7,7 @@ import {
   handleApprove,
   handleReject,
 } from "@/app/controllers/approvalController";
+import Cookies from "js-cookie";
 
 const ViewModal = ({
   isOpen,
@@ -20,12 +21,13 @@ const ViewModal = ({
   const [error, setError] = useState(null);
   const [formData, setFormData] = useState({});
   const [approvalData, setApprovalData] = useState({});
-  const [approverId] = useState("E001");
+ 
   const [showRejectTextbox, setShowRejectTextbox] = useState(false);
   const [rejectionNote, setRejectionNote] = useState("");
   const bottomRef = useRef(null);
   const progressStepsRef = useRef(null); // Ref to progress steps container
 
+  const approverId = Cookies.get("userId");
   // Fetch Form Data
   const fetchForm = useCallback(async () => {
     if (isOpen && requestId) {

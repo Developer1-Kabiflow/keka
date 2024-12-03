@@ -18,7 +18,7 @@ import {
 } from "@/app/controllers/categoryController";
 import Cookies from "js-cookie";
 
-const EmployeeBankRequest = ({ categoryId }) => {
+const EmployeeRequest = ({ categoryId }) => {
   //const { categoryId } = params;
   const [employeeDetails, setEmployeeDetails] = useState([]);
   const [subCategoryList, setSubCategoryList] = useState([]);
@@ -72,7 +72,7 @@ const EmployeeBankRequest = ({ categoryId }) => {
       });
       setFormTemplateData(formTemplateData);
     } catch (err) {
-      setError(err.message || "Error fetching request data.");
+      // setError(err.message || "Error fetching request data.");
     } finally {
       setLoading(false);
     }
@@ -331,4 +331,4 @@ const EmployeeBankRequest = ({ categoryId }) => {
   );
 };
 
-export default EmployeeBankRequest;
+export default EmployeeRequest;

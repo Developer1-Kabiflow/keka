@@ -53,7 +53,7 @@ const EmployeeNewRequest = () => {
       });
       setFormTemplateData(formTemplateData);
     } catch (err) {
-      setError(err.message);
+      // setError(err.message);
     } finally {
       setLoading(false);
     }
