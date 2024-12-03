@@ -187,8 +187,8 @@ const EmployeeNewRequest = () => {
                 onClick={() => setActiveTab(tab.key)}
                 className={`inline-block p-4 rounded-t-lg ${
                   activeTab === tab.key
-                    ? "text-blue-600 bg-white"
-                    : "hover:text-gray-600 hover:bg-gray-50"
+                    ? "text-blue-600 font-bold bg-white"
+                    : "hover:text-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800 dark:hover:text-gray-300"
                 }`}
               >
                 {tab.label}

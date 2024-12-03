@@ -35,7 +35,9 @@ export default function ProgressStepsContainer({ approvalData }) {
   // Helper function to determine the font weight of each step
   const getFontWeight = (index) => {
     const currentStep = approvals?.[index]?.current_status;
-    return currentStep === "Approved" || index === activeStep || index === activeStep + 1
+    return currentStep === "Approved" ||
+      index === activeStep ||
+      index === activeStep + 1
       ? "bold"
       : "normal";
   };
@@ -56,7 +58,9 @@ export default function ProgressStepsContainer({ approvalData }) {
         color={getCurrentStatusColor()} // Dynamically apply color based on current status
         sx={{ mb: 2, textAlign: "center", fontWeight: "bold" }}
       >
-        {`Step ${activeStep + 1} - ${approvals?.[activeStep]?.current_status || "Pending"}`}
+        {`Step ${activeStep + 1} - ${
+          approvals?.[activeStep]?.current_status || "Pending"
+        }`}
       </Typography>
 
       {/* Stepper Component */}
@@ -64,7 +68,9 @@ export default function ProgressStepsContainer({ approvalData }) {
         {approvals.map((step, index) => {
           const isApproved = step?.current_status === "Approved";
           const isRejected = step?.current_status === "Rejected";
-          const isNextStep = index === activeStep + 1 && approvals?.[activeStep]?.current_status === "Approved";
+          const isNextStep =
+            index === activeStep + 1 &&
+            approvals?.[activeStep]?.current_status === "Approved";
           const isActive = index === activeStep;
 
           return (
@@ -72,7 +78,7 @@ export default function ProgressStepsContainer({ approvalData }) {
               <StepLabel>
                 <Typography
                   variant="body1"
-                  color={getStepColor(index)}  // Apply the color dynamically
+                  color={getStepColor(index)} // Apply the color dynamically
                   sx={{ fontWeight: getFontWeight(index) }}
                 >
                   {`Step ${index + 1}`}
@@ -81,10 +87,12 @@ export default function ProgressStepsContainer({ approvalData }) {
                   step.approval_list.map((approval, i) => (
                     <Typography
                       variant="caption"
-                      color={getStepColor(index)}  // Apply the color dynamically for approvers as well
+                      color={getStepColor(index)} // Apply the color dynamically for approvers as well
                       key={i}
                     >
-                      <p style={{ fontWeight: "600" }}>Approvers: {approval.employee_name}</p>
+                      <p style={{ fontWeight: "600" }}>
+                        Approvers: {approval.employee_name}
+                      </p>
                     </Typography>
                   ))
                 ) : (

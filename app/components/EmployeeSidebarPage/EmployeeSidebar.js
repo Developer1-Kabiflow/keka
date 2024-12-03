@@ -17,7 +17,8 @@ const EmployeeSidebar = ({ closeSidebar }) => {
   };
 
   // Helper function to determine if an item is active based on pathname
-  const getActiveClass = (path) => (pathname === path ? "bg-gray-300" : "");
+  const getActiveClass = (path) =>
+    pathname === path ? "bg-gray-300 font-semibold" : "";
 
   return (
     <div className="w-64 h-full bg-blue-50 text-black fixed md:static">
@@ -56,10 +57,10 @@ const EmployeeSidebar = ({ closeSidebar }) => {
             </Link>
           </li>
           <li
-            className={`mb-2 ${getActiveClass("/employee/task")}`}
+            className={`mb-2 ${getActiveClass("/employee/approvals")}`}
             onClick={handleItemClick}
           >
-            <Link href="/employee/task">
+            <Link href="/employee/approvals">
               <span className="block py-2 px-4 hover:bg-gray-200 hover:cursor-pointer">
                 Approvals
               </span>

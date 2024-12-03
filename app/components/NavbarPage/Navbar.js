@@ -20,12 +20,12 @@ const Navbar = () => {
           <div className="hidden md:block">
             <div className="ml-10 flex items-baseline space-x-4 text-gray-800">
               <Link href="/">
-                <span className="flex px-3 py-2 rounded-md text-sm font-medium hover:bg-blue-700">
+                <span className="flex px-3 py-2 rounded-md text-sm font-medium hover:bg-blue-300">
                   <FaBell className="w-4 h-4 flex justify-center items-center" />
                 </span>
               </Link>
-              <Link href="/logout">
-                <span className="px-3 py-2 rounded-md text-sm font-medium hover:bg-blue-700">
+              <Link href="/employee/logout">
+                <span className="px-3 py-2 rounded-md text-sm font-medium hover:bg-blue-300">
                   Logout
                 </span>
               </Link>

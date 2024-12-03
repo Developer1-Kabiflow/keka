@@ -238,7 +238,7 @@ const EmployeeRequest = ({ categoryId }) => {
                   onClick={() => setActiveTab("New Request")}
                   className={`inline-block p-4 rounded-t-lg hover:cursor-pointer ${
                     activeTab === "New Request"
-                      ? "text-blue-600 bg-white"
+                      ? "text-blue-600 font-bold bg-white"
                       : "hover:text-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800 dark:hover:text-gray-300"
                   }`}
                 >
@@ -250,7 +250,7 @@ const EmployeeRequest = ({ categoryId }) => {
                   onClick={() => setActiveTab("Track All Request")}
                   className={`inline-block p-4 rounded-t-lg hover:cursor-pointer ${
                     activeTab === "Track All Request"
-                      ? "text-blue-600 bg-white"
+                      ? "text-blue-600 font-bold bg-white"
                       : "hover:text-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800 dark:hover:text-gray-300"
                   }`}
                 >
@@ -262,7 +262,7 @@ const EmployeeRequest = ({ categoryId }) => {
                   onClick={() => setActiveTab("Track Approved Requests")}
                   className={`inline-block p-4 rounded-t-lg hover:cursor-pointer ${
                     activeTab === "Track Approved Requests"
-                      ? "text-blue-600 bg-white"
+                      ? "text-blue-600 font-bold bg-white"
                       : "hover:text-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800 dark:hover:text-gray-300"
                   }`}
                 >
@@ -274,7 +274,7 @@ const EmployeeRequest = ({ categoryId }) => {
                   onClick={() => setActiveTab("Track Rejected Requests")}
                   className={`inline-block p-4 rounded-t-lg hover:cursor-pointer ${
                     activeTab === "Track Rejected Requests"
-                      ? "text-blue-600 bg-white"
+                      ? "text-blue-600 font-bold bg-white"
                       : "hover:text-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800 dark:hover:text-gray-300"
                   }`}
                 >
