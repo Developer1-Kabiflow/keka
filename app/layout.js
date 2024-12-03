@@ -1,4 +1,5 @@
 "use client";
+
 import localFont from "next/font/local";
 import "./globals.css";
 import { ToastContainer } from "react-toastify";
@@ -11,6 +12,7 @@ import { redirect } from "next/navigation";
 import Cookies from "js-cookie";
 
 export const Metadata = metadata;
+
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
   variable: "--font-geist-sans",
@@ -37,13 +39,16 @@ export default function RootLayout({ children }) {
   const toggleMenu = () => {
     setIsSidebarOpen(!isSidebarOpen);
   };
+
   useEffect(() => {
     const userId = Cookies.get("userId");
-    if (!userId) {
-      // Redirect to login page if no userId cookie is found
+
+    // Redirect only if the current page is not `/`
+    if (!userId && pathname !== "/") {
       redirect("/");
     }
-  }, []); // This effect runs once on mount
+  }, [pathname]); // Add pathname to dependencies to re-run the effect when it changes
+
   return (
     <html lang="en">
       <head>
