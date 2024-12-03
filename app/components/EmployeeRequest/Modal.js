@@ -1,5 +1,4 @@
 "use client";
-
 import { useState, useEffect } from "react";
 import {
   getProcessedFormSchema,
@@ -8,12 +7,13 @@ import {
 import Cookies from "js-cookie";
 
 const Modal = ({ isOpen, handleClose, itemId, onToast, refreshData }) => {
-  const [formSchema, setFormSchema] = useState([]);
+  const [formSchema, setFormSchema] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [formData, setFormData] = useState({});
   const [formType, setFormType] = useState("");
-  const [employeeDetails, setEmployeeDetails] = useState(null);
+  const [employeeDetails, setEmployeeDetails] = useState("");
+  const [formErrors, setFormErrors] = useState({});
 
   const formId = itemId;
 
@@ -22,7 +22,6 @@ const Modal = ({ isOpen, handleClose, itemId, onToast, refreshData }) => {
       const fetchForm = async () => {
         try {
           setLoading(true);
-          console.log("formId-->" + formId);
           const employeeId = Cookies.get("userId");
           const { formSchema, formType, initialData, employeeData } =
             await getProcessedFormSchema(formId, employeeId);
@@ -42,6 +41,16 @@ const Modal = ({ isOpen, handleClose, itemId, onToast, refreshData }) => {
     }
   }, [isOpen, formId]);
 
+  const validateField = (name, value, validationRules) => {
+    for (const rule of validationRules) {
+      const regex = new RegExp(rule.pattern);
+      if (!regex.test(value)) {
+        return rule.message;
+      }
+    }
+    return null;
+  };
+
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
 
@@ -54,21 +63,67 @@ const Modal = ({ isOpen, handleClose, itemId, onToast, refreshData }) => {
             : (prevData[name] || []).filter((item) => item !== value)
           : value,
     }));
+
+    const fieldSchema = formSchema.find((field) => field.name === name);
+    const errorMessage = validateField(
+      name,
+      value,
+      fieldSchema?.validation || []
+    );
+
+    setFormErrors((prevErrors) => ({
+      ...prevErrors,
+      [name]: errorMessage,
+    }));
+  };
+
+  const handleRadioChange = (e, fieldName) => {
+    const { value } = e.target;
+
+    // Update the formData state with the selected radio value
+    setFormData((prevData) => ({
+      ...prevData,
+      [fieldName]: value, // Use fieldName (i.e., field.name) here to set the correct field in formData
+    }));
+
+    // Optionally, you can still update employeeDetails if needed
+    setEmployeeDetails((prev) => ({
+      ...prev,
+      [fieldName]: value,
+    }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    const errors = formSchema.reduce((acc, field) => {
+      const fieldValue = formData[field.name] || ""; // Use formData for the value
+      const error = validateField(
+        field.name,
+        fieldValue,
+        field.validation || []
+      );
+      if (error) {
+        acc[field.name] = error;
+      }
+      return acc;
+    }, {});
+
+    setFormErrors(errors);
+
+    if (Object.keys(errors).length > 0) {
+      return; // Prevent submission if there are validation errors
+    }
+
     try {
       const submittedData = formSchema.reduce((acc, field) => {
         if (field.disabled && employeeDetails && employeeDetails[field.label]) {
           acc[field.name] = employeeDetails[field.label] || "";
         } else {
-          acc[field.name] = formData[field.name] || "";
+          acc[field.name] = formData[field.name] || ""; // Ensure you're using formData here
         }
         return acc;
       }, {});
-
-      console.log("Submitted data: ", submittedData);
 
       await handleFormSubmissionWithData(formId, submittedData);
       onToast("Created Request Successfully", "success");
@@ -82,28 +137,55 @@ const Modal = ({ isOpen, handleClose, itemId, onToast, refreshData }) => {
   };
 
   const renderField = (field) => {
-    if (field.type === "radio" || field.type === "checkbox") {
+    if (field.type === "radio") {
       return (
         <div className="mb-4" key={field.name}>
           <label className="block text-gray-700">{field.label}:</label>
           {field.options.map((option) => (
             <div key={option} className="flex items-center mb-2">
               <input
-                type={field.type}
-                name={field.name}
+                type="radio"
+                name={field.label}
                 value={option}
                 checked={
                   field.type === "radio"
-                    ? formData[field.name] === option
-                    : formData[field.name]?.includes(option)
+                    ? employeeDetails[field.label] === option
+                    : employeeDetails[field.label]?.includes(option)
                 }
-                onChange={handleChange}
+                onChange={(e) => handleRadioChange(e, field.name)}
                 required={field.required}
                 className="mr-2"
               />
               <label className="text-gray-700">{option}</label>
             </div>
           ))}
+        </div>
+      );
+    } else if (field.type === "select") {
+      return (
+        <div className="mb-4" key={field.name}>
+          <label className="block text-gray-700">{field.label}:</label>
+          <select
+            name={field.name}
+            value={formData[field.name] || ""}
+            onChange={handleChange}
+            required={field.required}
+            className="w-full px-3 py-2 border rounded"
+          >
+            <option value="" disabled>
+              Select an option
+            </option>
+            {field.options.map((option) => (
+              <option key={option} value={option}>
+                {option}
+              </option>
+            ))}
+          </select>
+          {formErrors[field.name] && (
+            <p className="text-red-500 text-sm mt-1">
+              {formErrors[field.name]}
+            </p>
+          )}
         </div>
       );
     } else {
@@ -124,6 +206,11 @@ const Modal = ({ isOpen, handleClose, itemId, onToast, refreshData }) => {
             disabled={field.disabled}
             className="w-full px-3 py-2 border rounded"
           />
+          {formErrors[field.name] && (
+            <p className="text-red-500 text-sm mt-1">
+              {formErrors[field.name]}
+            </p>
+          )}
         </div>
       );
     }
@@ -133,7 +220,7 @@ const Modal = ({ isOpen, handleClose, itemId, onToast, refreshData }) => {
 
   return (
     <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center z-50">
-      <div className="bg-white p-6 rounded-lg w-full sm:w-[600px] md:w-[900px] h-[600px] overflow-y-auto">
+      <div className="bg-white p-6 rounded-lg w-[900px] h-[600px] overflow-y-auto">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-semibold">{formType || "Form"}</h2>
         </div>
@@ -154,8 +241,8 @@ const Modal = ({ isOpen, handleClose, itemId, onToast, refreshData }) => {
       </div>
       <button
         onClick={handleClose}
-        className="absolute top-5 right-5 bg-blue-200 rounded-full w-10 h-10 flex items-center justify-center hover:bg-red-300 shadow-md z-20"
-        aria-label="Close"
+        className="absolute transition-all duration-300 ease-in-out top-[40px] right-[1px] sm:top-[40px] sm:right-[1px] md:top-[40px] md:right-[calc(50%-400px)] lg:top-[50px] lg:right-[calc(50%-450px)] xl:top-[50px] xl:right-[calc(50%-500px)] bg-blue-200 rounded-full w-10 h-10 flex items-center justify-center font-bold hover:bg-red-300 shadow-md z-20"
+        style={{ lineHeight: "0" }}
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"

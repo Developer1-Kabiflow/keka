@@ -10,6 +10,8 @@ import {
   fetchRejected,
 } from "@/app/controllers/approvalController";
 
+import Cookies from "js-cookie";
+
 const EmployeeTask = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("All Requests");
@@ -45,14 +47,14 @@ const EmployeeTask = () => {
       setRequestData(newRequestData);
     } catch (error) {
       console.error("Error fetching request data:", error);
-      setError("Failed to load request data. Please try again.");
+      setError("You are not authorised to see the data");
     } finally {
       setLoading(false);
     }
   }, []);
 
   useEffect(() => {
-    const approverId = "E001";
+    const approverId = Cookies.get("userId");
     fetchRequestData(approverId);
   }, [fetchRequestData]);
 
@@ -94,7 +96,7 @@ const EmployeeTask = () => {
           </thead>
           <tbody>
             {Array.isArray(requests) && requests.length > 0 ? (
-              requests.map((request, index) => (
+              [...requests].reverse().map((request, index) => (
                 <tr key={request.request_id || index}>
                   <td className="border px-4 py-2">{index + 1}</td>
                   <td className="border px-4 py-2">

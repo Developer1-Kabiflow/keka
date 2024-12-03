@@ -3,10 +3,13 @@ import localFont from "next/font/local";
 import "./globals.css";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import EmployeeSidebar from "@/app/components/EmployeeSidebarPage/EmployeeSidebar";
 import { metadata } from "./metadata";
+import { redirect } from "next/navigation";
+import Cookies from "js-cookie";
+
 export const Metadata = metadata;
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -25,7 +28,7 @@ export default function RootLayout({ children }) {
   const pathname = usePathname(); // Get the current pathname
 
   // Define pages where the sidebar is not needed
-  const pagesWithoutSidebar = ["/"]; // Add more paths here if needed
+  const pagesWithoutSidebar = ["/", "/employee/logout"]; // Add more paths here if needed
 
   // Determine whether the sidebar should be displayed
   const shouldDisplaySidebar = !pagesWithoutSidebar.includes(pathname);
@@ -34,13 +37,18 @@ export default function RootLayout({ children }) {
   const toggleMenu = () => {
     setIsSidebarOpen(!isSidebarOpen);
   };
-
+  useEffect(() => {
+    const userId = Cookies.get("userId");
+    if (!userId) {
+      // Redirect to login page if no userId cookie is found
+      redirect("/");
+    }
+  }, []); // This effect runs once on mount
   return (
     <html lang="en">
       <head>
-        <title>{metadata.title}</title> {/* Set the global title */}
-        <meta name="description" content={metadata.description} />{" "}
-        {/* Set global description */}
+        <title>{metadata.title}</title>
+        <meta name="description" content={metadata.description} />
       </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
