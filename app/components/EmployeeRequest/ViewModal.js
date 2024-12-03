@@ -1,5 +1,6 @@
 "use client";
-import React, { useState, useEffect, useCallback } from "react";
+
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import ProgressStepsContainer from "../ProgressStepsContainer";
 import { getMyFormData } from "@/app/controllers/formController";
 
@@ -8,6 +9,8 @@ const ViewModal = ({ isOpen, handleClose, requestId }) => {
   const [error, setError] = useState(null);
   const [formData, setFormData] = useState({});
   const [approvalData, setApprovalData] = useState({});
+
+  const progressStepsRef = useRef(null); // Ref to progress steps container
 
   // Use useCallback to prevent unnecessary re-creation of fetchForm
   const fetchForm = useCallback(async () => {
@@ -56,28 +59,22 @@ const ViewModal = ({ isOpen, handleClose, requestId }) => {
         {/* Modal Content */}
         <div className="flex justify-center items-center mb-4">
           <span className="text-2xl font-semibold text-blue-600">
-            Request Status
+            Request Details
           </span>
         </div>
 
-        <div className="flex flex-col w-full bg-gray-50 h-36 mb-4">
+        <div className="flex flex-col w-full bg-gray-50 h-48 mb-4">
           <div className="mt-2 mb-4 ml-2">
             <span className="text-md text-blue-500 font-semibold">
               Approval Status
             </span>
           </div>
-          <div className="w-full items-center">
+          <div className="w-full items-center" ref={progressStepsRef}>
             <ProgressStepsContainer approvalData={approvalData} />
           </div>
         </div>
 
-        <div className="flex mt-4 mb-4">
-          <h2 className="text-md font-semibold text-blue-500">
-            Submitted Form Details
-          </h2>
-        </div>
-
-        <form>
+        <form style={{ marginTop: `20px` }}>
           {formData?.fields?.map((field) => (
             <div key={field._id} className="mb-4">
               <label>{field.field_name}</label>

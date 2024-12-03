@@ -1,7 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
-import EmployeeSidebar from "../EmployeeSidebarPage/EmployeeSidebar";
+import React, { useEffect, useState, useCallback } from "react";
 import ViewModal from "./ViewModal";
 import { toast } from "react-toastify";
 import {
@@ -10,6 +9,8 @@ import {
   fetchPending,
   fetchRejected,
 } from "@/app/controllers/approvalController";
+
+import Cookies from "js-cookie";
 
 const EmployeeTask = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -25,7 +26,8 @@ const EmployeeTask = () => {
   const [selectedRequestId, setSelectedRequestId] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [showAcceptReject, setShowAcceptReject] = useState(false);
-  const fetchRequestData = async (approverId) => {
+
+  const fetchRequestData = useCallback(async (approverId) => {
     try {
       const responses = await Promise.all([
         fetchAll(approverId),
@@ -41,24 +43,22 @@ const EmployeeTask = () => {
         pending: responses[3].PendingRequests || [],
       };
 
-      console.log("Fetched data:", newRequestData); // Check if data is updated correctly
-
-      setRequestData(newRequestData); // Update the state
+      console.log("Fetched data:", newRequestData);
+      setRequestData(newRequestData);
     } catch (error) {
       console.error("Error fetching request data:", error);
-      setError("Failed to load request data. Please try again.");
+      setError("You are not authorised to see the data");
     } finally {
       setLoading(false);
     }
-  };
-
-  useEffect(() => {
-    const approverId = "E001";
-    fetchRequestData(approverId);
   }, []);
 
+  useEffect(() => {
+    const approverId = Cookies.get("userId");
+    fetchRequestData(approverId);
+  }, [fetchRequestData]);
+
   const openModal = (requestId, isPending) => {
-    console.log("inside openModal-->" + isPending);
     setSelectedRequestId(requestId);
     setIsModalOpen(true);
     setShowAcceptReject(isPending);
@@ -68,6 +68,7 @@ const EmployeeTask = () => {
     setIsModalOpen(false);
     setSelectedRequestId(null);
   };
+
   const handleToast = (message, type) => {
     if (type === "success") {
       toast.success(message);
@@ -75,13 +76,12 @@ const EmployeeTask = () => {
       toast.error(message);
     }
   };
+
   const refreshData = () => {
-    // Trigger data refresh after approval/rejection
     fetchRequestData("E001");
   };
-  const RequestTable = ({ requests }) => {
-    console.log("Rendering RequestTable with requests:", requests);
 
+  const RequestTable = ({ requests }) => {
     return (
       <div className="p-4 bg-white overflow-auto">
         <table className="table-auto w-full text-left">
@@ -96,7 +96,7 @@ const EmployeeTask = () => {
           </thead>
           <tbody>
             {Array.isArray(requests) && requests.length > 0 ? (
-              requests.map((request, index) => (
+              [...requests].reverse().map((request, index) => (
                 <tr key={request.request_id || index}>
                   <td className="border px-4 py-2">{index + 1}</td>
                   <td className="border px-4 py-2">
@@ -158,28 +158,7 @@ const EmployeeTask = () => {
 
   return (
     <div className="flex flex-col md:flex-row h-screen">
-      <button
-        onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-        className="md:hidden p-4"
-        aria-label="Toggle Sidebar"
-      >
-        <div className="w-8 h-1 bg-blue-600 mb-1" />
-        <div className="w-8 h-1 bg-blue-600 mb-1" />
-        <div className="w-8 h-1 bg-blue-600" />
-      </button>
-
-      <div
-        className={`fixed inset-0 z-40 bg-gray-800 bg-opacity-75 md:hidden ${
-          isSidebarOpen ? "block" : "hidden"
-        }`}
-      >
-        <EmployeeSidebar closeSidebar={() => setIsSidebarOpen(false)} />
-      </div>
-
-      <div className="hidden md:block">
-        <EmployeeSidebar />
-      </div>
-
+      {/* Main content */}
       <div className="flex-1 p-6 bg-gray-100">
         <ul className="flex text-sm font-medium text-gray-500 border-b">
           {[
@@ -205,6 +184,7 @@ const EmployeeTask = () => {
         <div>{renderContent()}</div>
       </div>
 
+      {/* Modal */}
       {isModalOpen && (
         <ViewModal
           isOpen={isModalOpen}

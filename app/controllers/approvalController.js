@@ -59,6 +59,8 @@ export const fetchPending = async (approverId) => {
     const employeePendingRequestLists = data.data
       .map((item) => item.employee_approval_list)
       .flat();
+    console.log("fetch pending");
+    console.dir(employeePendingRequestLists);
     return {
       PendingRequests: employeePendingRequestLists || [],
     };

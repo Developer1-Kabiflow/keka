@@ -1,9 +1,9 @@
 "use client";
 
 import React, { useState, useEffect, useMemo } from "react";
-import EmployeeSidebar from "../EmployeeSidebarPage/EmployeeSidebar";
+// import EmployeeSidebar from "../EmployeeSidebarPage/EmployeeSidebar";
 import Link from "next/link";
-import Modal from "./Model";
+import Modal from "./Modal";
 import ViewModal from "./ViewModal";
 import { toast } from "react-toastify";
 import {
@@ -18,7 +18,7 @@ import {
 } from "@/app/controllers/categoryController";
 import Cookies from "js-cookie";
 
-const EmployeeBankRequest = ({ categoryId }) => {
+const EmployeeRequest = ({ categoryId }) => {
   //const { categoryId } = params;
   const [employeeDetails, setEmployeeDetails] = useState([]);
   const [subCategoryList, setSubCategoryList] = useState([]);
@@ -72,7 +72,7 @@ const EmployeeBankRequest = ({ categoryId }) => {
       });
       setFormTemplateData(formTemplateData);
     } catch (err) {
-      setError(err.message || "Error fetching request data.");
+      // setError(err.message || "Error fetching request data.");
     } finally {
       setLoading(false);
     }
@@ -134,8 +134,6 @@ const EmployeeBankRequest = ({ categoryId }) => {
     setSubCategoryId(itemId);
     setIsModalOpen(!isModalOpen);
   };
-
-  const toggleSidebar = () => setIsSidebarOpen((prev) => !prev);
 
   const openViewModal = (requestId) => {
     setSelectedRequestId(requestId);
@@ -229,44 +227,8 @@ const EmployeeBankRequest = ({ categoryId }) => {
 
   return (
     <div className="flex flex-col md:flex-row h-screen">
-      <button
-        onClick={toggleSidebar}
-        className="md:hidden flex flex-col items-center justify-center p-4"
-        aria-label={isSidebarOpen ? "Close Sidebar" : "Open Sidebar"}
-      >
-        <div
-          className={`h-1 w-8 bg-blue-600 mb-1 transition-transform ${
-            isSidebarOpen ? "rotate-45" : ""
-          }`}
-        />
-        <div
-          className={`h-1 w-8 bg-blue-600 mb-1 ${
-            isSidebarOpen ? "opacity-0" : ""
-          }`}
-        />
-        <div
-          className={`h-1 w-8 bg-blue-600 mt-1 transition-transform ${
-            isSidebarOpen ? "-rotate-45" : ""
-          }`}
-        />
-      </button>
-
       <div
-        className={`fixed inset-0 z-40 md:hidden bg-gray-800 bg-opacity-75 ${
-          isSidebarOpen ? "block" : "hidden"
-        }`}
-      >
-        <EmployeeSidebar closeSidebar={toggleSidebar} />
-      </div>
-
-      <div className="hidden md:block">
-        <EmployeeSidebar />
-      </div>
-
-      <div
-        className={`flex-1 p-6 bg-gray-100 transition-all duration-300 ${
-          isSidebarOpen ? "ml-0" : "md:ml-0"
-        }`}
+        className={`flex-1 p-6 bg-gray-100 transition-all duration-300 md:ml-0`}
       >
         <div className="container mx-auto px-4">
           <div>
@@ -276,7 +238,7 @@ const EmployeeBankRequest = ({ categoryId }) => {
                   onClick={() => setActiveTab("New Request")}
                   className={`inline-block p-4 rounded-t-lg hover:cursor-pointer ${
                     activeTab === "New Request"
-                      ? "text-blue-600 bg-white"
+                      ? "text-blue-600 font-bold bg-white"
                       : "hover:text-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800 dark:hover:text-gray-300"
                   }`}
                 >
@@ -288,7 +250,7 @@ const EmployeeBankRequest = ({ categoryId }) => {
                   onClick={() => setActiveTab("Track All Request")}
                   className={`inline-block p-4 rounded-t-lg hover:cursor-pointer ${
                     activeTab === "Track All Request"
-                      ? "text-blue-600 bg-white"
+                      ? "text-blue-600 font-bold bg-white"
                       : "hover:text-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800 dark:hover:text-gray-300"
                   }`}
                 >
@@ -300,7 +262,7 @@ const EmployeeBankRequest = ({ categoryId }) => {
                   onClick={() => setActiveTab("Track Approved Requests")}
                   className={`inline-block p-4 rounded-t-lg hover:cursor-pointer ${
                     activeTab === "Track Approved Requests"
-                      ? "text-blue-600 bg-white"
+                      ? "text-blue-600 font-bold bg-white"
                       : "hover:text-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800 dark:hover:text-gray-300"
                   }`}
                 >
@@ -312,7 +274,7 @@ const EmployeeBankRequest = ({ categoryId }) => {
                   onClick={() => setActiveTab("Track Rejected Requests")}
                   className={`inline-block p-4 rounded-t-lg hover:cursor-pointer ${
                     activeTab === "Track Rejected Requests"
-                      ? "text-blue-600 bg-white"
+                      ? "text-blue-600 font-bold bg-white"
                       : "hover:text-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800 dark:hover:text-gray-300"
                   }`}
                 >
@@ -369,4 +331,4 @@ const EmployeeBankRequest = ({ categoryId }) => {
   );
 };
 
-export default EmployeeBankRequest;
+export default EmployeeRequest;

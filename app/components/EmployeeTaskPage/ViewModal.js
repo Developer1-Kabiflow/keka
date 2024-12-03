@@ -1,4 +1,5 @@
 "use client";
+
 import { useState, useEffect, useRef, useCallback } from "react";
 import ProgressStepsContainer from "../ProgressStepsContainer";
 import { getMyFormData } from "@/app/controllers/formController";
@@ -6,6 +7,7 @@ import {
   handleApprove,
   handleReject,
 } from "@/app/controllers/approvalController";
+import Cookies from "js-cookie";
 
 const ViewModal = ({
   isOpen,
@@ -19,11 +21,13 @@ const ViewModal = ({
   const [error, setError] = useState(null);
   const [formData, setFormData] = useState({});
   const [approvalData, setApprovalData] = useState({});
-  const [approverId] = useState("E001");
+ 
   const [showRejectTextbox, setShowRejectTextbox] = useState(false);
   const [rejectionNote, setRejectionNote] = useState("");
   const bottomRef = useRef(null);
+  const progressStepsRef = useRef(null); // Ref to progress steps container
 
+  const approverId = Cookies.get("userId");
   // Fetch Form Data
   const fetchForm = useCallback(async () => {
     if (isOpen && requestId) {
@@ -59,7 +63,8 @@ const ViewModal = ({
   };
 
   // Handle Reject Button Click
-  const handleRejectClick = () => {
+  const handleRejectClick = (e) => {
+    e.preventDefault(); // Prevent form submission on button click
     setShowRejectTextbox(true);
     setTimeout(
       () => bottomRef.current?.scrollIntoView({ behavior: "smooth" }),
@@ -118,21 +123,30 @@ const ViewModal = ({
 
   return (
     <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center z-50">
-      <div className="bg-white p-6 rounded-lg w-[900px] h-[600px] overflow-y-auto">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-semibold text-blue-500">
-            Previous Approvals
-          </h2>
-        </div>
-
-        <div className="flex flex-col bg-gray-50 h-36 mb-4 p-4">
-          <span className="text-md text-blue-500 font-semibold">
-            Approval Status
+      {/* Modal Container */}
+      <div className="relative bg-white p-6 rounded-lg w-full sm:w-[600px] md:w-[800px] lg:w-[900px] xl:w-[1000px] h-auto max-h-[80vh] overflow-y-auto">
+        {/* Modal Content */}
+        <div className="flex justify-center items-center mb-4">
+          <span className="text-2xl font-semibold text-blue-600">
+            Task Details
           </span>
-          <ProgressStepsContainer approvalData={approvalData} />
         </div>
 
-        <form>
+        <div className="flex flex-col w-full bg-gray-50 h-48 mb-4">
+          <div className="mt-2 mb-4 ml-2">
+            <span className="text-md text-blue-500 font-semibold">
+              Approval Status
+            </span>
+          </div>
+          <div className="w-full items-center" ref={progressStepsRef}>
+            <ProgressStepsContainer approvalData={approvalData} />
+          </div>
+        </div>
+
+        <form
+          style={{ marginTop: `20px` }}
+          onSubmit={(e) => e.preventDefault()}
+        >
           {formData?.fields?.map((field) => (
             <div key={field._id} className="mb-4">
               <label>{field.field_name}</label>
@@ -150,10 +164,10 @@ const ViewModal = ({
           ))}
 
           {showAcceptReject && (
-            <div className="flex justify-between mx-48">
+            <div className="flex flex-col sm:flex-row justify-between gap-4 sm:mx-48 mt-4">
               <button
-                type="submit"
-                className="mt-4 px-4 py-2 w-24 bg-green-500 text-white rounded"
+                type="button"
+                className="px-4 py-2 w-full sm:w-24 bg-green-500 text-white rounded"
                 onClick={handleApproval}
               >
                 Approve
@@ -161,7 +175,7 @@ const ViewModal = ({
               <button
                 type="button"
                 onClick={handleRejectClick}
-                className="mt-4 px-4 py-2 w-24 bg-red-500 text-white rounded"
+                className="px-4 py-2 w-full sm:w-24 bg-red-500 text-white rounded"
               >
                 Reject
               </button>

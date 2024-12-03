@@ -1,6 +1,6 @@
 import React from "react";
 import Navbar from "@/app/components/NavbarPage/Navbar";
-import EmployeeDashBoard from "@/app/components/EmployeeDashBoardPage/EmployeeDashBoard";
+import EmployeeDashBoard from "@/app/components/EmployeeDashBoard/EmployeeDashBoard";
 
 const EmployeeDashBoardPage = () => {
   return (
