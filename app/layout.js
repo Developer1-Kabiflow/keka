@@ -9,6 +9,7 @@ import EmployeeSidebar from "@/app/components/EmployeeSidebarPage/EmployeeSideba
 import { metadata } from "./metadata";
 import { redirect } from "next/navigation";
 import Cookies from "js-cookie";
+
 export const Metadata = metadata;
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
