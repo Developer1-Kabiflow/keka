@@ -47,7 +47,7 @@ const EmployeeTask = () => {
       setRequestData(newRequestData);
     } catch (error) {
       console.error("Error fetching request data:", error);
-      setError("You are not authorised to see the data");
+      setError("There is no request to display");
     } finally {
       setLoading(false);
     }
