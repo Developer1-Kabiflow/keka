@@ -8,9 +8,12 @@ import {
 export const fetchAllEmployeeRequests = async (employeeId) => {
   try {
     const data = await fetchAllRequests(employeeId);
+    console.log("data in controller :--> ", data.requests.employee_request_list);
+    
     return {
       Allrequests: data.requests.employee_request_list || [],
       formTemplateData: data.formTemplates || [],
+      
     };
   } catch (error) {
     throw new Error(error.message);
@@ -21,10 +24,12 @@ export const fetchAllEmployeeRequests = async (employeeId) => {
 export const fetchApprovedEmployeeRequests = async (employeeId) => {
   try {
     const data = await fetchAcceptedRequests(employeeId);
+   
     const employeeAcceptedRequestLists = data.data
       .map((item) => item.employee_request_list)
       .flat();
 
+     
     return {
       Approvedrequests: employeeAcceptedRequestLists || [],
     };
@@ -37,9 +42,11 @@ export const fetchApprovedEmployeeRequests = async (employeeId) => {
 export const fetchRejectedEmployeeRequests = async (employeeId) => {
   try {
     const data = await fetchRejectedRequests(employeeId);
+    
     const employeeRejectedRequestLists = data.data
-      .map((item) => item.employee_request_list)
+      .map((item) => item.EmployeeRequestList)
       .flat();
+      console.log("Rejected List--> ", employeeRejectedRequestLists);
     return {
       Rejectedrequests: employeeRejectedRequestLists || [],
     };

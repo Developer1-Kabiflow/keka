@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useState, useEffect } from "react";
 import Link from "next/link"; // Or "react-router-dom" if using React Router
 import { fetchCategoryList } from "@/app/controllers/categoryController";

@@ -1,3 +1,4 @@
+"use client";
 import React, { useState, useEffect } from "react";
 import { fetchSubCategoryList } from "@/app/controllers/categoryController"; // Import your subcategory fetch method
 import Modal from "./Modal"; // Import your Modal component (adjust the path as needed)

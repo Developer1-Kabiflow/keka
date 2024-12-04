@@ -127,7 +127,7 @@ const Modal = ({ isOpen, handleClose, itemId, onToast, refreshData }) => {
 
       await handleFormSubmissionWithData(formId, submittedData);
       // onToast("Created Request Successfully", "success");
-      refreshData();
+      // refreshData();
       handleClose();
     } catch (err) {
       console.error("Error submitting form:", err);
