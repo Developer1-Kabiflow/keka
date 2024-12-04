@@ -17,6 +17,7 @@ import {
   fetchSubCategoryList,
 } from "@/app/controllers/categoryController";
 import Cookies from "js-cookie";
+import CategoryList from "./CategoryList";
 
 const EmployeeRequest = ({ categoryId }) => {
   //const { categoryId } = params;
@@ -98,29 +99,9 @@ const EmployeeRequest = ({ categoryId }) => {
       }
     };
 
-    const fetchCategoryData = async () => {
-      try {
-        const { category } = await fetchCategoryList();
-        setCategory(category || []);
-      } catch (err) {
-        setError(err.message || "Error fetching categories.");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    const fetchSubcategories = async () => {
-      try {
-        if (!categoryId) return;
-        const { subCategoryList } = await fetchSubCategoryList(categoryId);
-        setSubCategoryList(subCategoryList || []);
-      } catch (err) {
-        console.error("Error fetching subcategories:", err.message);
-      }
-    };
+   
     fetchEmployee();
-    fetchCategoryData();
-    fetchSubcategories();
+   
   }, [categoryId]);
 
   const refreshData = () => {
@@ -203,7 +184,7 @@ const EmployeeRequest = ({ categoryId }) => {
       case "New Request":
         return (
           <div className="p-4 bg-white">
-            {category.map((item) => (
+            {/* {category.map((item) => (
               <Link
                 key={item._id}
                 href={`${item.pageLink}/${item._id}`}
@@ -211,7 +192,9 @@ const EmployeeRequest = ({ categoryId }) => {
               >
                 {item.categoryName}
               </Link>
-            ))}
+            ))} */}
+
+            < CategoryList />
           </div>
         );
       case "Track All Request":
@@ -238,7 +221,7 @@ const EmployeeRequest = ({ categoryId }) => {
                   onClick={() => setActiveTab("New Request")}
                   className={`inline-block p-4 rounded-t-lg hover:cursor-pointer ${
                     activeTab === "New Request"
-                      ? "text-blue-600 font-bold bg-white"
+                      ? "text-blue-600 bg-white"
                       : "hover:text-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800 dark:hover:text-gray-300"
                   }`}
                 >
@@ -250,7 +233,7 @@ const EmployeeRequest = ({ categoryId }) => {
                   onClick={() => setActiveTab("Track All Request")}
                   className={`inline-block p-4 rounded-t-lg hover:cursor-pointer ${
                     activeTab === "Track All Request"
-                      ? "text-blue-600 font-bold bg-white"
+                      ? "text-blue-600 bg-white"
                       : "hover:text-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800 dark:hover:text-gray-300"
                   }`}
                 >
@@ -262,7 +245,7 @@ const EmployeeRequest = ({ categoryId }) => {
                   onClick={() => setActiveTab("Track Approved Requests")}
                   className={`inline-block p-4 rounded-t-lg hover:cursor-pointer ${
                     activeTab === "Track Approved Requests"
-                      ? "text-blue-600 font-bold bg-white"
+                      ? "text-blue-600 bg-white"
                       : "hover:text-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800 dark:hover:text-gray-300"
                   }`}
                 >
@@ -274,7 +257,7 @@ const EmployeeRequest = ({ categoryId }) => {
                   onClick={() => setActiveTab("Track Rejected Requests")}
                   className={`inline-block p-4 rounded-t-lg hover:cursor-pointer ${
                     activeTab === "Track Rejected Requests"
-                      ? "text-blue-600 font-bold bg-white"
+                      ? "text-blue-600 bg-white"
                       : "hover:text-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800 dark:hover:text-gray-300"
                   }`}
                 >
@@ -285,32 +268,8 @@ const EmployeeRequest = ({ categoryId }) => {
 
             <div className="flex flex-col md:flex-row bg-white shadow-lg mt-4 rounded-lg">
               <div className="w-full">{renderContent()}</div>
-              {activeTab === "New Request" && (
-                <div className="flex flex-col p-4 bg-white md:w-1/2 text-center">
-                  <span className="font-semibold text-lg mb-4 underline decoration-4 decoration-blue-500">
-                    Bank Request
-                  </span>
-                  {loading ? (
-                    <p>Loading subcategories...</p>
-                  ) : subCategoryList.length > 0 ? (
-                    subCategoryList.map((item) => (
-                      <div key={item._id} className="mb-4">
-                        <span
-                          className="font-semibold cursor-pointer hover:text-blue-500"
-                          onClick={() =>
-                            handleModalToggle(item.form_template_id)
-                          }
-                        >
-                          {item.subcategoryName}
-                        </span>
-                        {/* <span className="font-semibold block">{item.form_template_name}</span> */}
-                      </div>
-                    ))
-                  ) : (
-                    <p>No subcategories available</p>
-                  )}
-                </div>
-              )}
+              
+              
             </div>
           </div>
         </div>

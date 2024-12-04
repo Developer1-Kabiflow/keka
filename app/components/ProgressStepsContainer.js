@@ -58,9 +58,9 @@ export default function ProgressStepsContainer({ approvalData }) {
         color={getCurrentStatusColor()} // Dynamically apply color based on current status
         sx={{ mb: 2, textAlign: "center", fontWeight: "bold" }}
       >
-        {`Step ${activeStep + 1} - ${
+        {/* {`Step ${activeStep + 1} - ${
           approvals?.[activeStep]?.current_status || "Pending"
-        }`}
+        }`} */}
       </Typography>
 
       {/* Stepper Component */}

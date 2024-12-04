@@ -126,12 +126,12 @@ const Modal = ({ isOpen, handleClose, itemId, onToast, refreshData }) => {
       }, {});
 
       await handleFormSubmissionWithData(formId, submittedData);
-      onToast("Created Request Successfully", "success");
+      // onToast("Created Request Successfully", "success");
       refreshData();
       handleClose();
     } catch (err) {
       console.error("Error submitting form:", err);
-      onToast("Failed to Create Request", "error");
+      // onToast("Failed to Create Request", "error");
       setError(err.message);
     }
   };
