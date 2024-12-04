@@ -42,9 +42,8 @@ export default function RootLayout({ children }) {
 
   useEffect(() => {
     const userId = Cookies.get("userId");
-
     // Redirect only if the current page is not `/`
-    if (!userId && pathname !== "/") {
+    if (!userId && !pagesWithoutSidebar.includes(pathname)) {
       redirect("/");
     }
   }, [pathname]); // Add pathname to dependencies to re-run the effect when it changes
