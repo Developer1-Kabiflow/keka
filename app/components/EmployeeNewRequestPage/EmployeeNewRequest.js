@@ -102,7 +102,7 @@ const EmployeeNewRequest = () => {
         </thead>
         <tbody>
           {data.length ? (
-            data.map((request, index) => {
+             [...data].reverse().map((request, index) => (
               const formTemplate = formTemplateData.find(
                 (template) => template._id === request.formTemplateId
               );
