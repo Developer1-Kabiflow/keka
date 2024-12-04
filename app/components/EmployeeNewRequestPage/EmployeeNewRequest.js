@@ -89,61 +89,59 @@ const EmployeeNewRequest = () => {
   };
 
   const renderTable = (data) => (
-    <div className="p-4 bg-white overflow-auto">
-      <table className="table-auto w-full text-left">
-        <thead className="bg-gray-200">
+  <div className="p-4 bg-white overflow-auto">
+    <table className="table-auto w-full text-left">
+      <thead className="bg-gray-200">
+        <tr>
+          <th className="px-4 py-2">No.</th>
+          <th className="px-4 py-2">Request Type</th>
+          <th className="px-4 py-2">Request Date</th>
+          <th className="px-4 py-2">Status</th>
+          <th className="px-4 py-2">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {data.length ? (
+          // Reverse the data before rendering it
+          [...data].reverse().map((request, index) => {
+            const formTemplate = formTemplateData.find(
+              (template) => template._id === request.formTemplateId
+            );
+            return (
+              <tr key={request._id}>
+                <td className="border px-4 py-2">{index + 1}</td>
+                <td className="border px-4 py-2">
+                  {formTemplate?.templateName || request.request_name || "N/A"}
+                </td>
+                <td className="border px-4 py-2">
+                  {new Date(request.date || request.created_at).toLocaleString()}
+                </td>
+                <td className="border px-4 py-2">
+                  {request.status || "Pending"}
+                </td>
+                <td className="border px-4 py-2">
+                  <button
+                    className="text-blue-500 hover:underline"
+                    onClick={() => openViewModal(request.request_id)}
+                  >
+                    View
+                  </button>
+                </td>
+              </tr>
+            );
+          })
+        ) : (
           <tr>
-            <th className="px-4 py-2">No.</th>
-            <th className="px-4 py-2">Request Type</th>
-            <th className="px-4 py-2">Request Date</th>
-            <th className="px-4 py-2">Status</th>
-            <th className="px-4 py-2">Action</th>
+            <td colSpan="5" className="text-center py-4">
+              No requests found.
+            </td>
           </tr>
-        </thead>
-        <tbody>
-          {data.length ? (
-             [...data].reverse().map((request, index) => (
-              const formTemplate = formTemplateData.find(
-                (template) => template._id === request.formTemplateId
-              );
-              return (
-                <tr key={request._id}>
-                  <td className="border px-4 py-2">{index + 1}</td>
-                  <td className="border px-4 py-2">
-                    {formTemplate?.templateName ||
-                      request.request_name ||
-                      "N/A"}
-                  </td>
-                  <td className="border px-4 py-2">
-                    {new Date(
-                      request.date || request.created_at
-                    ).toLocaleString()}
-                  </td>
-                  <td className="border px-4 py-2">
-                    {request.status || "Pending"}
-                  </td>
-                  <td className="border px-4 py-2">
-                    <button
-                      className="text-blue-500 hover:underline"
-                      onClick={() => openViewModal(request.request_id)}
-                    >
-                      View
-                    </button>
-                  </td>
-                </tr>
-              );
-            })
-          ) : (
-            <tr>
-              <td colSpan="5" className="text-center py-4">
-                No requests found.
-              </td>
-            </tr>
-          )}
-        </tbody>
-      </table>
-    </div>
-  );
+        )}
+      </tbody>
+    </table>
+  </div>
+);
+
 
   const renderContent = () => {
     if (loading) return <p className="text-center">Loading...</p>;
