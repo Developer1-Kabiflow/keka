@@ -159,7 +159,7 @@ const EmployeeRequest = ({ categoryId }) => {
         </thead>
         <tbody>
           {data && data.length > 0 ? (
-            data.map((request, index) => (
+            [...data].reverse().map((request, index) => (
               <tr key={request._id}>
                 <td className="border px-4 py-2">{index + 1}</td>
                 <td className="border px-4 py-2">
