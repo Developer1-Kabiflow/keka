@@ -140,7 +140,16 @@ const EmployeeTask = () => {
 
   const renderContent = () => {
     if (loading) return <div>Loading...</div>;
-    if (error) return <div className="text-red-500">{error}</div>;
+     if (error || !requestData.all.length) {
+      return (
+        <div className="flex justify-center items-center h-full">
+          <div className="bg-white p-6 rounded-lg shadow-lg text-center mt-6">
+            <p className="text-gray-700 font-medium">No requests to display.</p>
+          </div>
+        </div>
+      );
+    }
+
 
     switch (activeTab) {
       case "Pending for Approval":
