@@ -14,35 +14,36 @@ const ViewModal = ({
   handleClose,
   showAcceptReject,
   requestId,
-  onToast,
+  onToast, // Toast handler passed from parent
   refreshData,
 }) => {
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false); // Set loading state
   const [error, setError] = useState(null);
   const [formData, setFormData] = useState({});
   const [approvalData, setApprovalData] = useState({});
- 
   const [showRejectTextbox, setShowRejectTextbox] = useState(false);
   const [rejectionNote, setRejectionNote] = useState("");
   const bottomRef = useRef(null);
-  const progressStepsRef = useRef(null); // Ref to progress steps container
+  const progressStepsRef = useRef(null);
 
   const approverId = Cookies.get("userId");
+
   // Fetch Form Data
   const fetchForm = useCallback(async () => {
     if (isOpen && requestId) {
-      setLoading(true);
+      setLoading(true); // Start loading before the request
       try {
         const { requestData, approvalData } = await getMyFormData(requestId);
         setFormData(requestData);
         setApprovalData(approvalData);
       } catch (err) {
         setError("Failed to load form data. Please try again.");
+        onToast("Failed to load form data. Please try again.", "error");
       } finally {
-        setLoading(false);
+        setLoading(false); // End loading
       }
     }
-  }, [isOpen, requestId]);
+  }, [isOpen, requestId, onToast]);
 
   useEffect(() => {
     fetchForm();
@@ -64,7 +65,7 @@ const ViewModal = ({
 
   // Handle Reject Button Click
   const handleRejectClick = (e) => {
-    e.preventDefault(); // Prevent form submission on button click
+    e.preventDefault();
     setShowRejectTextbox(true);
     setTimeout(
       () => bottomRef.current?.scrollIntoView({ behavior: "smooth" }),
@@ -83,42 +84,43 @@ const ViewModal = ({
       return;
     }
 
+    setLoading(true); // Start loading before the request
     try {
-      const isRejected = await handleReject(
-        approverId,
-        requestId,
-        rejectionNote
-      );
+      const isRejected = await handleReject(approverId, requestId, rejectionNote);
       if (isRejected) {
-        onToast("Rejection successful.", "success");
+        onToast("Rejection successful.", "success"); // Toast for success
         refreshData();
         handleClose();
       } else {
-        onToast("Rejection failed. Please try again.", "error");
+        onToast("Rejection failed. Please try again.", "error"); // Toast for failure
       }
     } catch (err) {
-      onToast("Failed to Reject Request. Please try again.", "error");
+      onToast("Failed to Reject Request. Please try again.", "error"); // Toast in case of an exception
+    } finally {
+      setLoading(false); // End loading
     }
   };
 
   // Handle Approval
   const handleApproval = async (e) => {
     e.preventDefault();
+    setLoading(true); // Start loading before the request
     try {
       const success = await handleApprove(approverId, requestId);
       if (success) {
-        onToast("Approval successful.", "success");
+        onToast("Approval successful.", "success"); // Toast for success
         refreshData();
         handleClose();
       } else {
-        onToast("Approval failed. Please try again.", "error");
+        onToast("Approval failed. Please try again.", "error"); // Toast for failure
       }
     } catch (err) {
-      onToast("Failed to approve the request.", "error");
+      onToast("Failed to approve the request.", "error"); // Toast in case of an exception
+    } finally {
+      setLoading(false); // End loading
     }
   };
 
-  // Return null if modal is not open
   if (!isOpen) return null;
 
   return (
@@ -127,35 +129,26 @@ const ViewModal = ({
       <div className="relative bg-white p-6 rounded-lg w-full sm:w-[600px] md:w-[800px] lg:w-[900px] xl:w-[1000px] h-auto max-h-[80vh] overflow-y-auto">
         {/* Modal Content */}
         <div className="flex justify-center items-center mb-4">
-          <span className="text-2xl font-semibold text-blue-600">
-            Task Details
-          </span>
+          <span className="text-2xl font-semibold text-blue-600">Task Details</span>
         </div>
 
         <div className="flex flex-col w-full bg-gray-50 h-48 mb-4">
           <div className="mt-2 mb-4 ml-2">
-            <span className="text-md text-blue-500 font-semibold">
-              Approval Status
-            </span>
+            <span className="text-md text-blue-500 font-semibold">Approval Status</span>
           </div>
           <div className="w-full items-center" ref={progressStepsRef}>
             <ProgressStepsContainer approvalData={approvalData} />
           </div>
         </div>
 
-        <form
-          style={{ marginTop: `20px` }}
-          onSubmit={(e) => e.preventDefault()}
-        >
+        <form onSubmit={(e) => e.preventDefault()}>
           {formData?.fields?.map((field) => (
             <div key={field._id} className="mb-4">
               <label>{field.field_name}</label>
               <input
                 type="text"
                 name={field.field_name}
-                placeholder={
-                  formData?.[field.field_name] || field.field_value || ""
-                }
+                placeholder={formData?.[field.field_name] || field.field_value || ""}
                 onChange={handleChange}
                 disabled
                 className="w-full px-3 py-2 border rounded"
@@ -167,17 +160,19 @@ const ViewModal = ({
             <div className="flex flex-col sm:flex-row justify-between gap-4 sm:mx-48 mt-4">
               <button
                 type="button"
+                disabled={loading}
                 className="px-4 py-2 w-full sm:w-24 bg-green-500 text-white rounded"
                 onClick={handleApproval}
               >
-                Approve
+                {loading ? "Approving..." : "Approve"}
               </button>
               <button
                 type="button"
+                disabled={loading}
                 onClick={handleRejectClick}
                 className="px-4 py-2 w-full sm:w-24 bg-red-500 text-white rounded"
               >
-                Reject
+                {loading ? "Rejecting..." : "Reject"}
               </button>
             </div>
           )}
@@ -217,22 +212,10 @@ const ViewModal = ({
 
       <button
         onClick={handleClose}
-        className="absolute transition-all duration-300 ease-in-out 
-                top-[40px] right-[1px] 
-                sm:top-[40px] sm:right-[1px] 
-                md:top-[40px] md:right-[calc(50%-400px)] 
-                lg:top-[50px] lg:right-[calc(50%-450px)] 
-                xl:top-[50px] xl:right-[calc(50%-500px)] 
-                bg-blue-200 rounded-full w-10 h-10 flex items-center justify-center font-bold hover:bg-red-300 shadow-md z-20"
+        className="absolute transition-all duration-300 ease-in-out top-[40px] right-[1px] sm:top-[40px] sm:right-[1px] md:top-[40px] md:right-[calc(50%-400px)] lg:top-[50px] lg:right-[calc(50%-450px)] xl:top-[50px] xl:right-[calc(50%-500px)] bg-blue-200 rounded-full w-10 h-10 flex items-center justify-center font-bold hover:bg-red-300 shadow-md z-20"
         style={{ lineHeight: "0" }}
       >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          height="24px"
-          viewBox="0 0 24 24"
-          width="24px"
-          fill="#000000"
-        >
+        <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="#000000">
           <path d="M0 0h24v24H0V0z" fill="none" />
           <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z" />
         </svg>

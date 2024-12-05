@@ -1,84 +1,142 @@
 import {
+  approveRequest,
   fetchAllRequests,
   fetchApprovedRequests,
-  fetchRejectedRequests,
   fetchPendingRequests,
-  approveRequest,
+  fetchRejectedRequests,
   rejectRequest,
 } from "../models/approvalModels";
 
 // Fetch all employee requests
-export const fetchAll = async (approverId) => {
+export const fetchAll = async (approverId, page) => {
   try {
-    const data = await fetchAllRequests(approverId);
-    const employeeRequestList = data.employee_approval_list || [];
+    console.log("reached here-1");
+    const data = await fetchAllRequests(approverId, page);
+    console.log("Fetched Data:", data); // Log the data to see its structure
+
+    // Extract pagination details
+    const { totalPages, currentPage, totalResults } = data;
+    const paginationDetails = [totalPages, currentPage, totalResults];
+    console.log("totalPages-->" + totalPages);
+
+    // Safely extract `employeeApprovalList` and ensure it's an array
+    const employeeRequestList = data.employeeApprovalList || [];
+    console.log("employeeRequestList");
     console.dir(employeeRequestList);
-
+    // Return the request list along with pagination details
     return {
-      Allrequests: employeeRequestList,
+      data: employeeRequestList || [],
+      pagination: paginationDetails,
     };
   } catch (error) {
-    throw new Error(error.message);
+    console.error("Error fetching all requests:", error); // Log the error
+    throw new Error(
+      error.response?.data?.message || "Error fetching all requests"
+    );
   }
 };
 
-// Fetch accepted employee requests
-export const fetchApproved = async (approverId) => {
+// Fetch approved employee requests
+export const fetchApproved = async (approverId, page) => {
   try {
-    const data = await fetchApprovedRequests(approverId);
-    const employeeAcceptedRequestLists = data.data
-      .map((item) => item.employee_approval_list)
-      .flat();
+    const data = await fetchApprovedRequests(approverId, page); // Fetch the response
+    // Extract pagination details
+    const { totalPages, currentPage, totalResults } = data;
+    const paginationDetails = [totalPages, currentPage, totalResults];
+    console.log("paginationDetails-->" + paginationDetails);
+    // Safely extract `filteredResults` and ensure it's an array
+    const filteredResults = data.filteredResults || [];
 
+    // Flatten and combine all `employee_approval_list` from `filteredResults`
+    const employeeApprovedRequestLists = filteredResults.map(
+      (item) => item.employee_approval_list || []
+    );
+    // Return the combined list along with pagination details
     return {
-      Approvedrequests: employeeAcceptedRequestLists || [],
+      data: employeeApprovedRequestLists || [],
+      pagination: paginationDetails,
     };
   } catch (error) {
-    throw new Error(error.message);
+    throw new Error(
+      error.response?.data?.message || "Error fetching approved requests"
+    );
   }
 };
 
 // Fetch rejected employee requests
-export const fetchRejected = async (approverId) => {
+export const fetchRejected = async (approverId, page) => {
   try {
-    const data = await fetchRejectedRequests(approverId);
-    const employeeRejectedRequestLists = data.data
-      .map((item) => item.employee_approval_list)
+    const data = await fetchRejectedRequests(approverId, page); // Fetch the response
+
+    // Extract pagination details
+    const { totalPages, currentPage, totalResults } = data;
+    const paginationDetails = [totalPages, currentPage, totalResults];
+
+    // Safely extract `filteredResults` and ensure it's an array
+    const filteredResults = data.filteredResults || [];
+
+    // Flatten and combine all `employee_approval_list` from `filteredResults`
+    const employeeRejectedRequestLists = filteredResults
+      .map((item) => item.employee_approval_list || [])
       .flat();
+
+    // Return the combined list along with pagination details
     return {
-      Rejectedrequests: employeeRejectedRequestLists || [],
+      data: employeeRejectedRequestLists || [],
+      pagination: paginationDetails,
     };
   } catch (error) {
-    throw new Error(error.message);
+    throw new Error(
+      error.response?.data?.message || "Error fetching rejected requests"
+    );
   }
 };
-// Fetch rejected employee requests
-export const fetchPending = async (approverId) => {
+
+// Fetch pending employee requests
+export const fetchPending = async (approverId, page) => {
   try {
-    const data = await fetchPendingRequests(approverId);
-    const employeePendingRequestLists = data.data
-      .map((item) => item.employee_approval_list)
+    const data = await fetchPendingRequests(approverId, page); // Fetch the response
+
+    // Extract pagination details
+    const { totalPages, currentPage, totalResults } = data;
+    const paginationDetails = [totalPages, currentPage, totalResults];
+
+    // Safely extract `results` and ensure it's an array
+    const results = data.results || [];
+
+    // Flatten and combine all `employee_approval_list` from `results`
+    const employeePendingRequestLists = results
+      .map((item) => item.employee_approval_list || [])
       .flat();
-    console.log("fetch pending");
-    console.dir(employeePendingRequestLists);
+
+    // Return the combined list along with pagination details
     return {
-      PendingRequests: employeePendingRequestLists || [],
+      data: employeePendingRequestLists || [],
+      pagination: paginationDetails,
     };
   } catch (error) {
-    throw new Error(error.message);
+    throw new Error(
+      error.response?.data?.message || "Error fetching pending requests"
+    );
   }
 };
+
+// Approve a request
+export const handleApprove = async (approverId, requestId) => {
+  try {
+    const result = await approveRequest(approverId, requestId);
+    console.log("Result from approveRequest:", result); // Debugging log
+    return result === true; // Explicitly check for a boolean true if needed
+  } catch (error) {
+    console.error("Error in handleApprove:", error.message);
+    return false; // Return false to indicate failure
+  }
+};
+
+// Reject a request
 export const handleReject = async (approverId, requestId, rejectionNote) => {
   try {
     const success = await rejectRequest(approverId, requestId, rejectionNote);
-    return success;
-  } catch (error) {
-    throw new Error(error.message);
-  }
-};
-export const handleApprove = async (approverId, requestId) => {
-  try {
-    const success = await approveRequest(approverId, requestId);
     return success;
   } catch (error) {
     throw new Error(error.message);

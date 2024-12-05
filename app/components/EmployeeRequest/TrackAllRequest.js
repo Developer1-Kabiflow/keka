@@ -13,7 +13,7 @@ const TrackAllRequest = ({ employeeId }) => {
 
   const loadRequestData = async (employeeId) => {
     try {
-      const { Allrequests, formTemplateData } = await fetchAllEmployeeRequests(
+      const { Allrequests } = await fetchAllEmployeeRequests(
         employeeId
       );
       setAllRequest(Allrequests);

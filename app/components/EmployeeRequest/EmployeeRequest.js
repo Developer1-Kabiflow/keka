@@ -2,20 +2,20 @@
 
 import React, { useState, useEffect, useMemo } from "react";
 // import EmployeeSidebar from "../EmployeeSidebarPage/EmployeeSidebar";
-import Link from "next/link";
-import Modal from "./Modal";
-import ViewModal from "./ViewModal";
+// import Link from "next/link";
+// import Modal from "./Modal";
+// import ViewModal from "./ViewModal";
 import { toast } from "react-toastify";
-import {
-  fetchAllEmployeeRequests,
-  fetchApprovedEmployeeRequests,
-  fetchRejectedEmployeeRequests,
-} from "@/app/controllers/requestController";
+// import {
+//   fetchAllEmployeeRequests,
+//   fetchApprovedEmployeeRequests,
+//   fetchRejectedEmployeeRequests,
+// } from "@/app/controllers/requestController";
 import { fetchEmployeeDetails } from "@/app/controllers/employeeController";
-import {
-  fetchCategoryList,
-  fetchSubCategoryList,
-} from "@/app/controllers/categoryController";
+// import {
+//   fetchCategoryList,
+//   fetchSubCategoryList,
+// } from "@/app/controllers/categoryController";
 import Cookies from "js-cookie";
 import CategoryList from "./CategoryList";
 import TrackAllRequest from "./TrackAllRequest";
@@ -25,22 +25,22 @@ import TrackRejectedRequest from "./TrackRejectedRequest";
 const EmployeeRequest = ({ categoryId }) => {
   //const { categoryId } = params;
   const [employeeDetails, setEmployeeDetails] = useState([]);
-  const [subCategoryList, setSubCategoryList] = useState([]);
-  const [requestData, setRequestData] = useState({
-    all: [],
-    approved: [],
-    rejected: [],
-  });
-  const [formTemplateData, setFormTemplateData] = useState([]);
+  // const [subCategoryList, setSubCategoryList] = useState([]);
+  // const [requestData, setRequestData] = useState({
+  //   all: [],
+  //   approved: [],
+  //   rejected: [],
+  // });
+  // const [formTemplateData, setFormTemplateData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  // const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("New Request");
-  const [isViewModalOpen, setIsViewModalOpen] = useState(false);
-  const [selectedRequestId, setSelectedRequestId] = useState(null);
+  // const [isViewModalOpen, setIsViewModalOpen] = useState(false);
+  // const [selectedRequestId, setSelectedRequestId] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedSubCategoryId, setSubCategoryId] = useState(null);
-  const [category, setCategory] = useState([]);
+  // const [selectedSubCategoryId, setSubCategoryId] = useState(null);
+  // const [category, setCategory] = useState([]);
 
   const tabs = useMemo(
     () => [
