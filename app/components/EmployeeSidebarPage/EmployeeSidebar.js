@@ -112,11 +112,12 @@ const EmployeeSidebar = ({ closeSidebar }) => {
               className={`mb-2 ${getActiveClass(path)}`}
               onClick={handleItemClick}
             >
-              <Link href={path}>
-                <span className="block py-2 px-4 hover:bg-gray-200 hover:cursor-pointer">
-                  {path.split("/").pop()}
-                </span>
-              </Link>
+             <Link href={path}>
+  <span className="block py-2 px-4 hover:bg-gray-200 hover:cursor-pointer">
+    {path.split("/").pop().charAt(0).toUpperCase() + path.split("/").pop().slice(1)}
+  </span>
+</Link>
+
             </li>
           ))}
           <li className="mb-2" onClick={handleItemClick}>
