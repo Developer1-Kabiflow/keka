@@ -32,7 +32,6 @@ const TrackAllRequest = () => {
         },
       });
     } catch (err) {
-      console.error("Error fetching request data:", err);
       setError("Error fetching request data.");
     } finally {
       setLoading(false);
@@ -68,7 +67,43 @@ const TrackAllRequest = () => {
 
   return (
     <div className="p-4 bg-white overflow-auto">
-      {loading && <div>Loading...</div>}
+      {loading && (
+        <div className="p-4 bg-white overflow-auto">
+          <table className="table-auto w-full text-left">
+            <thead className="bg-gray-200">
+              <tr>
+                <th className="px-4 py-2">No.</th>
+                <th className="px-4 py-2">Request Type</th>
+                <th className="px-4 py-2">Request Date</th>
+                <th className="px-4 py-2">Status</th>
+                <th className="px-4 py-2">Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {/* Skeleton Rows */}
+              {Array.from({ length: 5 }).map((_, index) => (
+                <tr key={index} className="animate-pulse">
+                  <td className="border px-4 py-2">
+                    <div className="h-4 bg-gray-300 rounded"></div>
+                  </td>
+                  <td className="border px-4 py-2">
+                    <div className="h-4 bg-gray-300 rounded"></div>
+                  </td>
+                  <td className="border px-4 py-2">
+                    <div className="h-4 bg-gray-300 rounded"></div>
+                  </td>
+                  <td className="border px-4 py-2">
+                    <div className="h-4 bg-gray-300 rounded"></div>
+                  </td>
+                  <td className="border px-4 py-2">
+                    <div className="h-4 bg-gray-300 rounded"></div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
       {error && (
         <div className="flex justify-center items-center h-full">
           <div className="bg-white p-6 rounded-lg shadow-lg text-center mt-6">

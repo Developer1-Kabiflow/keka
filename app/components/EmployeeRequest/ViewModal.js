@@ -1,4 +1,4 @@
-"use client";
+" use client";
 
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import ProgressStepsContainer from "../ProgressStepsContainer";
@@ -63,34 +63,53 @@ const ViewModal = ({ isOpen, handleClose, requestId }) => {
           </span>
         </div>
 
-        <div className="flex flex-col w-full bg-gray-50 h-48 mb-4">
-          <div className="mt-2 mb-4 ml-2">
-            <span className="text-md text-blue-500 font-semibold">
-              Approval Status
-            </span>
-          </div>
-          <div className="w-full items-center" ref={progressStepsRef}>
-            <ProgressStepsContainer approvalData={approvalData} />
-          </div>
-        </div>
-
-        <form style={{ marginTop: `20px` }}>
-          {formData?.fields?.map((field) => (
-            <div key={field._id} className="mb-4">
-              <label>{field.field_name}</label>
-              <input
-                type="text"
-                name={field.field_name}
-                placeholder={
-                  formData?.[field.field_name] || field.field_value || ""
-                }
-                onChange={handleChange}
-                disabled
-                className="w-full px-3 py-2 border rounded"
-              />
+        {loading ? (
+          /* Skeletal Loader */
+          <div className="animate-pulse space-y-4">
+            <div className="h-8 bg-gray-200 rounded w-1/3 mx-auto"></div>
+            <div className="h-6 bg-gray-200 rounded w-2/3 mx-auto"></div>
+            <div className="space-y-2">
+              {[...Array(4)].map((_, index) => (
+                <div
+                  key={index}
+                  className="h-4 bg-gray-200 rounded w-full"
+                ></div>
+              ))}
             </div>
-          ))}
-        </form>
+            <div className="h-48 bg-gray-200 rounded w-full"></div>
+          </div>
+        ) : (
+          <>
+            <div className="flex flex-col w-full bg-gray-50 h-48 mb-4">
+              <div className="mt-2 mb-4 ml-2">
+                <span className="text-md text-blue-500 font-semibold">
+                  Approval Status
+                </span>
+              </div>
+              <div className="w-full items-center" ref={progressStepsRef}>
+                <ProgressStepsContainer approvalData={approvalData} />
+              </div>
+            </div>
+
+            <form style={{ marginTop: `20px` }}>
+              {formData?.fields?.map((field) => (
+                <div key={field._id} className="mb-4">
+                  <label>{field.field_name}</label>
+                  <input
+                    type="text"
+                    name={field.field_name}
+                    placeholder={
+                      formData?.[field.field_name] || field.field_value || ""
+                    }
+                    onChange={handleChange}
+                    disabled
+                    className="w-full px-3 py-2 border rounded"
+                  />
+                </div>
+              ))}
+            </form>
+          </>
+        )}
 
         {error && <div className="text-red-500 mt-2">{error}</div>}
       </div>

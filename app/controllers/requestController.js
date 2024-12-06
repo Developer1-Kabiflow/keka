@@ -1,6 +1,6 @@
 import {
-  fetchAcceptedRequests,
   fetchAllRequests,
+  fetchApprovedRequests,
   fetchRejectedRequests,
 } from "../models/requestModels";
 
@@ -24,7 +24,7 @@ export const fetchAllEmployeeRequests = async (employeeId, page) => {
 // Fetch accepted employee requests
 export const fetchApprovedEmployeeRequests = async (employeeId, page) => {
   try {
-    const data = await fetchAcceptedRequests(employeeId, page);
+    const data = await fetchApprovedRequests(employeeId, page);
 
     // Extract pagination details
     const { totalPages, currentPage, totalResults } = data;
@@ -39,7 +39,6 @@ export const fetchApprovedEmployeeRequests = async (employeeId, page) => {
       pagination: { totalPages, currentPage, totalResults },
     };
   } catch (error) {
-    console.error("Error in fetchApprovedEmployeeRequests:", error.message);
     throw new Error("Failed to fetch approved employee requests.");
   }
 };

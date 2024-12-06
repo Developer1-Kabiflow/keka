@@ -226,7 +226,15 @@ const Modal = ({ isOpen, handleClose, itemId, onToast, refreshData }) => {
           <h2 className="text-xl font-semibold">{formType || "Form"}</h2>
         </div>
         {loading ? (
-          <div className="text-center">Loading...</div>
+          <div>
+            {Array.from({ length: 6 }).map((_, index) => (
+              <div key={index} className="mb-4">
+                <div className="h-4 bg-gray-300 rounded w-1/3 mb-2"></div>
+                <div className="h-10 bg-gray-300 rounded"></div>
+              </div>
+            ))}
+            <div className="mt-4 h-10 bg-gray-300 rounded w-1/4"></div>
+          </div>
         ) : (
           <form onSubmit={handleSubmit}>
             {formSchema.map(renderField)}

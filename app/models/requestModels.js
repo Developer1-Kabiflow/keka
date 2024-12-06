@@ -14,7 +14,7 @@ export const fetchAllRequests = async (employeeId, page) => {
 };
 // Fetch accepted requests for an employee
 
-export const fetchAcceptedRequests = async (employeeId, page) => {
+export const fetchApprovedRequests = async (employeeId, page) => {
   try {
     const response = await axios.get(
       `${BASE_URL}/trackRequest/employeeApprovedRequest/${employeeId}?page=${page}&pageLimit=10`
@@ -22,7 +22,6 @@ export const fetchAcceptedRequests = async (employeeId, page) => {
     // Return only the relevant data part of the response
     return response.data;
   } catch (error) {
-    console.error("Error fetching requests:", error);
     throw new Error(error.response?.data?.message || "Error fetching requests");
   }
 };

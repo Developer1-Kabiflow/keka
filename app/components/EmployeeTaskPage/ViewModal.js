@@ -17,7 +17,9 @@ const ViewModal = ({
   onToast, // Toast handler passed from parent
   refreshData,
 }) => {
-  const [loading, setLoading] = useState(false); // Set loading state
+  const [loading, setLoading] = useState(false); // For fetching form data
+  const [approving, setApproving] = useState(false); // For approving action
+  const [rejecting, setRejecting] = useState(false); // For rejecting action
   const [error, setError] = useState(null);
   const [formData, setFormData] = useState({});
   const [approvalData, setApprovalData] = useState({});
@@ -48,20 +50,6 @@ const ViewModal = ({
     fetchForm();
   }, [fetchForm]);
 
-  // Handle Input Change
-  const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
-    setFormData((prevData) => ({
-      ...prevData,
-      [name]:
-        type === "checkbox"
-          ? checked
-            ? [...(prevData[name] || []), value]
-            : (prevData[name] || []).filter((item) => item !== value)
-          : value,
-    }));
-  };
-
   // Handle Reject Button Click
   const handleRejectClick = (e) => {
     e.preventDefault();
@@ -79,16 +67,13 @@ const ViewModal = ({
   const handleRejection = async (e) => {
     e.preventDefault();
 
-    // Ensure that rejection note is provided
     if (!rejectionNote.trim()) {
       alert("Please provide a reason for rejection.");
       return;
     }
 
-    setLoading(true); // Start loading before the request
-
+    setRejecting(true); // Start rejection loading
     try {
-      // Perform the rejection action
       const isRejected = await handleReject(
         approverId,
         requestId,
@@ -96,43 +81,36 @@ const ViewModal = ({
       );
 
       if (isRejected) {
-        // Display success toast
         onToast("Rejection successful.", "success");
-        // Refresh the data after rejection
         refreshData();
-        // Close the modal
         handleClose();
       } else {
-        // Display error toast if rejection failed
         onToast("Rejection failed. Please try again.", "error");
       }
     } catch (err) {
-      // Display error toast in case of an exception
       onToast("Failed to Reject Request. Please try again.", "error");
     } finally {
-      setLoading(false); // End loading
+      setRejecting(false); // End rejection loading
     }
   };
 
   // Handle Approval
   const handleApproval = async (e) => {
     e.preventDefault();
-    setLoading(true); // Start loading before the request
+    setApproving(true); // Start approval loading
     try {
       const success = await handleApprove(approverId, requestId);
       if (success) {
-        onToast("Approval successful.", "success"); // Toast for success
-        refreshData(); // Refresh data after approval
+        onToast("Approval successful.", "success");
+        refreshData();
         handleClose();
       } else {
-        onToast("Approval failed. Please try again.", "error"); // Toast for failure
-        handleClose();
+        onToast("Approval failed. Please try again.", "error");
       }
-    } catch (innerError) {
-      console.error("Error during post-approval steps:", innerError);
-      handleClose();
+    } catch (err) {
+      onToast("Error during approval. Please try again.", "error");
     } finally {
-      setLoading(false); // End loading
+      setApproving(false); // End approval loading
     }
   };
 
@@ -140,85 +118,118 @@ const ViewModal = ({
 
   return (
     <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center z-50">
-      {/* Modal Container */}
       <div className="relative bg-white p-6 rounded-lg w-full sm:w-[600px] md:w-[800px] lg:w-[900px] xl:w-[1000px] h-auto max-h-[80vh] overflow-y-auto">
-        {/* Modal Content */}
         <div className="flex justify-center items-center mb-4">
           <span className="text-2xl font-semibold text-blue-600">
             Task Details
           </span>
         </div>
 
-        <div className="flex flex-col w-full bg-gray-50 h-48 mb-4">
-          <div className="mt-2 mb-4 ml-2">
-            <span className="text-md text-blue-500 font-semibold">
-              Approval Status
-            </span>
+        {/* Loading Skeleton */}
+        {loading ? (
+          <div className="animate-pulse">
+            <div className="h-6 bg-gray-200 rounded mb-4"></div>
+            <div className="h-6 bg-gray-200 rounded mb-4"></div>
+            <div className="h-6 bg-gray-200 rounded mb-4"></div>
           </div>
-          <div className="w-full items-center" ref={progressStepsRef}>
-            <ProgressStepsContainer approvalData={approvalData} />
-          </div>
-        </div>
-
-        <form onSubmit={(e) => e.preventDefault()}>
-          {formData?.fields?.map((field) => (
-            <div key={field._id} className="mb-4">
-              <label>{field.field_name}</label>
-              <input
-                type="text"
-                name={field.field_name}
-                placeholder={
-                  formData?.[field.field_name] || field.field_value || ""
-                }
-                onChange={handleChange}
-                disabled
-                className="w-full px-3 py-2 border rounded"
-              />
+        ) : (
+          <>
+            <div className="flex flex-col w-full bg-gray-50 h-48 mb-4">
+              <div className="mt-2 mb-4 ml-2">
+                <span className="text-md text-blue-500 font-semibold">
+                  Approval Status
+                </span>
+              </div>
+              <div className="w-full items-center" ref={progressStepsRef}>
+                <ProgressStepsContainer approvalData={approvalData} />
+              </div>
             </div>
-          ))}
 
-          {showAcceptReject && (
-            <div className="flex flex-col sm:flex-row justify-between gap-4 sm:mx-48 mt-4">
-              <button
-                type="button"
-                disabled={loading}
-                className="px-4 py-2 w-full sm:w-24 bg-green-500 text-white rounded"
-                onClick={handleApproval}
-              >
-                {loading ? "Approving..." : "Approve"}
-              </button>
-              <button
-                type="button"
-                disabled={loading}
-                onClick={handleRejectClick}
-                className="px-4 py-2 w-full sm:w-24 bg-red-500 text-white rounded"
-              >
-                {loading ? "Rejecting..." : "Reject"}
-              </button>
-            </div>
-          )}
-        </form>
+            <form onSubmit={(e) => e.preventDefault()}>
+              {formData?.fields?.map((field) => (
+                <div key={field._id} className="mb-4">
+                  <label>{field.field_name}</label>
+                  <input
+                    type="text"
+                    name={field.field_name}
+                    placeholder={
+                      formData?.[field.field_name] || field.field_value || ""
+                    }
+                    disabled
+                    className="w-full px-3 py-2 border rounded"
+                  />
+                </div>
+              ))}
+
+              {showAcceptReject && (
+                <div className="flex flex-col sm:flex-row justify-center gap-6 sm:mx-48 mt-6">
+                  <button
+                    type="button"
+                    disabled={approving}
+                    className={`w-full sm:w-32 px-6 py-3 text-white font-semibold rounded-lg shadow-lg 
+                           ${
+                             approving
+                               ? "bg-green-400 cursor-not-allowed"
+                               : "bg-green-500 hover:bg-green-600"
+                           }
+                           transition duration-200 ease-in-out transform hover:scale-105`}
+                    onClick={handleApproval}
+                  >
+                    {approving ? (
+                      <span className="flex items-center justify-center gap-2">
+                        <span className="loader"></span> Approving...
+                      </span>
+                    ) : (
+                      "Approve"
+                    )}
+                  </button>
+                  <button
+                    type="button"
+                    disabled={rejecting}
+                    onClick={handleRejectClick}
+                    className={`w-full sm:w-32 px-6 py-3 text-white font-semibold rounded-lg shadow-lg 
+                           ${
+                             rejecting
+                               ? "bg-red-400 cursor-not-allowed"
+                               : "bg-red-500 hover:bg-red-600"
+                           }
+                           transition duration-200 ease-in-out transform hover:scale-105`}
+                  >
+                    {rejecting ? (
+                      <span className="flex items-center justify-center gap-2">
+                        <span className="loader"></span> Rejecting...
+                      </span>
+                    ) : (
+                      "Reject"
+                    )}
+                  </button>
+                </div>
+              )}
+            </form>
+          </>
+        )}
 
         {showRejectTextbox && (
-          <div className="flex flex-col items-center mt-4">
+          <div className="flex flex-col items-center mt-6 p-4 bg-gray-100 rounded-lg shadow-md w-full">
             <textarea
-              placeholder="Provide a reason for rejection"
-              className="w-full p-2 border rounded"
+              placeholder="Please provide a reason for rejection..."
+              className="w-full p-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-400 focus:border-red-400 transition duration-200 resize-none"
               value={rejectionNote}
               onChange={(e) => setRejectionNote(e.target.value)}
+              rows={4}
             />
-            <div className="flex mt-2 space-x-2">
+            <div className="flex mt-4 gap-4">
               <button
                 type="button"
-                className="px-4 py-2 bg-blue-500 text-white rounded"
+                className="px-6 py-2 bg-red-500 text-white font-medium rounded-lg shadow hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-400 focus:ring-offset-2 transition duration-200"
                 onClick={handleRejection}
               >
-                Send
+                Reject
               </button>
               <button
                 type="button"
                 onClick={handleRejectClose}
-                className="px-4 py-2 bg-gray-500 text-white rounded"
+                className="px-6 py-2 bg-gray-400 text-white font-medium rounded-lg shadow hover:bg-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-300 focus:ring-offset-2 transition duration-200"
               >
                 Close
               </button>

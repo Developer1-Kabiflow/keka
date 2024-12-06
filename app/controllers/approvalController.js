@@ -19,10 +19,9 @@ export const fetchAll = async (approverId, page) => {
       pagination: paginationDetails,
     };
   } catch (error) {
-    console.error("Error fetching all requests:", error); // Log the error
-    throw new Error(
-      error.response?.data?.message || "Error fetching all requests"
-    );
+    // throw new Error(
+    //   error.response?.data?.message || "Error fetching all requests"
+    // );
   }
 };
 
@@ -45,9 +44,9 @@ export const fetchApproved = async (approverId, page) => {
       pagination: paginationDetails,
     };
   } catch (error) {
-    throw new Error(
-      error.response?.data?.message || "Error fetching approved requests"
-    );
+    // throw new Error(
+    //   error.response?.data?.message || "Error fetching approved requests"
+    // );
   }
 };
 
@@ -74,9 +73,9 @@ export const fetchRejected = async (approverId, page) => {
       pagination: paginationDetails,
     };
   } catch (error) {
-    throw new Error(
-      error.response?.data?.message || "Error fetching rejected requests"
-    );
+    // throw new Error(
+    //   error.response?.data?.message || "Error fetching rejected requests"
+    // );
   }
 };
 
@@ -103,9 +102,9 @@ export const fetchPending = async (approverId, page) => {
       pagination: paginationDetails,
     };
   } catch (error) {
-    throw new Error(
-      error.response?.data?.message || "Error fetching pending requests"
-    );
+    // throw new Error(
+    //   error.response?.data?.message || "Error fetching pending requests"
+    // );
   }
 };
 

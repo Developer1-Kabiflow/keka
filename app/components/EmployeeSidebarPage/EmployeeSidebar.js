@@ -6,20 +6,20 @@ import { usePathname } from "next/navigation";
 import useMediaQuery from "@/app/hooks/useMediaQuery"; // Import the custom hook
 import Cookies from "js-cookie";
 import { fetchEmployeeDetails } from "@/app/controllers/employeeController";
+
 const EmployeeSidebar = ({ closeSidebar }) => {
   const pathname = usePathname(); // Get the current pathname
   const isMobileOrTablet = useMediaQuery("(max-width: 1024px)"); // Detect mobile or tablet screen size
-  const [employeeId, setEmployeeId] = useState([]);
-  const [displayName, setDisplayName] = useState([]);
-  const [email, setEmail] = useState([]);
-  const [department, setDepartment] = useState([]);
-  const [jobTitle, setJobTitle] = useState([]);
-  // Function to handle closing the sidebar on mobile/tablet
+  const [employeeData, setEmployeeData] = useState(null); // Store employee data
+  const [isLoading, setIsLoading] = useState(true); // Loading state
+  const [error, setError] = useState(null); // Error state
+
   const handleItemClick = () => {
     if (isMobileOrTablet && closeSidebar) {
       closeSidebar();
     }
   };
+
   const getEmployeeDetails = async () => {
     const employeeId = Cookies.get("userId");
     try {
@@ -27,32 +27,25 @@ const EmployeeSidebar = ({ closeSidebar }) => {
         throw new Error("No employee ID found in cookies.");
       }
       const { userData } = await fetchEmployeeDetails(employeeId);
-      const { EmployeeId, DisplayName, Email, Department, JobTitle } = userData;
-      setEmployeeId(EmployeeId);
-      setDisplayName(DisplayName);
-      setEmail(Email);
-      setDepartment(Department);
-      setJobTitle(JobTitle);
+      setEmployeeData(userData);
     } catch (err) {
       setError(err.message || "Error fetching employee details.");
+    } finally {
+      setIsLoading(false); // Stop loading once data is fetched
     }
   };
+
   useEffect(() => {
     getEmployeeDetails();
   }, []);
-  // Helper function to determine if an item is active based on pathname
+
   const getActiveClass = (path) => {
-    // Check if the current pathname exactly matches "/employee/request"
     if (pathname === path) {
       return "bg-gray-300 font-semibold"; // Highlight if on "/employee/request"
     }
-
-    // Check if the current pathname includes "/employee/bankRequest"
-    // Only highlight the "Request" link if pathname includes "/employee/bankRequest"
     if (pathname.includes("/employee/bankRequest")) {
       return path === "/employee/request" ? "bg-gray-300 font-semibold" : "";
     }
-
     return ""; // Default class if no conditions are met
   };
 
@@ -67,34 +60,47 @@ const EmployeeSidebar = ({ closeSidebar }) => {
       </div>
       <nav className="mt-0">
         <ul>
+          {/* Skeleton loader or actual employee details */}
           <li className="mb-8 flex flex-col justify-center items-center bg-blue-100 p-4 rounded-lg shadow-lg hover:bg-blue-200 transition duration-300 ease-in-out">
-            <Image
-              src="/1.jpg"
-              alt="profile_pic"
-              className="w-20 h-20 rounded-full border-4 border-white shadow-md"
-              priority
-              width={80}
-              height={80}
-            />
-            <span className="mt-3 text-xl font-semibold text-blue-900">
-              {displayName} ({employeeId})
-            </span>
-            <span className="mt-1 text-sm font-medium text-gray-600">
-              {jobTitle}
-            </span>
-            <span className="mt-1 text-sm font-medium text-gray-600">
-              {department} Department
-            </span>
-            <span className="mt-1 text-sm text-gray-500 mb-4">{email}</span>
-
-            <div className="flex gap-2 mt-3">
-              <span className="bg-green-500 text-white text-xs py-1 px-2 rounded-full">
-                Active
-              </span>
-              <span className="bg-yellow-500 text-white text-xs py-1 px-2 rounded-full">
-                Full-time
-              </span>
-            </div>
+            {isLoading ? (
+              // Skeleton Loader
+              <div className="animate-pulse flex flex-col items-center">
+                <div className="w-20 h-20 bg-gray-300 rounded-full mb-4"></div>
+                <div className="h-4 w-32 bg-gray-300 rounded mb-2"></div>
+                <div className="h-3 w-24 bg-gray-300 rounded mb-2"></div>
+                <div className="h-3 w-40 bg-gray-300 rounded"></div>
+              </div>
+            ) : error ? (
+              // Error Message
+              <div className="text-red-500 text-sm">
+                {error || "Error loading data"}
+              </div>
+            ) : (
+              // Employee Details
+              <>
+                <Image
+                  src="/1.jpg"
+                  alt="profile_pic"
+                  className="w-20 h-20 rounded-full border-4 border-white shadow-md"
+                  priority
+                  width={80}
+                  height={80}
+                  style={{ width: "auto", height: "auto" }}
+                />
+                <span className="mt-3 text-xl font-semibold text-blue-900">
+                  {employeeData?.DisplayName} ({employeeData?.EmployeeId})
+                </span>
+                <span className="mt-1 text-sm font-medium text-gray-600">
+                  {employeeData?.JobTitle}
+                </span>
+                <span className="mt-1 text-sm font-medium text-gray-600">
+                  {employeeData?.Department} Department
+                </span>
+                <span className="mt-1 text-sm text-gray-500 mb-4">
+                  {employeeData?.Email}
+                </span>
+              </>
+            )}
           </li>
 
           {/* Links with conditional class based on pathname */}

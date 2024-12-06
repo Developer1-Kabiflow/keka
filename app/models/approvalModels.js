@@ -9,8 +9,7 @@ export const fetchAllRequests = async (approverId, page) => {
     );
     return response.data;
   } catch (error) {
-    console.error("Error fetching requests:", error);
-    throw new Error(error.response?.data?.message || "Error fetching requests");
+    // throw new Error(error.response?.data?.message || "Error fetching requests");
   }
 };
 
@@ -21,7 +20,7 @@ export const fetchApprovedRequests = async (approverId, page) => {
     );
     return response.data;
   } catch (error) {
-    throw new Error(error.response?.data?.message || "Error fetching requests");
+    //   throw new Error(error.response?.data?.message || "Error fetching requests");
   }
 };
 // Fetch rejected requests for an employee
@@ -32,7 +31,7 @@ export const fetchRejectedRequests = async (approverId, page) => {
     );
     return response.data;
   } catch (error) {
-    throw new Error(error.response?.data?.message || "Error fetching requests");
+    //  throw new Error(error.response?.data?.message || "Error fetching requests");
   }
 };
 // Fetch pending requests for an employee
@@ -43,7 +42,7 @@ export const fetchPendingRequests = async (approverId, page) => {
     );
     return response.data;
   } catch (error) {
-    throw new Error(error.response?.data?.message || "Error fetching requests");
+    //throw new Error(error.response?.data?.message || "Error fetching requests");
   }
 };
 
