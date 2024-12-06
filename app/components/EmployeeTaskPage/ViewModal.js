@@ -37,7 +37,6 @@ const ViewModal = ({
         setFormData(requestData);
         setApprovalData(approvalData);
       } catch (err) {
-        setError("Failed to load form data. Please try again.");
         onToast("Failed to load form data. Please try again.", "error");
       } finally {
         setLoading(false); // End loading
@@ -79,23 +78,37 @@ const ViewModal = ({
   // Handle Rejection
   const handleRejection = async (e) => {
     e.preventDefault();
+
+    // Ensure that rejection note is provided
     if (!rejectionNote.trim()) {
       alert("Please provide a reason for rejection.");
       return;
     }
 
     setLoading(true); // Start loading before the request
+
     try {
-      const isRejected = await handleReject(approverId, requestId, rejectionNote);
+      // Perform the rejection action
+      const isRejected = await handleReject(
+        approverId,
+        requestId,
+        rejectionNote
+      );
+
       if (isRejected) {
-        onToast("Rejection successful.", "success"); // Toast for success
+        // Display success toast
+        onToast("Rejection successful.", "success");
+        // Refresh the data after rejection
         refreshData();
+        // Close the modal
         handleClose();
       } else {
-        onToast("Rejection failed. Please try again.", "error"); // Toast for failure
+        // Display error toast if rejection failed
+        onToast("Rejection failed. Please try again.", "error");
       }
     } catch (err) {
-      onToast("Failed to Reject Request. Please try again.", "error"); // Toast in case of an exception
+      // Display error toast in case of an exception
+      onToast("Failed to Reject Request. Please try again.", "error");
     } finally {
       setLoading(false); // End loading
     }
@@ -109,13 +122,15 @@ const ViewModal = ({
       const success = await handleApprove(approverId, requestId);
       if (success) {
         onToast("Approval successful.", "success"); // Toast for success
-        refreshData();
+        refreshData(); // Refresh data after approval
         handleClose();
       } else {
         onToast("Approval failed. Please try again.", "error"); // Toast for failure
+        handleClose();
       }
-    } catch (err) {
-      onToast("Failed to approve the request.", "error"); // Toast in case of an exception
+    } catch (innerError) {
+      console.error("Error during post-approval steps:", innerError);
+      handleClose();
     } finally {
       setLoading(false); // End loading
     }
@@ -129,12 +144,16 @@ const ViewModal = ({
       <div className="relative bg-white p-6 rounded-lg w-full sm:w-[600px] md:w-[800px] lg:w-[900px] xl:w-[1000px] h-auto max-h-[80vh] overflow-y-auto">
         {/* Modal Content */}
         <div className="flex justify-center items-center mb-4">
-          <span className="text-2xl font-semibold text-blue-600">Task Details</span>
+          <span className="text-2xl font-semibold text-blue-600">
+            Task Details
+          </span>
         </div>
 
         <div className="flex flex-col w-full bg-gray-50 h-48 mb-4">
           <div className="mt-2 mb-4 ml-2">
-            <span className="text-md text-blue-500 font-semibold">Approval Status</span>
+            <span className="text-md text-blue-500 font-semibold">
+              Approval Status
+            </span>
           </div>
           <div className="w-full items-center" ref={progressStepsRef}>
             <ProgressStepsContainer approvalData={approvalData} />
@@ -148,7 +167,9 @@ const ViewModal = ({
               <input
                 type="text"
                 name={field.field_name}
-                placeholder={formData?.[field.field_name] || field.field_value || ""}
+                placeholder={
+                  formData?.[field.field_name] || field.field_value || ""
+                }
                 onChange={handleChange}
                 disabled
                 className="w-full px-3 py-2 border rounded"
@@ -215,7 +236,13 @@ const ViewModal = ({
         className="absolute transition-all duration-300 ease-in-out top-[40px] right-[1px] sm:top-[40px] sm:right-[1px] md:top-[40px] md:right-[calc(50%-400px)] lg:top-[50px] lg:right-[calc(50%-450px)] xl:top-[50px] xl:right-[calc(50%-500px)] bg-blue-200 rounded-full w-10 h-10 flex items-center justify-center font-bold hover:bg-red-300 shadow-md z-20"
         style={{ lineHeight: "0" }}
       >
-        <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="#000000">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          height="24px"
+          viewBox="0 0 24 24"
+          width="24px"
+          fill="#000000"
+        >
           <path d="M0 0h24v24H0V0z" fill="none" />
           <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z" />
         </svg>

@@ -13,9 +13,9 @@ import Cookies from "js-cookie";
 
 const EmployeeNewRequest = () => {
   const [requestData, setRequestData] = useState({
-    all: [],
-    approved: [],
-    rejected: [],
+    all: { data: [], pagination: { currentPage: 1, totalPages: 1 } },
+    approved: { data: [], pagination: { currentPage: 1, totalPages: 1 } },
+    rejected: { data: [], pagination: { currentPage: 1, totalPages: 1 } },
   });
   const [formTemplateData, setFormTemplateData] = useState([]);
   const [category, setCategory] = useState([]);
@@ -35,25 +35,48 @@ const EmployeeNewRequest = () => {
     []
   );
 
-  const loadRequestData = async (employeeId) => {
+  const loadRequestData = async (type, employeeId, page = 1) => {
     try {
-      const { Allrequests, formTemplateData } = await fetchAllEmployeeRequests(
-        employeeId
-      );
-      const { Approvedrequests } = await fetchApprovedEmployeeRequests(
-        employeeId
-      );
-      const { Rejectedrequests } = await fetchRejectedEmployeeRequests(
-        employeeId
-      );
-      setRequestData({
-        all: Allrequests,
-        approved: Approvedrequests,
-        rejected: Rejectedrequests,
-      });
-      setFormTemplateData(formTemplateData);
+      setLoading(true);
+      let response;
+      switch (type) {
+        case "all":
+          response = await fetchAllEmployeeRequests(employeeId, page);
+          break;
+        case "approved":
+          response = await fetchApprovedEmployeeRequests(employeeId, page);
+          break;
+        case "rejected":
+          response = await fetchRejectedEmployeeRequests(employeeId, page);
+          break;
+        default:
+          return;
+      }
+
+      const {
+        Allrequests = [],
+        Approvedrequests = [],
+        Rejectedrequests = [],
+        pagination,
+      } = response;
+
+      setRequestData((prevState) => ({
+        ...prevState,
+        [type]: {
+          data:
+            type === "all"
+              ? Allrequests
+              : type === "approved"
+              ? Approvedrequests
+              : Rejectedrequests,
+          pagination: {
+            currentPage: pagination?.[1] || 1,
+            totalPages: pagination?.[0] || 1,
+          },
+        },
+      }));
     } catch (err) {
-      // setError(err.message);
+      setError("Error fetching request data.");
     } finally {
       setLoading(false);
     }
@@ -61,7 +84,11 @@ const EmployeeNewRequest = () => {
 
   useEffect(() => {
     const employeeId = Cookies.get("userId");
-    if (employeeId) loadRequestData(employeeId);
+    if (employeeId) {
+      loadRequestData("all", employeeId);
+      loadRequestData("approved", employeeId);
+      loadRequestData("rejected", employeeId);
+    }
   }, []);
 
   useEffect(() => {
@@ -88,66 +115,135 @@ const EmployeeNewRequest = () => {
     setSelectedRequestId(null);
   };
 
-  const renderTable = (data) => (
+  const handlePageChange = (type, newPage) => {
+    const employeeId = Cookies.get("userId");
+    if (employeeId) {
+      loadRequestData(type, employeeId, newPage);
+    }
+  };
+
+  const renderTable = (data, type) => (
     <div className="p-4 bg-white overflow-auto">
-      <table className="table-auto w-full text-left">
-        <thead className="bg-gray-200">
-          <tr>
-            <th className="px-4 py-2">No.</th>
-            <th className="px-4 py-2">Request Type</th>
-            <th className="px-4 py-2">Request Date</th>
-            <th className="px-4 py-2">Status</th>
-            <th className="px-4 py-2">Action</th>
-          </tr>
-        </thead>
-        <tbody>
-          {data.length ? (
-            data.map((request, index) => {
-              const formTemplate = formTemplateData.find(
-                (template) => template._id === request.formTemplateId
-              );
-              return (
-                <tr key={request._id}>
-                  <td className="border px-4 py-2">{index + 1}</td>
-                  <td className="border px-4 py-2">
-                    {formTemplate?.templateName ||
-                      request.request_name ||
-                      "N/A"}
-                  </td>
-                  <td className="border px-4 py-2">
-                    {new Date(
-                      request.date || request.created_at
-                    ).toLocaleString()}
-                  </td>
-                  <td className="border px-4 py-2">
-                    {request.status || "Pending"}
-                  </td>
-                  <td className="border px-4 py-2">
-                    <button
-                      className="text-blue-500 hover:underline"
-                      onClick={() => openViewModal(request.request_id)}
-                    >
-                      View
-                    </button>
+      {loading && <div>Loading...</div>}
+      {error && (
+        <div className="flex justify-center items-center h-full">
+          <div className="bg-white p-6 rounded-lg shadow-lg text-center mt-6">
+            <p className="text-red-500 font-medium">{error}</p>
+          </div>
+        </div>
+      )}
+      {!loading && !error && (
+        <>
+          <table className="table-auto w-full text-left">
+            <thead className="bg-gray-200">
+              <tr>
+                <th className="px-4 py-2">No.</th>
+                <th className="px-4 py-2">Request Type</th>
+                <th className="px-4 py-2">Request Date</th>
+                <th className="px-4 py-2">Status</th>
+                <th className="px-4 py-2">Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {data.length === 0 ? (
+                <tr>
+                  <td colSpan="5" className="text-center py-4">
+                    <div className="flex justify-center items-center h-full">
+                      <div className="bg-white p-6 rounded-lg shadow-lg text-center mt-6">
+                        <p className="text-gray-700 font-medium">
+                          No Requests found
+                        </p>
+                      </div>
+                    </div>
                   </td>
                 </tr>
-              );
-            })
-          ) : (
-            <tr>
-              <td colSpan="5" className="text-center py-4">
-                No requests found.
-              </td>
-            </tr>
-          )}
-        </tbody>
-      </table>
+              ) : (
+                data.map((request, index) => (
+                  <tr key={request._id || index}>
+                    <td className="border px-4 py-2">{index + 1}</td>
+                    <td className="border px-4 py-2">
+                      {request.request_name || "N/A"}
+                    </td>
+                    <td className="border px-4 py-2">
+                      {new Date(
+                        request.date || request.created_at
+                      ).toLocaleString()}
+                    </td>
+                    <td className="border px-4 py-2">
+                      {request.status || "Pending"}
+                    </td>
+                    <td className="border px-4 py-2">
+                      <button
+                        className="text-blue-500 hover:underline"
+                        onClick={() => openViewModal(request.request_id)}
+                      >
+                        View
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+
+          {/* Pagination */}
+          <div className="flex justify-between items-center mt-4">
+            <button
+              className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"
+              disabled={requestData[type].pagination.currentPage === 1}
+              onClick={() =>
+                handlePageChange(
+                  type,
+                  requestData[type].pagination.currentPage - 1
+                )
+              }
+            >
+              Previous
+            </button>
+            <span>
+              Page {requestData[type].pagination.currentPage} of{" "}
+              {requestData[type].pagination.totalPages}
+            </span>
+            <button
+              className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"
+              disabled={
+                requestData[type].pagination.currentPage ===
+                requestData[type].pagination.totalPages
+              }
+              onClick={() =>
+                handlePageChange(
+                  type,
+                  requestData[type].pagination.currentPage + 1
+                )
+              }
+            >
+              Next
+            </button>
+          </div>
+        </>
+      )}
+
+      {/* Modal */}
+      {isViewModalOpen && (
+        <ViewModal
+          isOpen={isViewModalOpen}
+          handleClose={closeViewModal}
+          requestId={selectedRequestId}
+        />
+      )}
     </div>
   );
 
   const renderContent = () => {
     if (loading) return <p className="text-center">Loading...</p>;
-    if (error) return <p className="text-red-500 text-center">{error}</p>;
+    if (error)
+      return (
+        <div className="flex justify-center items-center h-full">
+          <div className="bg-white p-6 rounded-lg shadow-lg text-center mt-6">
+            <p className="text-red-500 font-medium">{error}</p>
+          </div>
+        </div>
+      );
 
     switch (activeTab) {
       case "New Request":
@@ -167,11 +263,11 @@ const EmployeeNewRequest = () => {
           </div>
         );
       case "Track All Request":
-        return renderTable(requestData.all);
+        return renderTable(requestData.all.data, "all");
       case "Track Approved Requests":
-        return renderTable(requestData.approved);
+        return renderTable(requestData.approved.data, "approved");
       case "Track Rejected Requests":
-        return renderTable(requestData.rejected);
+        return renderTable(requestData.rejected.data, "rejected");
       default:
         return null;
     }
@@ -185,10 +281,10 @@ const EmployeeNewRequest = () => {
             <li key={tab.key}>
               <button
                 onClick={() => setActiveTab(tab.key)}
-                className={`inline-block p-4 rounded-t-lg ${
+                className={`inline-block p-4 ${
                   activeTab === tab.key
                     ? "text-blue-600 font-bold bg-white"
-                    : "hover:text-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800 dark:hover:text-gray-300"
+                    : "hover:text-gray-600 hover:bg-gray-50"
                 }`}
               >
                 {tab.label}
@@ -196,14 +292,8 @@ const EmployeeNewRequest = () => {
             </li>
           ))}
         </ul>
-        {renderContent()}
+        <div>{renderContent()}</div>
       </div>
-
-      <ViewModal
-        isOpen={isViewModalOpen}
-        handleClose={closeViewModal}
-        requestId={selectedRequestId}
-      />
     </div>
   );
 };

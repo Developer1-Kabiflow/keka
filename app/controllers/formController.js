@@ -17,7 +17,6 @@ export const getProcessedFormSchema = async (formId, employeeId) => {
       acc[field.name] = field.type === "checkbox" ? [] : "";
       return acc;
     }, {});
-    console.log("employeeData: - ", employeeData);
 
     return {
       formSchema: fields,
@@ -33,7 +32,6 @@ export const getProcessedFormSchema = async (formId, employeeId) => {
 
 export const getMyFormData = async (requestId) => {
   try {
-    // console.log("Processing form for requestId:", requestId);
     const { requestData, approvalData } = await fetchMyFormdata(requestId);
     if (!requestData || !approvalData) {
       throw new Error("Invalid form schema response");
@@ -51,9 +49,7 @@ export const getMyFormData = async (requestId) => {
 // Prepare form submission data and handle submission
 export const handleFormSubmissionWithData = async (formId, submittedData) => {
   try {
-    // console.log("Processing form submission data...");
     const result = await submitFormData(formId, submittedData);
-    // console.log("Form submission result:", result);
     return { submittedData, result };
   } catch (error) {
     console.error("Error in handleFormSubmissionWithData:", error.message);

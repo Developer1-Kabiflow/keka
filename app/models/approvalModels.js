@@ -4,11 +4,9 @@ import BASE_URL from "@/utils/utils";
 // Fetch all accepted for an employee
 export const fetchAllRequests = async (approverId, page) => {
   try {
-    console.log("Fetching requests for approver ID: " + approverId);
     const response = await axios.get(
       `${BASE_URL}/trackApprovals/myApprovalsList/${approverId}?page=${page}&pageLimit=10`
     );
-    console.log("API Response:", response.data); // Log the API response to check if it's in the expected format
     return response.data;
   } catch (error) {
     console.error("Error fetching requests:", error);
@@ -18,7 +16,6 @@ export const fetchAllRequests = async (approverId, page) => {
 
 export const fetchApprovedRequests = async (approverId, page) => {
   try {
-    console.log("fetching accepted requests for approver-->" + approverId);
     const response = await axios.get(
       `${BASE_URL}/trackRequest/myApprovedRequest/${approverId}?page=${page}&pageLimit=10`
     );
@@ -30,7 +27,6 @@ export const fetchApprovedRequests = async (approverId, page) => {
 // Fetch rejected requests for an employee
 export const fetchRejectedRequests = async (approverId, page) => {
   try {
-    console.log("fetching rejected requests for approver-->" + approverId);
     const response = await axios.get(
       `${BASE_URL}/trackRequest/myRejectedRequest/${approverId}?page=${page}&pageLimit=10`
     );
@@ -42,7 +38,6 @@ export const fetchRejectedRequests = async (approverId, page) => {
 // Fetch pending requests for an employee
 export const fetchPendingRequests = async (approverId, page) => {
   try {
-    console.log("fetching pending requests for approver-->" + approverId);
     const response = await axios.get(
       `${BASE_URL}/trackRequest/myInProgressRequest/${approverId}?page=${page}&pageLimit=10`
     );

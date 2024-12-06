@@ -1,21 +1,8 @@
 "use client";
 
 import React, { useState, useEffect, useMemo } from "react";
-// import EmployeeSidebar from "../EmployeeSidebarPage/EmployeeSidebar";
-// import Link from "next/link";
-// import Modal from "./Modal";
-// import ViewModal from "./ViewModal";
 import { toast } from "react-toastify";
-// import {
-//   fetchAllEmployeeRequests,
-//   fetchApprovedEmployeeRequests,
-//   fetchRejectedEmployeeRequests,
-// } from "@/app/controllers/requestController";
 import { fetchEmployeeDetails } from "@/app/controllers/employeeController";
-// import {
-//   fetchCategoryList,
-//   fetchSubCategoryList,
-// } from "@/app/controllers/categoryController";
 import Cookies from "js-cookie";
 import CategoryList from "./CategoryList";
 import TrackAllRequest from "./TrackAllRequest";
@@ -23,24 +10,11 @@ import TrackApprovedRequest from "./TrackApprovedRequest";
 import TrackRejectedRequest from "./TrackRejectedRequest";
 
 const EmployeeRequest = ({ categoryId }) => {
-  //const { categoryId } = params;
   const [employeeDetails, setEmployeeDetails] = useState([]);
-  // const [subCategoryList, setSubCategoryList] = useState([]);
-  // const [requestData, setRequestData] = useState({
-  //   all: [],
-  //   approved: [],
-  //   rejected: [],
-  // });
-  // const [formTemplateData, setFormTemplateData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  // const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("New Request");
-  // const [isViewModalOpen, setIsViewModalOpen] = useState(false);
-  // const [selectedRequestId, setSelectedRequestId] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  // const [selectedSubCategoryId, setSubCategoryId] = useState(null);
-  // const [category, setCategory] = useState([]);
 
   const tabs = useMemo(
     () => [
@@ -58,38 +32,11 @@ const EmployeeRequest = ({ categoryId }) => {
       toast.error(message);
     }
   };
-  // const loadRequestData = async (employeeId) => {
-  //   try {
-      // const { Allrequests, formTemplateData } = await fetchAllEmployeeRequests(
-      //   employeeId
-      // );
-      // const { Approvedrequests } = await fetchApprovedEmployeeRequests(
-      //   employeeId
-      // );
-  //     const { Rejectedrequests } = await fetchRejectedEmployeeRequests(
-  //       employeeId
-  //     );
-  //     setRequestData({
-  //       all: Allrequests,
-  //       approved: Approvedrequests,
-  //       rejected: Rejectedrequests,
-  //     });
-  //     setFormTemplateData(formTemplateData);
-  //   } catch (err) {
-  //     // setError(err.message || "Error fetching request data.");
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
 
   useEffect(() => {
     const employeeId = Cookies.get("userId");
-    // if (employeeId) {
-    //   loadRequestData(employeeId);
-    // }
     const fetchEmployee = async () => {
       try {
-        const employeeId = Cookies.get("userId");
         if (!employeeId) {
           throw new Error("No employee ID found in cookies.");
         }
@@ -102,9 +49,7 @@ const EmployeeRequest = ({ categoryId }) => {
       }
     };
 
-   
     fetchEmployee();
-   
   }, [categoryId]);
 
   const refreshData = () => {
@@ -119,17 +64,6 @@ const EmployeeRequest = ({ categoryId }) => {
     setIsModalOpen(!isModalOpen);
   };
 
-  // const openViewModal = (requestId) => {
-  //   setSelectedRequestId(requestId);
-  //   setIsViewModalOpen(true);
-  // };
-
-  // const closeViewModal = () => {
-  //   setIsViewModalOpen(false);
-  //   setSelectedRequestId(null);
-  // };
-
- 
   const renderContent = () => {
     if (loading) return <p>Loading...</p>;
     if (error) return <p className="text-red-500">{error}</p>;
@@ -138,15 +72,15 @@ const EmployeeRequest = ({ categoryId }) => {
       case "New Request":
         return (
           <div className="p-4 bg-white">
-            < CategoryList />
+            <CategoryList />
           </div>
         );
       case "Track All Request":
-        return <TrackAllRequest/>;
+        return <TrackAllRequest />;
       case "Track Approved Requests":
-        return <TrackApprovedRequest/>;
+        return <TrackApprovedRequest />;
       case "Track Rejected Requests":
-        return < TrackRejectedRequest />
+        return <TrackRejectedRequest />;
       default:
         return null;
     }
@@ -165,8 +99,8 @@ const EmployeeRequest = ({ categoryId }) => {
                   onClick={() => setActiveTab("New Request")}
                   className={`inline-block p-4 rounded-t-lg hover:cursor-pointer ${
                     activeTab === "New Request"
-                      ? "text-blue-600 bg-white"
-                      : "hover:text-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800 dark:hover:text-gray-300"
+                      ? "text-blue-600 font-bold bg-white"
+                      : "hover:text-gray-600 hover:bg-gray-50"
                   }`}
                 >
                   New Request
@@ -177,8 +111,8 @@ const EmployeeRequest = ({ categoryId }) => {
                   onClick={() => setActiveTab("Track All Request")}
                   className={`inline-block p-4 rounded-t-lg hover:cursor-pointer ${
                     activeTab === "Track All Request"
-                      ? "text-blue-600 bg-white"
-                      : "hover:text-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800 dark:hover:text-gray-300"
+                      ? "text-blue-600 font-bold bg-white"
+                      : "hover:text-gray-600 hover:bg-gray-50"
                   }`}
                 >
                   Track All Request
@@ -189,8 +123,8 @@ const EmployeeRequest = ({ categoryId }) => {
                   onClick={() => setActiveTab("Track Approved Requests")}
                   className={`inline-block p-4 rounded-t-lg hover:cursor-pointer ${
                     activeTab === "Track Approved Requests"
-                      ? "text-blue-600 bg-white"
-                      : "hover:text-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800 dark:hover:text-gray-300"
+                      ? "text-blue-600 font-bold bg-white"
+                      : "hover:text-gray-600 hover:bg-gray-50"
                   }`}
                 >
                   Track Approved Requests
@@ -201,8 +135,8 @@ const EmployeeRequest = ({ categoryId }) => {
                   onClick={() => setActiveTab("Track Rejected Requests")}
                   className={`inline-block p-4 rounded-t-lg hover:cursor-pointer ${
                     activeTab === "Track Rejected Requests"
-                      ? "text-blue-600 bg-white"
-                      : "hover:text-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800 dark:hover:text-gray-300"
+                      ? "text-blue-600 font-bold bg-white"
+                      : "hover:text-gray-600 hover:bg-gray-50"
                   }`}
                 >
                   Track Rejected Requests

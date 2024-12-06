@@ -1,13 +1,43 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import { fetchSubCategoryList } from "@/app/controllers/categoryController"; // Import your subcategory fetch method
+import { fetchSubCategoryList } from "@/app/controllers/categoryController";
+import { fetchAllEmployeeRequests } from "@/app/controllers/requestController"; // Import your subcategory fetch method
 import Modal from "./Modal"; // Import your Modal component (adjust the path as needed)
-
-const SubMenu = ({ categoryId, handleModalToggle, setSubCategoryId, isModalOpen, selectedSubCategoryId, refreshData, handleToast }) => {
+import { toast } from "react-toastify";
+import Cookies from "js-cookie";
+const SubMenu = ({
+  categoryId,
+  handleModalToggle,
+  setSubCategoryId,
+  isModalOpen,
+  selectedSubCategoryId,
+}) => {
   const [subCategoryList, setSubCategoryList] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-
+  const handleToast = (message, type) => {
+    if (type === "success") {
+      toast.success(message);
+    } else if (type === "error") {
+      toast.error(message);
+    }
+  };
+  const loadRequestData = async (employeeId) => {
+    try {
+      const { Allrequests } = await fetchAllEmployeeRequests(employeeId);
+      setAllRequest(Allrequests);
+    } catch (err) {
+      // setError(err.message || "Error fetching request data.");
+    } finally {
+      setLoading(false);
+    }
+  };
+  const refreshData = () => {
+    const employeeId = Cookies.get("userId");
+    if (employeeId) {
+      loadRequestData(employeeId);
+    }
+  };
   const fetchSubcategories = async () => {
     try {
       if (!categoryId) return;

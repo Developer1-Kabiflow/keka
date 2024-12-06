@@ -5,15 +5,16 @@ import {
 } from "../models/requestModels";
 
 // Fetch all employee requests
-export const fetchAllEmployeeRequests = async (employeeId) => {
+export const fetchAllEmployeeRequests = async (employeeId, page) => {
   try {
-    const data = await fetchAllRequests(employeeId);
-    console.log("data in controller :--> ", data.requests.employee_request_list);
-    
+    const data = await fetchAllRequests(employeeId, page);
+
+    const { totalPages, currentPage, totalRequests } = data;
+    const paginationDetails = [totalPages, currentPage, totalRequests];
     return {
-      Allrequests: data.requests.employee_request_list || [],
+      Allrequests: data.requests || [],
       formTemplateData: data.formTemplates || [],
-      
+      pagination: paginationDetails,
     };
   } catch (error) {
     throw new Error(error.message);
@@ -21,34 +22,39 @@ export const fetchAllEmployeeRequests = async (employeeId) => {
 };
 
 // Fetch accepted employee requests
-export const fetchApprovedEmployeeRequests = async (employeeId) => {
+export const fetchApprovedEmployeeRequests = async (employeeId, page) => {
   try {
-    const data = await fetchAcceptedRequests(employeeId);
-   
-    const employeeAcceptedRequestLists = data.data
-      .map((item) => item.employee_request_list)
-      .flat();
+    const data = await fetchAcceptedRequests(employeeId, page);
 
-     
+    // Extract pagination details
+    const { totalPages, currentPage, totalResults } = data;
+
+    // Flatten the nested `employee_request_list` from each result in `results`
+    const employeeAcceptedRequestLists = data.results?.flatMap(
+      (result) => result.employee_request_list || []
+    );
+
     return {
       Approvedrequests: employeeAcceptedRequestLists || [],
+      pagination: { totalPages, currentPage, totalResults },
     };
   } catch (error) {
-    throw new Error(error.message);
+    console.error("Error in fetchApprovedEmployeeRequests:", error.message);
+    throw new Error("Failed to fetch approved employee requests.");
   }
 };
 
 // Fetch rejected employee requests
-export const fetchRejectedEmployeeRequests = async (employeeId) => {
+export const fetchRejectedEmployeeRequests = async (employeeId, page) => {
   try {
-    const data = await fetchRejectedRequests(employeeId);
-    
-    const employeeRejectedRequestLists = data.data
-      .map((item) => item.EmployeeRequestList)
-      .flat();
-      console.log("Rejected List--> ", employeeRejectedRequestLists);
+    const data = await fetchRejectedRequests(employeeId, page);
+    const { totalPages, currentPage, totalResults } = data;
+    const employeeRejectedRequestLists = data.results?.flatMap(
+      (result) => result.employee_request_list || []
+    );
     return {
       Rejectedrequests: employeeRejectedRequestLists || [],
+      pagination: { totalPages, currentPage, totalResults },
     };
   } catch (error) {
     throw new Error(error.message);

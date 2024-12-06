@@ -6,6 +6,9 @@ import Stepper from "@mui/material/Stepper";
 import Step from "@mui/material/Step";
 import StepLabel from "@mui/material/StepLabel";
 import Typography from "@mui/material/Typography";
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import CancelIcon from "@mui/icons-material/Cancel";
+import HourglassEmptyIcon from "@mui/icons-material/HourglassEmpty";
 
 export default function ProgressStepsContainer({ approvalData }) {
   const [activeStep, setActiveStep] = useState(0);
@@ -51,20 +54,31 @@ export default function ProgressStepsContainer({ approvalData }) {
   };
 
   return (
-    <Box sx={{ width: "100%" }}>
+    <Box
+      sx={{
+        width: "100%",
+        backgroundColor: "#f5f5f5",
+        padding: "20px",
+        borderRadius: "8px",
+        boxShadow: "0 2px 6px rgba(0, 0, 0, 0.1)",
+      }}
+    >
       {/* Current Status Heading */}
       <Typography
         variant="h6"
         color={getCurrentStatusColor()} // Dynamically apply color based on current status
-        sx={{ mb: 2, textAlign: "center", fontWeight: "bold" }}
+        sx={{
+          mb: 2,
+          textAlign: "center",
+          fontWeight: "bold",
+          fontSize: "18px",
+        }}
       >
-        {/* {`Step ${activeStep + 1} - ${
-          approvals?.[activeStep]?.current_status || "Pending"
-        }`} */}
+        {approvals?.[activeStep]?.current_status || "Pending"}
       </Typography>
 
       {/* Stepper Component */}
-      <Stepper activeStep={activeStep}>
+      <Stepper activeStep={activeStep} alternativeLabel>
         {approvals.map((step, index) => {
           const isApproved = step?.current_status === "Approved";
           const isRejected = step?.current_status === "Rejected";
@@ -76,19 +90,45 @@ export default function ProgressStepsContainer({ approvalData }) {
           return (
             <Step key={index}>
               <StepLabel>
-                <Typography
-                  variant="body1"
-                  color={getStepColor(index)} // Apply the color dynamically
-                  sx={{ fontWeight: getFontWeight(index) }}
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: "8px",
+                    fontWeight: getFontWeight(index),
+                    color: getStepColor(index),
+                    transition: "all 0.3s ease",
+                    "&:hover": {
+                      transform: "scale(1.05)",
+                      cursor: "pointer",
+                    },
+                  }}
                 >
-                  {`Step ${index + 1}`}
-                </Typography>
+                  <Typography variant="body1" color={getStepColor(index)}>
+                    {`Step ${index + 1}`}
+                  </Typography>
+                  {/* Icons for Approval/Rejection */}
+                  {step?.current_status === "Approved" && (
+                    <CheckCircleIcon sx={{ color: "green" }} />
+                  )}
+                  {step?.current_status === "Rejected" && (
+                    <CancelIcon sx={{ color: "red" }} />
+                  )}
+                  {step?.current_status !== "Approved" &&
+                    step?.current_status !== "Rejected" && (
+                      <HourglassEmptyIcon sx={{ color: "gray" }} />
+                    )}
+                </Box>
+
+                {/* Approval List */}
                 {step?.approval_list?.length > 0 ? (
                   step.approval_list.map((approval, i) => (
                     <Typography
                       variant="caption"
-                      color={getStepColor(index)} // Apply the color dynamically for approvers as well
+                      color={getStepColor(index)}
                       key={i}
+                      sx={{ mt: 0.5 }}
                     >
                       <p style={{ fontWeight: "600" }}>
                         Approvers: {approval.employee_name}

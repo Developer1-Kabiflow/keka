@@ -44,7 +44,6 @@ const TrackApprovedByMe = () => {
   }, []);
 
   useEffect(() => {
-  
     fetchRequestData(approverId);
   }, [fetchRequestData]);
 
@@ -60,7 +59,6 @@ const TrackApprovedByMe = () => {
   };
 
   const handlePageChange = (newPage) => {
-   
     fetchRequestData(approverId, newPage);
   };
 
@@ -73,7 +71,6 @@ const TrackApprovedByMe = () => {
   };
 
   const refreshData = () => {
-  
     fetchRequestData(
       approverId,
       requestData[activeTab]?.pagination?.currentPage || 1
@@ -82,7 +79,13 @@ const TrackApprovedByMe = () => {
   return (
     <div>
       {loading && <div>Loading...</div>}
-      {error && <div className="text-red-500">{error}</div>}
+      {error && (
+        <div className="flex justify-center items-center h-full">
+          <div className="bg-white p-6 rounded-lg shadow-lg text-center mt-6">
+            <p className="text-gray-700 font-medium">No requests to display.</p>
+          </div>
+        </div>
+      )}
       {!loading && !error && (
         <div className="p-4 bg-white overflow-auto">
           <table className="table-auto w-full text-left">
@@ -134,7 +137,13 @@ const TrackApprovedByMe = () => {
               ) : (
                 <tr>
                   <td colSpan="5" className="text-center py-4">
-                    No Pending Requests Found.
+                    <div className="flex justify-center items-center h-full">
+                      <div className="bg-white p-6 rounded-lg shadow-lg text-center mt-6">
+                        <p className="text-gray-700 font-medium">
+                          No Approved Requests found
+                        </p>
+                      </div>
+                    </div>
                   </td>
                 </tr>
               )}
@@ -146,7 +155,9 @@ const TrackApprovedByMe = () => {
             <button
               className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"
               disabled={requestData.pagination.currentPage === 1}
-              onClick={() => handlePageChange(requestData.pagination.currentPage - 1)}
+              onClick={() =>
+                handlePageChange(requestData.pagination.currentPage - 1)
+              }
             >
               Previous
             </button>
@@ -160,26 +171,26 @@ const TrackApprovedByMe = () => {
                 requestData.pagination.currentPage ===
                 requestData.pagination.totalPages
               }
-              onClick={() => handlePageChange(requestData.pagination.currentPage + 1)}
+              onClick={() =>
+                handlePageChange(requestData.pagination.currentPage + 1)
+              }
             >
               Next
             </button>
           </div>
-          
         </div>
-        
       )}
-       {/* Modal Component */}
-       {isModalOpen && (
-            <ViewModal
-              isOpen={isModalOpen}
-              handleClose={closeModal}
-              requestId={selectedRequestId}
-              showAcceptReject={showAcceptReject}
-              onToast={handleToast}
-              refreshData={refreshData} // Pass the refreshData callback
-            />
-          )}
+      {/* Modal Component */}
+      {isModalOpen && (
+        <ViewModal
+          isOpen={isModalOpen}
+          handleClose={closeModal}
+          requestId={selectedRequestId}
+          showAcceptReject={showAcceptReject}
+          onToast={handleToast}
+          refreshData={refreshData} // Pass the refreshData callback
+        />
+      )}
     </div>
   );
 };

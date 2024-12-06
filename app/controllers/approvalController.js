@@ -10,20 +10,10 @@ import {
 // Fetch all employee requests
 export const fetchAll = async (approverId, page) => {
   try {
-    console.log("reached here-1");
     const data = await fetchAllRequests(approverId, page);
-    console.log("Fetched Data:", data); // Log the data to see its structure
-
-    // Extract pagination details
     const { totalPages, currentPage, totalResults } = data;
     const paginationDetails = [totalPages, currentPage, totalResults];
-    console.log("totalPages-->" + totalPages);
-
-    // Safely extract `employeeApprovalList` and ensure it's an array
     const employeeRequestList = data.employeeApprovalList || [];
-    console.log("employeeRequestList");
-    console.dir(employeeRequestList);
-    // Return the request list along with pagination details
     return {
       data: employeeRequestList || [],
       pagination: paginationDetails,
@@ -43,8 +33,6 @@ export const fetchApproved = async (approverId, page) => {
     // Extract pagination details
     const { totalPages, currentPage, totalResults } = data;
     const paginationDetails = [totalPages, currentPage, totalResults];
-    console.log("paginationDetails-->" + paginationDetails);
-    // Safely extract `filteredResults` and ensure it's an array
     const filteredResults = data.filteredResults || [];
 
     // Flatten and combine all `employee_approval_list` from `filteredResults`
@@ -125,7 +113,6 @@ export const fetchPending = async (approverId, page) => {
 export const handleApprove = async (approverId, requestId) => {
   try {
     const result = await approveRequest(approverId, requestId);
-    console.log("Result from approveRequest:", result); // Debugging log
     return result === true; // Explicitly check for a boolean true if needed
   } catch (error) {
     console.error("Error in handleApprove:", error.message);

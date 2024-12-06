@@ -26,11 +26,9 @@ export const fetchFormSchema = async (formId, employeeId) => {
 // Fetch form data
 export const fetchMyFormdata = async (requestId) => {
   try {
-    console.log("RequestId:", requestId);
     const response = await axios.get(
       `${BASE_URL}/request/getMyFormData/${requestId}`
     );
-    // console.log("Form schema response:", response);
     return response.data;
   } catch (error) {
     console.error(

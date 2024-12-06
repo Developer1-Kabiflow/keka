@@ -6,7 +6,7 @@ import Cookies from "js-cookie";
 import ViewModal from "./ViewModal";
 import { toast } from "react-toastify";
 
-const TrackPendingRequest = () => {
+const TrackAllRequest = () => {
   const [requestData, setRequestData] = useState({
     data: [],
     pagination: { currentPage: 1, totalPages: 1 },
@@ -44,14 +44,13 @@ const TrackPendingRequest = () => {
   }, []);
 
   useEffect(() => {
- 
     fetchRequestData(approverId);
   }, [fetchRequestData]);
 
   const openModal = (requestId, isPending) => {
+    setShowAcceptReject(isPending);
     setSelectedRequestId(requestId);
     setIsModalOpen(true);
-    setShowAcceptReject(isPending);
   };
 
   const closeModal = () => {
@@ -60,7 +59,6 @@ const TrackPendingRequest = () => {
   };
 
   const handlePageChange = (newPage) => {
-   
     fetchRequestData(approverId, newPage);
   };
 
@@ -73,17 +71,19 @@ const TrackPendingRequest = () => {
   };
 
   const refreshData = () => {
-  
-    fetchRequestData(
-      approverId,
-      requestData[activeTab]?.pagination?.currentPage || 1
-    );
+    fetchRequestData(approverId, requestData?.pagination?.currentPage || 1);
   };
 
   return (
     <div>
       {loading && <div>Loading...</div>}
-      {error && <div className="text-red-500">{error}</div>}
+      {error && (
+        <div className="flex justify-center items-center h-full">
+          <div className="bg-white p-6 rounded-lg shadow-lg text-center mt-6">
+            <p className="text-gray-700 font-medium">No requests to display.</p>
+          </div>
+        </div>
+      )}
       {!loading && !error && (
         <div className="p-4 bg-white overflow-auto">
           <table className="table-auto w-full text-left">
@@ -135,7 +135,13 @@ const TrackPendingRequest = () => {
               ) : (
                 <tr>
                   <td colSpan="5" className="text-center py-4">
-                    No Pending Requests Found.
+                    <div className="flex justify-center items-center h-full">
+                      <div className="bg-white p-6 rounded-lg shadow-lg text-center mt-6">
+                        <p className="text-gray-700 font-medium">
+                          No Requests found
+                        </p>
+                      </div>
+                    </div>
                   </td>
                 </tr>
               )}
@@ -170,22 +176,21 @@ const TrackPendingRequest = () => {
               Next
             </button>
           </div>
-       
         </div>
       )}
-         {/* Modal Component */}
-         {isModalOpen && (
-            <ViewModal
-              isOpen={isModalOpen}
-              handleClose={closeModal}
-              requestId={selectedRequestId}
-              showAcceptReject={showAcceptReject}
-              onToast={handleToast}
-              refreshData={refreshData} // Pass the refreshData callback
-            />
-          )}
+      {/* Modal Component */}
+      {isModalOpen && (
+        <ViewModal
+          isOpen={isModalOpen}
+          handleClose={closeModal}
+          requestId={selectedRequestId}
+          showAcceptReject={showAcceptReject}
+          onToast={handleToast}
+          refreshData={refreshData} // Pass the refreshData callback
+        />
+      )}
     </div>
   );
 };
 
-export default TrackPendingRequest;
+export default TrackAllRequest;

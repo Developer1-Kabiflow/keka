@@ -10,31 +10,17 @@ import TrackPendingRequest from "./TrackPendingApprovals";
 
 const EmployeeTask = () => {
   const [activeTab, setActiveTab] = useState("All Requests");
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedRequestId, setSelectedRequestId] = useState(null);
-  const [showAcceptReject, setShowAcceptReject] = useState(false);
-
-  const openModal = (requestId, isPending) => {
-    setSelectedRequestId(requestId);
-    setIsModalOpen(true);
-    setShowAcceptReject(isPending);
-  };
-
-  const closeModal = () => {
-    setIsModalOpen(false);
-    setSelectedRequestId(null);
-  };
 
   const renderContent = () => {
     switch (activeTab) {
       case "All Requests":
-        return <TrackAllRequest openModal={openModal} />;
+        return <TrackAllRequest />;
       case "Pending for Approval":
-        return <TrackPendingRequest openModal={openModal} />;
+        return <TrackPendingRequest />;
       case "Approved by Me":
-        return <TrackApprovedRequest openModal={openModal} />;
+        return <TrackApprovedRequest />;
       case "Rejected by Me":
-        return <TrackRejectedRequest openModal={openModal} />;
+        return <TrackRejectedRequest />;
       default:
         return <div>Invalid Tab</div>;
     }
@@ -66,15 +52,6 @@ const EmployeeTask = () => {
         </ul>
         {renderContent()}
       </div>
-
-      {isModalOpen && (
-        <ViewModal
-          isOpen={isModalOpen}
-          handleClose={closeModal}
-          requestId={selectedRequestId}
-          showAcceptReject={showAcceptReject}
-        />
-      )}
     </div>
   );
 };
