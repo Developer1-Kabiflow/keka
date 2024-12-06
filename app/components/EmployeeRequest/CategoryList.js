@@ -28,13 +28,29 @@ const CategoryList = () => {
     fetchCategoryData();
   }, []);
 
-  if (loading) return <div className="p-4">Loading...</div>;
-  if (error) return <div className="p-4 text-red-500">{error}</div>;
-
   const handleModalToggle = (itemId) => {
     setSubCategoryId(itemId); // Set the selected subcategory ID
     setIsModalOpen(!isModalOpen); // Toggle modal visibility
   };
+
+  if (loading) {
+    return (
+      <div className="p-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {Array(6)
+          .fill("")
+          .map((_, index) => (
+            <div
+              key={index}
+              className="h-12 bg-gray-200 rounded-md animate-pulse"
+            ></div>
+          ))}
+      </div>
+    );
+  }
+
+  if (error) {
+    return <div className="p-4 text-red-500">{error}</div>;
+  }
 
   return (
     <div className="p-4 bg-white">

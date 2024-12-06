@@ -150,18 +150,6 @@ const EmployeeRequest = ({ categoryId }) => {
           </div>
         </div>
       </div>
-      {/* <Modal
-        isOpen={isModalOpen}
-        handleClose={handleModalToggle}
-        refreshData={refreshData}
-        itemId={selectedSubCategoryId}
-        onToast={handleToast}
-      />
-      <ViewModal
-        isOpen={isViewModalOpen}
-        handleClose={closeViewModal}
-        requestId={selectedRequestId}
-      /> */}
     </div>
   );
 };

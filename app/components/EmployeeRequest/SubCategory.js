@@ -54,7 +54,7 @@ const SubMenu = ({
     fetchSubcategories();
   }, [categoryId]); // Re-fetch subcategories when categoryId changes
 
-  if (loading) return <p>Loading subcategories...</p>;
+  if (loading) return <p></p>;
   if (error) return <p className="text-red-500">{error}</p>;
 
   // Handle the modal toggle
