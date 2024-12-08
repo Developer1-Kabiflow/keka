@@ -29,7 +29,7 @@ const ViewModal = ({
   const progressStepsRef = useRef(null);
 
   const approverId = Cookies.get("userId");
-
+  console.log("requestId-->" + requestId);
   // Fetch Form Data
   const fetchForm = useCallback(async () => {
     if (isOpen && requestId) {
@@ -124,88 +124,94 @@ const ViewModal = ({
             Task Details
           </span>
         </div>
-
-        {/* Loading Skeleton */}
         {loading ? (
-          <div className="animate-pulse">
-            <div className="h-6 bg-gray-200 rounded mb-4"></div>
-            <div className="h-6 bg-gray-200 rounded mb-4"></div>
-            <div className="h-6 bg-gray-200 rounded mb-4"></div>
+          /* Skeletal Loader */
+          <div className="animate-pulse space-y-4">
+            <div className="h-8 bg-gray-200 rounded w-1/3 mx-auto"></div>
+            <div className="h-6 bg-gray-200 rounded w-2/3 mx-auto"></div>
+            <div className="space-y-2">
+              {[...Array(4)].map((_, index) => (
+                <div
+                  key={index}
+                  className="h-4 bg-gray-200 rounded w-full"
+                ></div>
+              ))}
+            </div>
+            <div className="h-48 bg-gray-200 rounded w-full"></div>
           </div>
         ) : (
           <>
-            <div className="flex flex-col w-full bg-gray-50 h-48 mb-4">
-              <div className="mt-2 mb-4 ml-2">
-                <span className="text-md text-blue-500 font-semibold">
-                  Approval Status
-                </span>
-              </div>
+            {/* Progress Steps Container */}
+            <div className="flex flex-col w-full bg-gray-50 mb-4">
               <div className="w-full items-center" ref={progressStepsRef}>
                 <ProgressStepsContainer approvalData={approvalData} />
               </div>
             </div>
 
-            <form onSubmit={(e) => e.preventDefault()}>
-              {formData?.fields?.map((field) => (
-                <div key={field._id} className="mb-4">
-                  <label>{field.field_name}</label>
-                  <input
-                    type="text"
-                    name={field.field_name}
-                    placeholder={
-                      formData?.[field.field_name] || field.field_value || ""
-                    }
-                    disabled
-                    className="w-full px-3 py-2 border rounded"
-                  />
-                </div>
-              ))}
+            {/* Form Content */}
+            <div className="flex flex-col w-full bg-gray-50">
+              <form onSubmit={(e) => e.preventDefault()}>
+                {formData?.fields?.map((field) => (
+                  <div key={field._id} className="mb-4">
+                    <label>{field.field_name}</label>
+                    <input
+                      type="text"
+                      name={field.field_name}
+                      placeholder={
+                        formData?.[field.field_name] || field.field_value || ""
+                      }
+                      disabled
+                      className="w-full px-3 py-2 border rounded"
+                    />
+                  </div>
+                ))}
 
-              {showAcceptReject && (
-                <div className="flex flex-col sm:flex-row justify-center gap-6 sm:mx-48 mt-6">
-                  <button
-                    type="button"
-                    disabled={approving}
-                    className={`w-full sm:w-32 px-6 py-3 text-white font-semibold rounded-lg shadow-lg 
+                {showAcceptReject && (
+                  <div className="flex flex-col sm:flex-row justify-center gap-6 sm:mx-48 mt-6">
+                    <button
+                      type="button"
+                      disabled={approving}
+                      className={`w-full sm:w-32 px-6 py-3 text-white font-semibold rounded-lg shadow-lg 
                            ${
                              approving
                                ? "bg-green-400 cursor-not-allowed"
                                : "bg-green-500 hover:bg-green-600"
                            }
                            transition duration-200 ease-in-out transform hover:scale-105`}
-                    onClick={handleApproval}
-                  >
-                    {approving ? (
-                      <span className="flex items-center justify-center gap-2">
-                        <span className="loader"></span> Approving...
-                      </span>
-                    ) : (
-                      "Approve"
-                    )}
-                  </button>
-                  <button
-                    type="button"
-                    disabled={rejecting}
-                    onClick={handleRejectClick}
-                    className={`w-full sm:w-32 px-6 py-3 text-white font-semibold rounded-lg shadow-lg 
+                      onClick={handleApproval}
+                    >
+                      {approving ? (
+                        <span className="flex items-center justify-center gap-2">
+                          <span className="loader"></span> Approving...
+                        </span>
+                      ) : (
+                        "Approve"
+                      )}
+                    </button>
+                    <button
+                      type="button"
+                      disabled={rejecting}
+                      onClick={handleRejectClick}
+                      className={`w-full sm:w-32 px-6 py-3 text-white font-semibold rounded-lg shadow-lg 
                            ${
                              rejecting
                                ? "bg-red-400 cursor-not-allowed"
                                : "bg-red-500 hover:bg-red-600"
                            }
                            transition duration-200 ease-in-out transform hover:scale-105`}
-                  >
-                    {rejecting ? (
-                      <span className="flex items-center justify-center gap-2">
-                        <span className="loader"></span> Rejecting...
-                      </span>
-                    ) : (
-                      "Reject"
-                    )}
-                  </button>
-                </div>
-              )}
-            </form>
+                    >
+                      {rejecting ? (
+                        <span className="flex items-center justify-center gap-2">
+                          <span className="loader"></span> Rejecting...
+                        </span>
+                      ) : (
+                        "Reject"
+                      )}
+                    </button>
+                  </div>
+                )}
+              </form>
+            </div>
           </>
         )}
 

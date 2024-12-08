@@ -1,150 +1,339 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import Box from "@mui/material/Box";
 import Stepper from "@mui/material/Stepper";
 import Step from "@mui/material/Step";
 import StepLabel from "@mui/material/StepLabel";
 import Typography from "@mui/material/Typography";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
-import CancelIcon from "@mui/icons-material/Cancel";
 import HourglassEmptyIcon from "@mui/icons-material/HourglassEmpty";
+import UnpublishedIcon from "@mui/icons-material/Unpublished";
 
 export default function ProgressStepsContainer({ approvalData }) {
-  const [activeStep, setActiveStep] = useState(0);
-  const [approvals, setApprovals] = useState([]);
+  const [newApprovalData, setNewApprovalData] = useState(null);
 
+  console.log("approvalData-->", approvalData);
+
+  const transformApprovalData = (approvalData) => {
+    if (!approvalData || !approvalData.approval_step) return null;
+
+    return {
+      ...approvalData,
+      approval_step: approvalData.approval_step.map((step) => ({
+        step: step.step,
+        step_name: `Step ${step.step}`,
+        approval_list: step.approval_list.map((approval) => {
+          const approverAction = step.action_by?.find(
+            (action) => action.approved_by === approval.employee_id
+          );
+
+          const approvalStatus = approverAction
+            ? approverAction.task_status
+            : "Pending";
+
+          const feedback =
+            approvalStatus === "Rejected" && approverAction?.notes
+              ? (() => {
+                  try {
+                    return (
+                      JSON.parse(approverAction.notes)?.rejectionNote || ""
+                    );
+                  } catch {
+                    return "";
+                  }
+                })()
+              : "";
+
+          return {
+            employee_name: approval.employee_name,
+            role: approval.role,
+            approval_status: approvalStatus,
+            feedback,
+          };
+        }),
+      })),
+    };
+  };
+  const renderSkeleton = () => (
+    <Box
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+        gap: "10px",
+        padding: "20px",
+        borderRadius: "8px",
+        boxShadow: "0 2px 6px rgba(0, 0, 0, 0.1)",
+        backgroundColor: "#E5E4E2",
+      }}
+    >
+      <Box
+        sx={{
+          width: "100%",
+          height: "30px",
+          backgroundColor: "#C4C4C4",
+          borderRadius: "4px",
+        }}
+      />
+      <Box
+        sx={{
+          width: "100%",
+          height: "30px",
+          backgroundColor: "#C4C4C4",
+          borderRadius: "4px",
+        }}
+      />
+      <Box
+        sx={{
+          width: "100%",
+          height: "30px",
+          backgroundColor: "#C4C4C4",
+          borderRadius: "4px",
+        }}
+      />
+    </Box>
+  );
   useEffect(() => {
-    if (approvalData?.approval_step) {
-      setApprovals(approvalData.approval_step);
+    if (approvalData) {
+      const transformedData = transformApprovalData(approvalData);
+      setNewApprovalData(transformedData);
+      console.log("newApprovalData-->", transformedData);
     }
   }, [approvalData]);
 
-  const stepLength = approvals.length;
+  if (!newApprovalData || !newApprovalData.approval_step?.length) {
+    return renderSkeleton();
+  }
 
-  const handleNext = () => setActiveStep((prev) => prev + 1);
-  const handleBack = () => setActiveStep((prev) => prev - 1);
-  const handleReset = () => setActiveStep(0);
+  const hasApprovals = () =>
+    newApprovalData.approval_step.every((step) =>
+      step.approval_list.every(
+        (approval) => approval.approval_status !== "Pending"
+      )
+    );
 
-  // Helper function to determine the color of each step
-  const getStepColor = (index) => {
-    const currentStep = approvals?.[index]?.current_status;
-    if (currentStep === "Approved") return "green";
-    if (currentStep === "Rejected") return "red";
-    if (index === activeStep || index === activeStep + 1) return "primary";
-    return "textSecondary";
+  const hasRejections = () =>
+    newApprovalData.approval_step.some((step) =>
+      step.approval_list.some(
+        (approval) => approval.approval_status === "Rejected"
+      )
+    );
+
+  const getHeadingColor = () => {
+    if (hasApprovals()) return "#008000";
+    if (hasRejections()) return "#D22B2B";
+    return "#899499";
   };
 
-  // Helper function to determine the font weight of each step
-  const getFontWeight = (index) => {
-    const currentStep = approvals?.[index]?.current_status;
-    return currentStep === "Approved" ||
-      index === activeStep ||
-      index === activeStep + 1
-      ? "bold"
-      : "normal";
+  const getOverallThemeColor = () => {
+    if (hasRejections()) return "#FAA0A0";
+    if (hasApprovals()) return "#93C572";
+    return "#E5E4E2";
   };
 
-  // Get the color for the current status text
-  const getCurrentStatusColor = () => {
-    const currentStatus = approvals?.[activeStep]?.current_status;
-    if (currentStatus === "Approved") return "green";
-    if (currentStatus === "Rejected") return "red";
-    return "primary";
+  const renderStepIcon = ({ icon }) => {
+    const stepIndex = parseInt(icon, 10) - 1;
+    const step = newApprovalData.approval_step[stepIndex];
+
+    const hasRejected = step.approval_list.some(
+      (approval) => approval.approval_status === "Rejected"
+    );
+
+    if (hasRejected) {
+      return (
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <UnpublishedIcon sx={{ color: "#F44336", fontSize: "28px" }} />
+        </Box>
+      );
+    }
+
+    const hasApproved = step.approval_list.some(
+      (approval) => approval.approval_status === "Approved"
+    );
+
+    let IconComponent = HourglassEmptyIcon;
+    let color = "#B0BEC5";
+
+    if (hasApproved) {
+      IconComponent = CheckCircleIcon;
+      color = "#4CAF50";
+    } else if (
+      step.approval_list.some(
+        (approval) => approval.approval_status === "Pending"
+      )
+    ) {
+      color = "#FF9800";
+    }
+
+    return (
+      <Box
+        sx={{ display: "flex", alignItems: "center", justifyContent: "center" }}
+      >
+        <IconComponent sx={{ color, fontSize: "28px" }} />
+      </Box>
+    );
+  };
+
+  const stepNameDisplay = (name) => {
+    const stepNumber = parseInt(name.match(/\d+/)[0], 10);
+    return stepNumber === newApprovalData.current_step ? (
+      <Typography variant="body1" color="#424242" fontWeight="bold">
+        Current Step
+      </Typography>
+    ) : (
+      <Typography variant="body1" color="#424242">
+        {name}
+      </Typography>
+    );
+  };
+
+  const stepperHeading = () => {
+    const overallThemeColor = getOverallThemeColor();
+    console.log("overallThemeColor-->" + overallThemeColor);
+    const headingText =
+      overallThemeColor === "#FAA0A0"
+        ? "Request Rejected"
+        : overallThemeColor === "#93C572"
+        ? "All Steps Completed"
+        : "Approval Process Ongoing";
+
+    return (
+      <Typography
+        variant="h6"
+        sx={{
+          mb: 2,
+          textAlign: "center",
+          fontWeight: "bold",
+          fontSize: "18px",
+          color: getHeadingColor(),
+        }}
+      >
+        {headingText}
+      </Typography>
+    );
+  };
+
+  const highlightApproverName = (approval) => {
+    const isRejected = approval.approval_status === "Rejected";
+    return (
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: "row",
+          alignItems: "center",
+          gap: "10px",
+          padding: "10px",
+          borderRadius: "8px",
+          backgroundColor: isRejected ? "#FFEBEE" : "transparent",
+          boxShadow: "0 2px 6px rgba(0, 0, 0, 0.1)",
+        }}
+      >
+        <Box
+          sx={{
+            width: "12px",
+            height: "12px",
+            borderRadius: "50%",
+            backgroundColor:
+              approval.approval_status === "Approved"
+                ? "#4CAF50"
+                : approval.approval_status === "Rejected"
+                ? "#F44336"
+                : "#B0BEC5",
+            flexShrink: 0,
+          }}
+        />
+        <Typography
+          variant="body1"
+          color={isRejected ? "#F44336" : "#424242"}
+          sx={{
+            textTransform: "capitalize",
+            fontWeight:
+              approval.approval_status === "Approved" ? "bold" : "normal",
+            flexGrow: 1,
+          }}
+        >
+          {approval.employee_name} ({approval.role})
+        </Typography>
+        {isRejected && (
+          <Typography
+            variant="body2"
+            color="#F44336"
+            sx={{ marginLeft: "16px", fontStyle: "italic" }}
+          >
+            Feedback: {approval.feedback}
+          </Typography>
+        )}
+      </Box>
+    );
   };
 
   return (
     <Box
       sx={{
         width: "100%",
-        backgroundColor: "#f5f5f5",
+        backgroundColor: getOverallThemeColor(),
         padding: "20px",
         borderRadius: "8px",
         boxShadow: "0 2px 6px rgba(0, 0, 0, 0.1)",
+        transition: "background-color 0.5s ease",
       }}
     >
-      {/* Current Status Heading */}
-      <Typography
-        variant="h6"
-        color={getCurrentStatusColor()} // Dynamically apply color based on current status
-        sx={{
-          mb: 2,
-          textAlign: "center",
-          fontWeight: "bold",
-          fontSize: "18px",
-        }}
-      >
-        {approvals?.[activeStep]?.current_status || "Pending"}
-      </Typography>
-
-      {/* Stepper Component */}
-      <Stepper activeStep={activeStep} alternativeLabel>
-        {approvals.map((step, index) => {
-          const isApproved = step?.current_status === "Approved";
-          const isRejected = step?.current_status === "Rejected";
-          const isNextStep =
-            index === activeStep + 1 &&
-            approvals?.[activeStep]?.current_status === "Approved";
-          const isActive = index === activeStep;
-
-          return (
-            <Step key={index}>
-              <StepLabel>
+      {newApprovalData.approval_step.length === 0 ? (
+        renderSkeleton()
+      ) : (
+        <>
+          {stepperHeading()}
+          <Stepper
+            activeStep={
+              hasApprovals()
+                ? newApprovalData.approval_step.length
+                : newApprovalData.current_step - 1
+            }
+            alternativeLabel
+            sx={{ paddingBottom: "10px" }}
+          >
+            {newApprovalData.approval_step.map((step, index) => (
+              <Step key={index} completed={hasApprovals()}>
+                <StepLabel StepIconComponent={renderStepIcon}>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      gap: "8px",
+                    }}
+                  >
+                    {stepNameDisplay(step.step_name)}
+                  </Box>
+                </StepLabel>
+                <br />
                 <Box
                   sx={{
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    gap: "8px",
-                    fontWeight: getFontWeight(index),
-                    color: getStepColor(index),
-                    transition: "all 0.3s ease",
-                    "&:hover": {
-                      transform: "scale(1.05)",
-                      cursor: "pointer",
-                    },
+                    backgroundColor: "#f0f0f0",
+                    borderRadius: "8px",
+                    padding: "10px",
+                    width: "100%",
+                    boxShadow: "0 2px 6px rgba(0, 0, 0, 0.1)",
                   }}
                 >
-                  <Typography variant="body1" color={getStepColor(index)}>
-                    {`Step ${index + 1}`}
-                  </Typography>
-                  {/* Icons for Approval/Rejection */}
-                  {step?.current_status === "Approved" && (
-                    <CheckCircleIcon sx={{ color: "green" }} />
-                  )}
-                  {step?.current_status === "Rejected" && (
-                    <CancelIcon sx={{ color: "red" }} />
-                  )}
-                  {step?.current_status !== "Approved" &&
-                    step?.current_status !== "Rejected" && (
-                      <HourglassEmptyIcon sx={{ color: "gray" }} />
-                    )}
+                  {step.approval_list.map((approval, i) => (
+                    <Box key={i} sx={{ mt: 1 }}>
+                      {highlightApproverName(approval)}
+                    </Box>
+                  ))}
                 </Box>
-
-                {/* Approval List */}
-                {step?.approval_list?.length > 0 ? (
-                  step.approval_list.map((approval, i) => (
-                    <Typography
-                      variant="caption"
-                      color={getStepColor(index)}
-                      key={i}
-                      sx={{ mt: 0.5 }}
-                    >
-                      <p style={{ fontWeight: "600" }}>
-                        Approvers: {approval.employee_name}
-                      </p>
-                    </Typography>
-                  ))
-                ) : (
-                  <Typography variant="caption" color="textSecondary">
-                    <p>No approvers available</p>
-                  </Typography>
-                )}
-              </StepLabel>
-            </Step>
-          );
-        })}
-      </Stepper>
+              </Step>
+            ))}
+          </Stepper>
+        </>
+      )}
     </Box>
   );
 }

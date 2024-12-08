@@ -1,4 +1,4 @@
-" use client";
+"use client";
 
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import ProgressStepsContainer from "../ProgressStepsContainer";
@@ -21,6 +21,8 @@ const ViewModal = ({ isOpen, handleClose, requestId }) => {
       const { requestData, approvalData } = await getMyFormData(requestId);
       setFormData(requestData);
       setApprovalData(approvalData);
+      console.log("approvalData");
+      console.dir(approvalData);
     } catch (err) {
       setError("Failed to load form schema. Please try again.");
     } finally {
@@ -55,8 +57,8 @@ const ViewModal = ({ isOpen, handleClose, requestId }) => {
   return (
     <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center z-50">
       {/* Modal Container */}
-      <div className="relative bg-white p-6 rounded-lg w-full sm:w-[600px] md:w-[800px] lg:w-[900px] xl:w-[1000px] h-auto max-h-[80vh] overflow-y-auto">
-        {/* Modal Content */}
+      <div className="relative bg-white p-6 rounded-lg w-full sm:w-[600px] md:w-[800px] lg:w-[900px] xl:w-[1000px] max-h-[80vh] flex flex-col overflow-y-auto">
+        {/* Modal Header */}
         <div className="flex justify-center items-center mb-4">
           <span className="text-2xl font-semibold text-blue-600">
             Request Details
@@ -80,34 +82,33 @@ const ViewModal = ({ isOpen, handleClose, requestId }) => {
           </div>
         ) : (
           <>
-            <div className="flex flex-col w-full bg-gray-50 h-48 mb-4">
-              <div className="mt-2 mb-4 ml-2">
-                <span className="text-md text-blue-500 font-semibold">
-                  Approval Status
-                </span>
-              </div>
+            {/* Progress Steps Container */}
+            <div className="flex flex-col w-full bg-gray-50 mb-4">
               <div className="w-full items-center" ref={progressStepsRef}>
                 <ProgressStepsContainer approvalData={approvalData} />
               </div>
             </div>
 
-            <form style={{ marginTop: `20px` }}>
-              {formData?.fields?.map((field) => (
-                <div key={field._id} className="mb-4">
-                  <label>{field.field_name}</label>
-                  <input
-                    type="text"
-                    name={field.field_name}
-                    placeholder={
-                      formData?.[field.field_name] || field.field_value || ""
-                    }
-                    onChange={handleChange}
-                    disabled
-                    className="w-full px-3 py-2 border rounded"
-                  />
-                </div>
-              ))}
-            </form>
+            {/* Form Content */}
+            <div className="flex flex-col w-full bg-gray-50">
+              <form>
+                {formData?.fields?.map((field) => (
+                  <div key={field._id} className="mb-4">
+                    <label>{field.field_name}</label>
+                    <input
+                      type="text"
+                      name={field.field_name}
+                      placeholder={
+                        formData?.[field.field_name] || field.field_value || ""
+                      }
+                      onChange={handleChange}
+                      disabled
+                      className="w-full px-3 py-2 border rounded"
+                    />
+                  </div>
+                ))}
+              </form>
+            </div>
           </>
         )}
 

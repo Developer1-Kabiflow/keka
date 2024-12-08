@@ -76,50 +76,51 @@ const TrackRejectedByMe = () => {
   return (
     <div>
       {loading && (
-        <div className="p-4 bg-white overflow-auto">
-          <table className="table-auto w-full text-left">
-            <thead className="bg-gray-200">
-              <tr>
-                <th className="px-4 py-2">No.</th>
-                <th className="px-4 py-2">Request Type</th>
-                <th className="px-4 py-2">Request Date</th>
-                <th className="px-4 py-2">Status</th>
-                <th className="px-4 py-2">Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              {/* Skeleton Rows */}
-              {Array.from({ length: 5 }).map((_, index) => (
-                <tr key={index} className="animate-pulse">
-                  <td className="border px-4 py-2">
-                    <div className="h-4 bg-gray-300 rounded"></div>
-                  </td>
-                  <td className="border px-4 py-2">
-                    <div className="h-4 bg-gray-300 rounded"></div>
-                  </td>
-                  <td className="border px-4 py-2">
-                    <div className="h-4 bg-gray-300 rounded"></div>
-                  </td>
-                  <td className="border px-4 py-2">
-                    <div className="h-4 bg-gray-300 rounded"></div>
-                  </td>
-                  <td className="border px-4 py-2">
-                    <div className="h-4 bg-gray-300 rounded"></div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        <></>
+        // <div className="p-4 bg-white overflow-auto">
+        //   <table className="table-auto w-full text-left">
+        //     <thead className="bg-gray-200">
+        //       <tr>
+        //         <th className="px-4 py-2">No.</th>
+        //         <th className="px-4 py-2">Request Type</th>
+        //         <th className="px-4 py-2">Request Date</th>
+        //         <th className="px-4 py-2">Status</th>
+        //         <th className="px-4 py-2">Action</th>
+        //       </tr>
+        //     </thead>
+        //     <tbody>
+        //       {/* Skeleton Rows */}
+        //       {Array.from({ length: 5 }).map((_, index) => (
+        //         <tr key={index} className="animate-pulse">
+        //           <td className="border px-4 py-2">
+        //             <div className="h-4 bg-gray-300 rounded"></div>
+        //           </td>
+        //           <td className="border px-4 py-2">
+        //             <div className="h-4 bg-gray-300 rounded"></div>
+        //           </td>
+        //           <td className="border px-4 py-2">
+        //             <div className="h-4 bg-gray-300 rounded"></div>
+        //           </td>
+        //           <td className="border px-4 py-2">
+        //             <div className="h-4 bg-gray-300 rounded"></div>
+        //           </td>
+        //           <td className="border px-4 py-2">
+        //             <div className="h-4 bg-gray-300 rounded"></div>
+        //           </td>
+        //         </tr>
+        //       ))}
+        //     </tbody>
+        //   </table>
+        // </div>
       )}
-      {error && (
+      {requestData.data.length === 0 && (
         <div className="flex justify-center items-center h-full">
           <div className="bg-white p-6 rounded-lg shadow-lg text-center mt-6">
             <p className="text-gray-700 font-medium">No requests to display.</p>
           </div>
         </div>
       )}
-      {!loading && !error && (
+      {!loading && requestData.data.length > 0 && (
         <div className="p-4 bg-white overflow-auto">
           <table className="table-auto w-full text-left">
             <thead className="bg-gray-200">
@@ -132,54 +133,40 @@ const TrackRejectedByMe = () => {
               </tr>
             </thead>
             <tbody>
-              {requestData.data.length > 0 ? (
-                requestData.data
-                  .slice()
-                  .reverse()
-                  .map((request, index) => (
-                    <tr key={request.request_id || index}>
-                      <td className="border px-4 py-2">{index + 1}</td>
-                      <td className="border px-4 py-2">
-                        {request.request_name || "N/A"}
-                      </td>
-                      <td className="border px-4 py-2">
-                        {request.request_raised_time
-                          ? new Date(
-                              request.request_raised_time
-                            ).toLocaleString()
-                          : "N/A"}
-                      </td>
-                      <td className="border px-4 py-2">
-                        {request.status || "N/A"}
-                      </td>
-                      <td className="border px-4 py-2">
-                        <button
-                          className="text-blue-500 hover:underline"
-                          onClick={() =>
-                            openModal(
-                              request.request_id,
-                              request.status === "In-progress"
-                            )
-                          }
-                        >
-                          View
-                        </button>
-                      </td>
-                    </tr>
-                  ))
-              ) : (
-                <tr>
-                  <td colSpan="5" className="text-center py-4">
-                    <div className="flex justify-center items-center h-full">
-                      <div className="bg-white p-6 rounded-lg shadow-lg text-center mt-6">
-                        <p className="text-gray-700 font-medium">
-                          No Requests found
-                        </p>
-                      </div>
-                    </div>
-                  </td>
-                </tr>
-              )}
+              {requestData.data
+                .slice()
+                .reverse()
+                .map((request, index) => (
+                  <tr key={request.request_id || index}>
+                    <td className="border px-4 py-2">
+                      {request.requestIdNumber}
+                    </td>
+                    <td className="border px-4 py-2">
+                      {request.request_name || "N/A"}
+                    </td>
+                    <td className="border px-4 py-2">
+                      {request.request_raised_time
+                        ? new Date(request.request_raised_time).toLocaleString()
+                        : "N/A"}
+                    </td>
+                    <td className="border px-4 py-2">
+                      {request.status || "N/A"}
+                    </td>
+                    <td className="border px-4 py-2">
+                      <button
+                        className="text-blue-500 hover:underline"
+                        onClick={() =>
+                          openModal(
+                            request.request_id,
+                            request.status === "In-progress"
+                          )
+                        }
+                      >
+                        View
+                      </button>
+                    </td>
+                  </tr>
+                ))}
             </tbody>
           </table>
 

@@ -65,8 +65,50 @@ const EmployeeRequest = ({ categoryId }) => {
   };
 
   const renderContent = () => {
-    if (loading) return <p>Loading...</p>;
-    if (error) return <p className="text-red-500">{error}</p>;
+    if (loading) return;
+    <div className="p-4 bg-white overflow-auto">
+      <table className="table-auto w-full text-left">
+        <thead className="bg-gray-200">
+          <tr>
+            <th className="px-4 py-2">No.</th>
+            <th className="px-4 py-2">Request Type</th>
+            <th className="px-4 py-2">Request Date</th>
+            <th className="px-4 py-2">Status</th>
+            <th className="px-4 py-2">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {/* Skeleton Rows */}
+          {Array.from({ length: 5 }).map((_, index) => (
+            <tr key={index} className="animate-pulse">
+              <td className="border px-4 py-2">
+                <div className="h-4 bg-gray-300 rounded"></div>
+              </td>
+              <td className="border px-4 py-2">
+                <div className="h-4 bg-gray-300 rounded"></div>
+              </td>
+              <td className="border px-4 py-2">
+                <div className="h-4 bg-gray-300 rounded"></div>
+              </td>
+              <td className="border px-4 py-2">
+                <div className="h-4 bg-gray-300 rounded"></div>
+              </td>
+              <td className="border px-4 py-2">
+                <div className="h-4 bg-gray-300 rounded"></div>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>;
+    if (error)
+      return (
+        <div className="flex justify-center items-center h-full">
+          <div className="bg-white p-6 rounded-lg shadow-lg text-center mt-6">
+            <p className="text-gray-700 font-medium">{error}</p>
+          </div>
+        </div>
+      );
 
     switch (activeTab) {
       case "New Request":
@@ -144,7 +186,7 @@ const EmployeeRequest = ({ categoryId }) => {
               </li>
             </ul>
 
-            <div className="flex flex-col md:flex-row bg-white shadow-lg mt-4 rounded-lg">
+            <div>
               <div className="w-full">{renderContent()}</div>
             </div>
           </div>

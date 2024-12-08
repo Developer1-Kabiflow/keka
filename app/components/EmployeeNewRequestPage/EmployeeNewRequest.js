@@ -123,17 +123,56 @@ const EmployeeNewRequest = () => {
   };
 
   const renderTable = (data, type) => (
-    <div className="p-4 bg-white overflow-auto">
-      {loading && <div>Loading...</div>}
-      {error && (
+    <>
+      {loading && (
+        <></>
+        // <div className="p-4 bg-white overflow-auto">
+        //   <div className="p-4 bg-white overflow-auto">
+        //     <table className="table-auto w-full text-left">
+        //       <thead className="bg-gray-200">
+        //         <tr>
+        //           <th className="px-4 py-2">No.</th>
+        //           <th className="px-4 py-2">Request Type</th>
+        //           <th className="px-4 py-2">Request Date</th>
+        //           <th className="px-4 py-2">Status</th>
+        //           <th className="px-4 py-2">Action</th>
+        //         </tr>
+        //       </thead>
+        //       <tbody>
+        //         {/* Skeleton Rows */}
+        //         {Array.from({ length: 5 }).map((_, index) => (
+        //           <tr key={index} className="animate-pulse">
+        //             <td className="border px-4 py-2">
+        //               <div className="h-4 bg-gray-300 rounded"></div>
+        //             </td>
+        //             <td className="border px-4 py-2">
+        //               <div className="h-4 bg-gray-300 rounded"></div>
+        //             </td>
+        //             <td className="border px-4 py-2">
+        //               <div className="h-4 bg-gray-300 rounded"></div>
+        //             </td>
+        //             <td className="border px-4 py-2">
+        //               <div className="h-4 bg-gray-300 rounded"></div>
+        //             </td>
+        //             <td className="border px-4 py-2">
+        //               <div className="h-4 bg-gray-300 rounded"></div>
+        //             </td>
+        //           </tr>
+        //         ))}
+        //       </tbody>
+        //     </table>
+        //   </div>
+        // </div>
+      )}
+      {data.length === 0 && (
         <div className="flex justify-center items-center h-full">
           <div className="bg-white p-6 rounded-lg shadow-lg text-center mt-6">
-            <p className="text-red-500 font-medium">{error}</p>
+            <p className="text-gray-700 font-medium">No requests to display.</p>
           </div>
         </div>
       )}
-      {!loading && !error && (
-        <>
+      {!loading && data.length > 0 && (
+        <div className="p-4 bg-white overflow-auto">
           <table className="table-auto w-full text-left">
             <thead className="bg-gray-200">
               <tr>
@@ -145,44 +184,30 @@ const EmployeeNewRequest = () => {
               </tr>
             </thead>
             <tbody>
-              {data.length === 0 ? (
-                <tr>
-                  <td colSpan="5" className="text-center py-4">
-                    <div className="flex justify-center items-center h-full">
-                      <div className="bg-white p-6 rounded-lg shadow-lg text-center mt-6">
-                        <p className="text-gray-700 font-medium">
-                          No Requests found
-                        </p>
-                      </div>
-                    </div>
+              {data.map((request, index) => (
+                <tr key={request._id || index}>
+                  <td className="border px-4 py-2">{index + 1}</td>
+                  <td className="border px-4 py-2">
+                    {request.request_name || "N/A"}
+                  </td>
+                  <td className="border px-4 py-2">
+                    {new Date(
+                      request.date || request.created_at
+                    ).toLocaleString()}
+                  </td>
+                  <td className="border px-4 py-2">
+                    {request.status || "Pending"}
+                  </td>
+                  <td className="border px-4 py-2">
+                    <button
+                      className="text-blue-500 hover:underline"
+                      onClick={() => openViewModal(request.request_id)}
+                    >
+                      View
+                    </button>
                   </td>
                 </tr>
-              ) : (
-                data.map((request, index) => (
-                  <tr key={request._id || index}>
-                    <td className="border px-4 py-2">{index + 1}</td>
-                    <td className="border px-4 py-2">
-                      {request.request_name || "N/A"}
-                    </td>
-                    <td className="border px-4 py-2">
-                      {new Date(
-                        request.date || request.created_at
-                      ).toLocaleString()}
-                    </td>
-                    <td className="border px-4 py-2">
-                      {request.status || "Pending"}
-                    </td>
-                    <td className="border px-4 py-2">
-                      <button
-                        className="text-blue-500 hover:underline"
-                        onClick={() => openViewModal(request.request_id)}
-                      >
-                        View
-                      </button>
-                    </td>
-                  </tr>
-                ))
-              )}
+              ))}
             </tbody>
           </table>
 
@@ -220,7 +245,7 @@ const EmployeeNewRequest = () => {
               Next
             </button>
           </div>
-        </>
+        </div>
       )}
 
       {/* Modal */}
@@ -231,19 +256,19 @@ const EmployeeNewRequest = () => {
           requestId={selectedRequestId}
         />
       )}
-    </div>
+    </>
   );
 
   const renderContent = () => {
-    if (loading) return <p className="text-center">Loading...</p>;
-    if (error)
-      return (
-        <div className="flex justify-center items-center h-full">
-          <div className="bg-white p-6 rounded-lg shadow-lg text-center mt-6">
-            <p className="text-red-500 font-medium">{error}</p>
-          </div>
-        </div>
-      );
+    // if (loading) return <p className="text-center">Loading...</p>;
+    // if (error)
+    //   return (
+    //     <div className="flex justify-center items-center h-full">
+    //       <div className="bg-white p-6 rounded-lg shadow-lg text-center mt-6">
+    //         <p className="text-red-500 font-medium">{error}</p>
+    //       </div>
+    //     </div>
+    //   );
 
     switch (activeTab) {
       case "New Request":

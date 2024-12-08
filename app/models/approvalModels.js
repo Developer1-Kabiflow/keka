@@ -18,6 +18,10 @@ export const fetchApprovedRequests = async (approverId, page) => {
     const response = await axios.get(
       `${BASE_URL}/trackRequest/myApprovedRequest/${approverId}?page=${page}&pageLimit=10`
     );
+    console.log(
+      `${BASE_URL}/trackRequest/myApprovedRequest/${approverId}?page=${page}&pageLimit=10`
+    );
+    console.dir(response.data);
     return response.data;
   } catch (error) {
     //   throw new Error(error.response?.data?.message || "Error fetching requests");
@@ -27,6 +31,9 @@ export const fetchApprovedRequests = async (approverId, page) => {
 export const fetchRejectedRequests = async (approverId, page) => {
   try {
     const response = await axios.get(
+      `${BASE_URL}/trackRequest/myRejectedRequest/${approverId}?page=${page}&pageLimit=10`
+    );
+    console.log(
       `${BASE_URL}/trackRequest/myRejectedRequest/${approverId}?page=${page}&pageLimit=10`
     );
     return response.data;
