@@ -11,7 +11,7 @@ const EmployeeDashBoard = () => {
           <div className="w-8 h-8 bg-gray-300 rounded-full animate-pulse"></div>
         </div>
         <p className="text-gray-600 mt-2">
-          Here's an overview of your tasks and updates.
+          Heres an overview of your tasks and updates.
         </p>
       </div>
 
