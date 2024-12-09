@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
-import ViewModal from "../EmployeeRequest/ViewModal";
+import ViewModal from "./ViewModal";
 import {
   fetchAllEmployeeRequests,
   fetchApprovedEmployeeRequests,
@@ -10,6 +10,7 @@ import {
 } from "@/app/controllers/requestController";
 import { fetchCategoryList } from "@/app/controllers/categoryController";
 import Cookies from "js-cookie";
+import SubMenu from "./SubCategory";
 
 const EmployeeNewRequest = () => {
   const [requestData, setRequestData] = useState({
@@ -24,7 +25,10 @@ const EmployeeNewRequest = () => {
   const [activeTab, setActiveTab] = useState("New Request");
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [selectedRequestId, setSelectedRequestId] = useState(null);
-
+  const [categories, setCategories] = useState([]);
+  const [selectedCategory, setSelectedCategory] = useState(null); // State to track selected category
+  const [isModalOpen, setIsModalOpen] = useState(false); // Modal state
+  const [selectedSubCategoryId, setSubCategoryId] = useState(null); // Track selected subcategory ID
   const tabs = useMemo(
     () => [
       { key: "New Request", label: "New Request" },
@@ -83,6 +87,7 @@ const EmployeeNewRequest = () => {
   };
 
   useEffect(() => {
+    console.log("Reached here first");
     const employeeId = Cookies.get("userId");
     if (employeeId) {
       loadRequestData("all", employeeId);
@@ -91,17 +96,22 @@ const EmployeeNewRequest = () => {
     }
   }, []);
 
+  const fetchCategoryData = async () => {
+    try {
+      const { category } = await fetchCategoryList();
+      console.log("category-->" + category);
+      setCategories(category || []);
+    } catch (err) {
+      setError(err.message || "Error fetching categories.");
+    } finally {
+      setLoading(false);
+    }
+  };
+  const handleModalToggle = (itemId) => {
+    setSubCategoryId(itemId); // Set the selected subcategory ID
+    setIsModalOpen(!isModalOpen); // Toggle modal visibility
+  };
   useEffect(() => {
-    const fetchCategoryData = async () => {
-      try {
-        const categoryList = await fetchCategoryList();
-        setCategory(categoryList.category);
-      } catch (err) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
-      }
-    };
     fetchCategoryData();
   }, []);
 
@@ -213,37 +223,40 @@ const EmployeeNewRequest = () => {
 
           {/* Pagination */}
           <div className="flex justify-between items-center mt-4">
-            <button
-              className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"
-              disabled={requestData[type].pagination.currentPage === 1}
-              onClick={() =>
-                handlePageChange(
-                  type,
-                  requestData[type].pagination.currentPage - 1
-                )
-              }
-            >
-              Previous
-            </button>
-            <span>
+            {/* Previous Button */}
+            {requestData[type].pagination.currentPage > 1 ? (
+              <button
+                className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"
+                onClick={() =>
+                  handlePageChange(requestData[type].pagination.currentPage - 1)
+                }
+              >
+                Previous
+              </button>
+            ) : (
+              <div className="w-24"></div> /* Spacer for alignment */
+            )}
+
+            {/* Centered Pagination Info */}
+            <span className="text-center">
               Page {requestData[type].pagination.currentPage} of{" "}
               {requestData[type].pagination.totalPages}
             </span>
-            <button
-              className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"
-              disabled={
-                requestData[type].pagination.currentPage ===
-                requestData[type].pagination.totalPages
-              }
-              onClick={() =>
-                handlePageChange(
-                  type,
-                  requestData[type].pagination.currentPage + 1
-                )
-              }
-            >
-              Next
-            </button>
+
+            {/* Next Button */}
+            {requestData[type].pagination.currentPage <
+            requestData[type].pagination.totalPages ? (
+              <button
+                className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"
+                onClick={() =>
+                  handlePageChange(requestData[type].pagination.currentPage + 1)
+                }
+              >
+                Next
+              </button>
+            ) : (
+              <div className="w-24"></div> /* Spacer for alignment */
+            )}
           </div>
         </div>
       )}
@@ -273,18 +286,40 @@ const EmployeeNewRequest = () => {
     switch (activeTab) {
       case "New Request":
         return (
-          <div className="p-4 bg-white w-full">
-            {category.length > 0 ? (
-              category.map((item) => (
-                <Link key={item._id} href={`${item.pageLink}/${item._id}`}>
-                  <p className="bg-green-100 p-2 rounded-md hover:bg-green-200 cursor-pointer mb-2">
+          <div className="p-6 bg-gray-50 space-y-4">
+            {categories.map((item) => (
+              <div
+                key={item._id}
+                className="bg-white shadow-md rounded-lg border border-gray-200"
+              >
+                <div
+                  className="flex justify-between items-center p-4 cursor-pointer hover:bg-gray-100"
+                  onClick={() =>
+                    setSelectedCategory((prev) =>
+                      prev?._id === item._id ? null : item
+                    )
+                  }
+                >
+                  <h3 className="text-lg font-semibold text-gray-800">
                     {item.categoryName}
-                  </p>
-                </Link>
-              ))
-            ) : (
-              <p>No categories available</p>
-            )}
+                  </h3>
+                  <span className="text-gray-500">
+                    {selectedCategory?._id === item._id ? "−" : "+"}
+                  </span>
+                </div>
+                {selectedCategory && selectedCategory._id === item._id && (
+                  <div className="p-4 border-t border-gray-200">
+                    <SubMenu
+                      categoryId={item._id}
+                      handleModalToggle={handleModalToggle}
+                      setSubCategoryId={setSubCategoryId}
+                      isModalOpen={isModalOpen}
+                      selectedSubCategoryId={selectedSubCategoryId}
+                    />
+                  </div>
+                )}
+              </div>
+            ))}
           </div>
         );
       case "Track All Request":

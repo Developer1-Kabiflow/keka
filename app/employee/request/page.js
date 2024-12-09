@@ -1,7 +1,8 @@
 import React from "react";
 import Navbar from "@/app/components/NavbarPage/Navbar";
-import EmployeeNewRequest from "@/app/components/EmployeeNewRequestPage/EmployeeNewRequest";
-const EmployeeNewRequestPage = () => {
+import EmployeeNewRequest from "@/app/components/EmployeeRequest/EmployeeNewRequest";
+
+const EmployeeRequestPage = () => {
   return (
     <div>
       <Navbar />
@@ -10,4 +11,4 @@ const EmployeeNewRequestPage = () => {
   );
 };
 
-export default EmployeeNewRequestPage;
+export default EmployeeRequestPage;

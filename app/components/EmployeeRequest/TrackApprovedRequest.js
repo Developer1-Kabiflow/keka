@@ -149,37 +149,40 @@ const TrackApprovedRequest = () => {
 
           {/* Pagination */}
           <div className="flex justify-between items-center mt-4">
-            <button
-              className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"
-              disabled={requestData[type].pagination.currentPage === 1}
-              onClick={() =>
-                handlePageChange(
-                  type,
-                  requestData[type].pagination.currentPage - 1
-                )
-              }
-            >
-              Previous
-            </button>
-            <span>
-              Page {requestData[type].pagination.currentPage} of{" "}
-              {requestData[type].pagination.totalPages}
+            {/* Previous Button */}
+            {requestData.pagination.currentPage > 1 ? (
+              <button
+                className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"
+                onClick={() =>
+                  handlePageChange(requestData.pagination.currentPage - 1)
+                }
+              >
+                Previous
+              </button>
+            ) : (
+              <div className="w-24"></div> /* Spacer for alignment */
+            )}
+
+            {/* Centered Pagination Info */}
+            <span className="text-center">
+              Page {requestData.pagination.currentPage} of{" "}
+              {requestData.pagination.totalPages}
             </span>
-            <button
-              className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"
-              disabled={
-                requestData[type].pagination.currentPage ===
-                requestData[type].pagination.totalPages
-              }
-              onClick={() =>
-                handlePageChange(
-                  type,
-                  requestData[type].pagination.currentPage + 1
-                )
-              }
-            >
-              Next
-            </button>
+
+            {/* Next Button */}
+            {requestData.pagination.currentPage <
+            requestData.pagination.totalPages ? (
+              <button
+                className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"
+                onClick={() =>
+                  handlePageChange(requestData.pagination.currentPage + 1)
+                }
+              >
+                Next
+              </button>
+            ) : (
+              <div className="w-24"></div> /* Spacer for alignment */
+            )}
           </div>
         </div>
       )}

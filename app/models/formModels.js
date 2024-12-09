@@ -8,15 +8,21 @@ export const fetchFormSchema = async (formId, employeeId) => {
       `${BASE_URL}/template/fetchForm/${formId}/${employeeId}`
     );
 
-    if (!response?.data?.data || !response?.data?.employeeData) {
+    if (
+      !response?.data?.data ||
+      !response?.data?.employeeData ||
+      !response?.data?.attachments
+    ) {
       throw new Error("Incomplete or invalid form schema response");
     }
+
+    console.log("employee in model-->", response.data.employeeData);
 
     return {
       fields: response.data.data, // Schema fields
       employeeData: response.data.employeeData, // Employee-specific data
+      fileAttachments: response.data.attachments,
     };
-    log;
   } catch (error) {
     console.error("Error in fetchFormSchema:", error.message);
     throw error;

@@ -119,10 +119,11 @@ export default function ProgressStepsContainer({ approvalData }) {
       )
     );
 
-  const getHeadingColor = () => {
-    if (hasApprovals()) return "#008000";
-    if (hasRejections()) return "#D22B2B";
-    return "#899499";
+  const getHeadingColor = (headingText) => {
+    console.log(headingText);
+    if (headingText === "Request Rejected") return "#D22B2B"; //red
+    if (headingText === "All Steps Completed") return "#008000"; //green
+    return "#899499"; //grey
   };
 
   const getOverallThemeColor = () => {
@@ -211,7 +212,7 @@ export default function ProgressStepsContainer({ approvalData }) {
           textAlign: "center",
           fontWeight: "bold",
           fontSize: "18px",
-          color: getHeadingColor(),
+          color: getHeadingColor(headingText),
         }}
       >
         {headingText}

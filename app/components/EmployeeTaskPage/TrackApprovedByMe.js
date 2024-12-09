@@ -136,70 +136,76 @@ const TrackApprovedByMe = () => {
               </tr>
             </thead>
             <tbody>
-              {requestData.data
-                .slice()
-                .reverse()
-                .map((request, index) => (
-                  <tr key={request.request_id || index}>
-                    <td className="border px-4 py-2">
-                      {request.requestIdNumber}
-                    </td>
-                    <td className="border px-4 py-2">
-                      {request.request_name || "N/A"}
-                    </td>
-                    <td className="border px-4 py-2">
-                      {request.request_raised_time
-                        ? new Date(request.request_raised_time).toLocaleString()
-                        : "N/A"}
-                    </td>
-                    <td className="border px-4 py-2">
-                      {request.status || "N/A"}
-                    </td>
-                    <td className="border px-4 py-2">
-                      <button
-                        className="text-blue-500 hover:underline"
-                        onClick={() =>
-                          openModal(
-                            request.request_id,
-                            request.status === "In-progress"
-                          )
-                        }
-                      >
-                        View
-                      </button>
-                    </td>
-                  </tr>
-                ))}
+              {requestData.data.map((request, index) => (
+                <tr key={request.request_id || index}>
+                  <td className="border px-4 py-2">
+                    {request.requestIdNumber}
+                  </td>
+                  <td className="border px-4 py-2">
+                    {request.request_name || "N/A"}
+                  </td>
+                  <td className="border px-4 py-2">
+                    {request.request_raised_time
+                      ? new Date(request.request_raised_time).toLocaleString()
+                      : "N/A"}
+                  </td>
+                  <td className="border px-4 py-2">
+                    {request.status || "N/A"}
+                  </td>
+                  <td className="border px-4 py-2">
+                    <button
+                      className="text-blue-500 hover:underline"
+                      onClick={() =>
+                        openModal(
+                          request.request_id,
+                          request.status === "In-progress"
+                        )
+                      }
+                    >
+                      View
+                    </button>
+                  </td>
+                </tr>
+              ))}
             </tbody>
           </table>
 
           {/* Pagination */}
           <div className="flex justify-between items-center mt-4">
-            <button
-              className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"
-              disabled={requestData.pagination.currentPage === 1}
-              onClick={() =>
-                handlePageChange(requestData.pagination.currentPage - 1)
-              }
-            >
-              Previous
-            </button>
-            <span>
+            {/* Previous Button */}
+            {requestData.pagination.currentPage > 1 ? (
+              <button
+                className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"
+                onClick={() =>
+                  handlePageChange(requestData.pagination.currentPage - 1)
+                }
+              >
+                Previous
+              </button>
+            ) : (
+              <div className="w-24"></div> /* Spacer for alignment */
+            )}
+
+            {/* Centered Pagination Info */}
+            <span className="text-center">
               Page {requestData.pagination.currentPage} of{" "}
               {requestData.pagination.totalPages}
             </span>
-            <button
-              className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"
-              disabled={
-                requestData.pagination.currentPage ===
-                requestData.pagination.totalPages
-              }
-              onClick={() =>
-                handlePageChange(requestData.pagination.currentPage + 1)
-              }
-            >
-              Next
-            </button>
+
+            {/* Next Button */}
+            {requestData.pagination.currentPage <
+            requestData.pagination.totalPages ? (
+              <button
+                className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"
+                onClick={() =>
+                  handlePageChange(requestData.pagination.currentPage + 1)
+                }
+              >
+                Next
+              </button>
+            ) : (
+              <div className="w-24"></div> /* Spacer for alignment */
+            )}
           </div>
         </div>
       )}

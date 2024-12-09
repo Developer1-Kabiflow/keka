@@ -7,7 +7,10 @@ import {
 // Process form schema and prepare initial data
 export const getProcessedFormSchema = async (formId, employeeId) => {
   try {
-    const { fields, employeeData } = await fetchFormSchema(formId, employeeId);
+    const { fields, employeeData, fileAttachments } = await fetchFormSchema(
+      formId,
+      employeeId
+    );
 
     if (!fields || fields.length === 0) {
       throw new Error("Schema fields are empty or undefined");
@@ -18,11 +21,14 @@ export const getProcessedFormSchema = async (formId, employeeId) => {
       return acc;
     }, {});
 
+    console.log("employeeData: - ", fileAttachments);
+
     return {
       formSchema: fields,
       formType: fields.formType || null, // Default to null if not present
       initialData,
       employeeData,
+      attachments: fileAttachments,
     };
   } catch (error) {
     console.error("Error in getProcessedFormSchema:", error.message);
@@ -32,6 +38,7 @@ export const getProcessedFormSchema = async (formId, employeeId) => {
 
 export const getMyFormData = async (requestId) => {
   try {
+    // console.log("Processing form for requestId:", requestId);
     const { requestData, approvalData } = await fetchMyFormdata(requestId);
     if (!requestData || !approvalData) {
       throw new Error("Invalid form schema response");

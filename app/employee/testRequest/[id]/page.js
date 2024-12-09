@@ -1,14 +1,13 @@
-import React from 'react';
-import Navbar from '@/app/components/NavbarPage/Navbar';
-import EmployeeRequest from '@/app/components/EmployeeRequest/EmployeeRequest';
-
+import React from "react";
+import Navbar from "@/app/components/NavbarPage/Navbar";
+import EmployeeNewRequest from "@/app/components/EmployeeRequest/EmployeeNewRequest";
 
 const EmployeeRequestPage = ({ params }) => {
-  const { id } = params; 
+  const { id } = params;
   return (
     <div>
       <Navbar />
-      {id && <EmployeeRequest categoryId={id} />}
+      {id && <EmployeeNewRequest categoryId={id} />}
     </div>
   );
 };

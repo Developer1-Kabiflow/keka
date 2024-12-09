@@ -12,8 +12,10 @@ const Modal = ({ isOpen, handleClose, itemId, onToast, refreshData }) => {
   const [error, setError] = useState(null);
   const [formData, setFormData] = useState({});
   const [formType, setFormType] = useState("");
-  const [employeeDetails, setEmployeeDetails] = useState("");
+  const [employeeDetails, setEmployeeDetails] = useState({});
   const [formErrors, setFormErrors] = useState({});
+  const [selectedFiles, setSelectedFiles] = useState([]);
+  const [fileAttachments, setFileAttachments] = useState([]);
 
   const formId = itemId;
 
@@ -23,13 +25,18 @@ const Modal = ({ isOpen, handleClose, itemId, onToast, refreshData }) => {
         try {
           setLoading(true);
           const employeeId = Cookies.get("userId");
-          const { formSchema, formType, initialData, employeeData } =
-            await getProcessedFormSchema(formId, employeeId);
-
+          const {
+            formSchema,
+            formType,
+            initialData,
+            employeeData,
+            attachments,
+          } = await getProcessedFormSchema(formId, employeeId);
           setFormSchema(formSchema);
           setFormType(formType);
           setFormData(initialData);
           setEmployeeDetails(employeeData);
+          setFileAttachments(attachments || []);
         } catch (err) {
           setError("Failed to load form schema. Please try again.");
         } finally {
@@ -40,6 +47,11 @@ const Modal = ({ isOpen, handleClose, itemId, onToast, refreshData }) => {
       fetchForm();
     }
   }, [isOpen, formId]);
+
+  const handleFileChange = (event) => {
+    const newFiles = Array.from(event.target.files);
+    setSelectedFiles((prevFiles) => [...prevFiles, ...newFiles]);
+  };
 
   const validateField = (name, value, validationRules) => {
     for (const rule of validationRules) {
@@ -60,44 +72,37 @@ const Modal = ({ isOpen, handleClose, itemId, onToast, refreshData }) => {
         type === "checkbox"
           ? checked
             ? [...(prevData[name] || []), value]
-            : (prevData[name] || []).filter((item) => item !== value)
+            : prevData[name].filter((item) => item !== value)
           : value,
     }));
 
-    const fieldSchema = formSchema.find((field) => field.name === name);
-    const errorMessage = validateField(
-      name,
-      value,
-      fieldSchema?.validation || []
-    );
+    if (Array.isArray(formSchema)) {
+      const fieldSchema = formSchema.find((field) => field.name === name);
+      const errorMessage = fieldSchema
+        ? validateField(name, value, fieldSchema.validation || [])
+        : null;
 
-    setFormErrors((prevErrors) => ({
-      ...prevErrors,
-      [name]: errorMessage,
-    }));
+      setFormErrors((prevErrors) => ({
+        ...prevErrors,
+        [name]: errorMessage,
+      }));
+    } else {
+      console.error("formSchema is not an array:", fieldSchema);
+    }
   };
 
   const handleRadioChange = (e, fieldName) => {
     const { value } = e.target;
-
-    // Update the formData state with the selected radio value
-    setFormData((prevData) => ({
-      ...prevData,
-      [fieldName]: value, // Use fieldName (i.e., field.name) here to set the correct field in formData
-    }));
-
-    // Optionally, you can still update employeeDetails if needed
-    setEmployeeDetails((prev) => ({
-      ...prev,
-      [fieldName]: value,
-    }));
+    setFormData((prevData) => ({ ...prevData, [fieldName]: value }));
+    setEmployeeDetails((prev) => ({ ...prev, [fieldName]: value }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    // Step 1: Validate form fields
     const errors = formSchema.reduce((acc, field) => {
-      const fieldValue = formData[field.name] || ""; // Use formData for the value
+      const fieldValue = formData[field.name] || "";
       const error = validateField(
         field.name,
         fieldValue,
@@ -112,30 +117,69 @@ const Modal = ({ isOpen, handleClose, itemId, onToast, refreshData }) => {
     setFormErrors(errors);
 
     if (Object.keys(errors).length > 0) {
-      return; // Prevent submission if there are validation errors
+      return; // Exit if there are validation errors
     }
 
     try {
+      // Step 2: Prepare form data
       const submittedData = formSchema.reduce((acc, field) => {
         if (field.disabled && employeeDetails && employeeDetails[field.label]) {
           acc[field.name] = employeeDetails[field.label] || "";
         } else {
-          acc[field.name] = formData[field.name] || ""; // Ensure you're using formData here
+          acc[field.name] = formData[field.name] || "";
         }
         return acc;
       }, {});
 
-      await handleFormSubmissionWithData(formId, submittedData);
+      const formDataToSubmit = new FormData();
+
+      // Append form fields
+      Object.entries(submittedData).forEach(([key, value]) => {
+        formDataToSubmit.append(key, value);
+      });
+
+      selectedFiles.forEach((file, index) => {
+        formDataToSubmit.append(`files[]`, file); // Append files to FormData
+      });
+      // Step 3: Submit form data
+
+      formDataToSubmit.forEach((value, key) => {
+        console.log("new formDataToSubmit==>>", key, value);
+      });
+
+      await handleFormSubmissionWithData(formId, formDataToSubmit);
       onToast("Created Request Successfully", "success");
       refreshData();
       handleClose();
     } catch (err) {
       console.error("Error submitting form:", err);
-
       onToast("Failed to Create Request", "error");
       setError(err.message);
     }
   };
+
+  const renderFile = (attachment, index) => (
+    <div key={index} className="mb-4">
+      <label
+        htmlFor={`file-upload-${index}`}
+        className="block text-sm font-semibold"
+      >
+        {attachment.display}
+      </label>
+      <input
+        type={attachment.type}
+        id={`file-upload-${index}`}
+        name={`file-upload-${index}`}
+        onChange={(e) => handleFileChange(e, index)} // Handles file selection
+        className="mt-2"
+      />
+      {selectedFiles[index] && (
+        <p className="mt-2 text-sm text-gray-600">
+          Selected file: {selectedFiles[index].name}
+        </p>
+      )}
+    </div>
+  );
 
   const renderField = (field) => {
     if (field.type === "radio") {
@@ -148,11 +192,7 @@ const Modal = ({ isOpen, handleClose, itemId, onToast, refreshData }) => {
                 type="radio"
                 name={field.label}
                 value={option}
-                checked={
-                  field.type === "radio"
-                    ? employeeDetails[field.label] === option
-                    : employeeDetails[field.label]?.includes(option)
-                }
+                checked={employeeDetails[field.label] === option}
                 onChange={(e) => handleRadioChange(e, field.name)}
                 required={field.required}
                 className="mr-2"
@@ -198,7 +238,7 @@ const Modal = ({ isOpen, handleClose, itemId, onToast, refreshData }) => {
             name={field.name}
             placeholder={field.placeholder}
             value={
-              field.disabled && employeeDetails && employeeDetails[field.label]
+              field.disabled && employeeDetails
                 ? employeeDetails[field.label]
                 : formData[field.name] || ""
             }
@@ -237,6 +277,7 @@ const Modal = ({ isOpen, handleClose, itemId, onToast, refreshData }) => {
           </div>
         ) : (
           <form onSubmit={handleSubmit}>
+            {fileAttachments.map(renderFile)}
             {formSchema.map(renderField)}
             <button
               type="submit"
