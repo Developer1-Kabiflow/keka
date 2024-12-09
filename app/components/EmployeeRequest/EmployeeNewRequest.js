@@ -287,39 +287,56 @@ const EmployeeNewRequest = () => {
       case "New Request":
         return (
           <div className="p-6 bg-gray-50 space-y-4">
-            {categories.map((item) => (
-              <div
-                key={item._id}
-                className="bg-white shadow-md rounded-lg border border-gray-200"
-              >
-                <div
-                  className="flex justify-between items-center p-4 cursor-pointer hover:bg-gray-100"
-                  onClick={() =>
-                    setSelectedCategory((prev) =>
-                      prev?._id === item._id ? null : item
-                    )
-                  }
-                >
-                  <h3 className="text-lg font-semibold text-gray-800">
-                    {item.categoryName}
-                  </h3>
-                  <span className="text-gray-500">
-                    {selectedCategory?._id === item._id ? "−" : "+"}
-                  </span>
-                </div>
-                {selectedCategory && selectedCategory._id === item._id && (
-                  <div className="p-4 border-t border-gray-200">
-                    <SubMenu
-                      categoryId={item._id}
-                      handleModalToggle={handleModalToggle}
-                      setSubCategoryId={setSubCategoryId}
-                      isModalOpen={isModalOpen}
-                      selectedSubCategoryId={selectedSubCategoryId}
-                    />
-                  </div>
-                )}
+            {/* Error Message Display */}
+            {error && (
+              <div className="bg-red-500 text-white p-4 rounded-lg shadow-md mb-4">
+                <h3 className="font-semibold text-lg">
+                  Oops! Something went wrong.
+                </h3>
+                <p>{error}</p>
               </div>
-            ))}
+            )}
+
+            {/* Categories List */}
+            {categories && categories.length > 0 ? (
+              categories.map((item) => (
+                <div
+                  key={item._id}
+                  className="bg-white shadow-md rounded-lg border border-gray-200"
+                >
+                  <div
+                    className="flex justify-between items-center p-4 cursor-pointer hover:bg-gray-100"
+                    onClick={() =>
+                      setSelectedCategory((prev) =>
+                        prev?._id === item._id ? null : item
+                      )
+                    }
+                  >
+                    <h3 className="text-lg font-semibold text-gray-800">
+                      {item.categoryName}
+                    </h3>
+                    <span className="text-gray-500">
+                      {selectedCategory?._id === item._id ? "−" : "+"}
+                    </span>
+                  </div>
+                  {selectedCategory && selectedCategory._id === item._id && (
+                    <div className="p-4 border-t border-gray-200">
+                      <SubMenu
+                        categoryId={item._id}
+                        handleModalToggle={handleModalToggle}
+                        setSubCategoryId={setSubCategoryId}
+                        isModalOpen={isModalOpen}
+                        selectedSubCategoryId={selectedSubCategoryId}
+                      />
+                    </div>
+                  )}
+                </div>
+              ))
+            ) : (
+              <div className="text-center text-gray-500 font-semibold">
+                No categories available at the moment.
+              </div>
+            )}
           </div>
         );
       case "Track All Request":
