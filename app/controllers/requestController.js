@@ -39,7 +39,7 @@ export const fetchApprovedEmployeeRequests = async (employeeId, page) => {
       pagination: { totalPages, currentPage, totalResults },
     };
   } catch (error) {
-    throw new Error("Failed to fetch approved employee requests.");
+    throw new Error(error.message);
   }
 };
 

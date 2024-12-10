@@ -64,8 +64,9 @@ const EmployeeNewRequest = () => {
         },
       }));
     } catch (err) {
-      console.error("Error fetching request data:", err);
-      setError("Failed to load data. Please try again.");
+      if (err.message !== "No requests found for this user") {
+        setError("Failed to load data. Please try again.");
+      }
     } finally {
       setLoading(false);
     }
