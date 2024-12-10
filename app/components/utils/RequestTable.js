@@ -19,7 +19,7 @@ const RequestTable = ({
   };
 
   const renderTableRows = () => {
-    if (isFetching) {
+    if (loading) {
       return Array.from({ length: 5 }).map((_, index) => (
         <tr key={index} className="animate-pulse">
           <td className="border px-4 py-2 bg-gray-200">&nbsp;</td>
