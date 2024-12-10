@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useCallback, useRef } from "react";
-import ProgressStepsContainer from "../ProgressStepsContainer";
+import ProgressStepsContainer from "../utils/ProgressStepsContainer";
 import { getMyFormData } from "@/app/controllers/formController";
 
 const ViewModal = ({ isOpen, handleClose, requestId }) => {

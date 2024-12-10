@@ -43,9 +43,6 @@ const EmployeeSidebar = ({ closeSidebar }) => {
     if (pathname === path) {
       return "bg-gray-300 font-semibold"; // Highlight if on "/employee/request"
     }
-    if (pathname.includes("/employee/bankRequest")) {
-      return path === "/employee/request" ? "bg-gray-300 font-semibold" : "";
-    }
     return ""; // Default class if no conditions are met
   };
 
@@ -139,6 +136,17 @@ const EmployeeSidebar = ({ closeSidebar }) => {
             <p className="block py-2 px-4 hover:bg-gray-200 hover:cursor-pointer">
               Notification
             </p>
+          </li>
+          <li
+            className={`mb-2 ${getActiveClass("/employee/loginTest")}`}
+            onClick={handleItemClick}
+          >
+            {" "}
+            <Link href="/employee/loginTest">
+              <span className="block py-2 px-4 hover:bg-gray-200 hover:cursor-pointer">
+                Login Test
+              </span>
+            </Link>
           </li>
           <li
             className={`mb-2 ${getActiveClass("/employee/logout")}`}

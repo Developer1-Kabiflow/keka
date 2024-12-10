@@ -15,7 +15,7 @@ export const fetchAll = async (approverId, page) => {
     const paginationDetails = [totalPages, currentPage, totalResults];
     const employeeRequestList = data.employeeApprovalList || [];
     return {
-      data: employeeRequestList || [],
+      Allrequests: employeeRequestList || [],
       pagination: paginationDetails,
     };
   } catch (error) {
@@ -24,23 +24,18 @@ export const fetchAll = async (approverId, page) => {
     // );
   }
 };
-
 // Fetch approved employee requests
 export const fetchApproved = async (approverId, page) => {
   try {
-    const data = await fetchApprovedRequests(approverId, page); // Fetch the response
-    // Extract pagination details
+    const data = await fetchApprovedRequests(approverId, page);
     const { totalPages, currentPage, totalResults } = data;
     const paginationDetails = [totalPages, currentPage, totalResults];
     const filteredResults = data.filteredResults || [];
-
-    // Flatten and combine all `employee_approval_list` from `filteredResults`
-    const employeeApprovedRequestLists = filteredResults.map(
-      (item) => item.employee_approval_list || []
-    );
-    // Return the combined list along with pagination details
+    const employeeApprovedRequestLists = filteredResults
+      .map((item) => item.employee_approval_list || [])
+      .flat();
     return {
-      data: employeeApprovedRequestLists || [],
+      Approvedrequests: employeeApprovedRequestLists || [],
       pagination: paginationDetails,
     };
   } catch (error) {
@@ -69,7 +64,7 @@ export const fetchRejected = async (approverId, page) => {
 
     // Return the combined list along with pagination details
     return {
-      data: employeeRejectedRequestLists || [],
+      Rejectedrequests: employeeRejectedRequestLists || [],
       pagination: paginationDetails,
     };
   } catch (error) {
@@ -98,7 +93,7 @@ export const fetchPending = async (approverId, page) => {
 
     // Return the combined list along with pagination details
     return {
-      data: employeePendingRequestLists || [],
+      Pendingrequests: employeePendingRequestLists || [],
       pagination: paginationDetails,
     };
   } catch (error) {
