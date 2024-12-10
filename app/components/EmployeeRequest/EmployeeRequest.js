@@ -26,6 +26,8 @@ const EmployeeNewRequest = () => {
   const [selectedCategory, setSelectedCategory] = useState(null); // State to track selected category
   const [isModalOpen, setIsModalOpen] = useState(false); // Modal state
   const [selectedSubCategoryId, setSubCategoryId] = useState(null); // Track selected subcategory ID
+  const [categoryLoading, setCategoryLoading] = useState(false); // State to track category loading
+
   const loadRequestData = async (type, employeeId, page = 1) => {
     try {
       setLoading(true);
@@ -80,7 +82,9 @@ const EmployeeNewRequest = () => {
       loadRequestData("rejected", employeeId);
     }
   }, []);
+
   const fetchCategoryData = async () => {
+    setCategoryLoading(true); // Start category loading
     try {
       const { category } = await fetchCategoryList();
       console.log("category-->" + category);
@@ -88,13 +92,15 @@ const EmployeeNewRequest = () => {
     } catch (err) {
       setError(err.message || "Error fetching categories.");
     } finally {
-      setLoading(false);
+      setCategoryLoading(false); // Stop category loading
     }
   };
+
   const handleModalToggle = (itemId) => {
     setSubCategoryId(itemId); // Set the selected subcategory ID
     setIsModalOpen(!isModalOpen); // Toggle modal visibility
   };
+
   useEffect(() => {
     fetchCategoryData();
   }, []);
@@ -131,8 +137,17 @@ const EmployeeNewRequest = () => {
       case "New Request":
         return (
           <div className="p-6 bg-gray-50 space-y-4">
-            {/* Categories List */}
-            {categories && categories.length > 0 ? (
+            {categoryLoading ? (
+              <div className="space-y-4">
+                <div className="h-12 bg-gray-300 rounded animate-pulse"></div>
+                <div className="h-12 bg-gray-300 rounded animate-pulse"></div>
+                <div className="h-12 bg-gray-300 rounded animate-pulse"></div>
+              </div>
+            ) : categories.length === 0 ? (
+              <div className="text-center text-gray-500 font-semibold">
+                No categories available at the moment.
+              </div>
+            ) : (
               categories.map((item) => (
                 <div
                   key={item._id}
@@ -166,10 +181,6 @@ const EmployeeNewRequest = () => {
                   )}
                 </div>
               ))
-            ) : (
-              <div className="text-center text-gray-500 font-semibold">
-                No categories available at the moment.
-              </div>
             )}
           </div>
         );
