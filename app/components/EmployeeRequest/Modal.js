@@ -21,6 +21,13 @@ const Modal = ({ isOpen, handleClose, itemId, onToast, refreshData }) => {
 
   useEffect(() => {
     if (isOpen) {
+      // Reset the form each time modal opens
+      setFormSchema([]);
+      setFormData({});
+      setFormErrors({});
+      setSelectedFiles([]);
+      setFileAttachments([]);
+      setError(null);
       const fetchForm = async () => {
         try {
           setLoading(true);
@@ -147,14 +154,12 @@ const Modal = ({ isOpen, handleClose, itemId, onToast, refreshData }) => {
         console.log("new formDataToSubmit==>>", key, value);
       });
 
-
       await handleFormSubmissionWithData(formId, formDataToSubmit);
       onToast("Created Request Successfully", "success");
+      handleClose(); // Close form/modal if needed
       refreshData();
-      handleClose();
     } catch (err) {
       console.error("Error submitting form:", err);
-      onToast("Failed to Create Request", "error");
       setError(err.message);
     }
   };
@@ -267,15 +272,7 @@ const Modal = ({ isOpen, handleClose, itemId, onToast, refreshData }) => {
           <h2 className="text-xl font-semibold">{formType || "Form"}</h2>
         </div>
         {loading ? (
-          <div>
-            {Array.from({ length: 6 }).map((_, index) => (
-              <div key={index} className="mb-4">
-                <div className="h-4 bg-gray-300 rounded w-1/3 mb-2"></div>
-                <div className="h-10 bg-gray-300 rounded"></div>
-              </div>
-            ))}
-            <div className="mt-4 h-10 bg-gray-300 rounded w-1/4"></div>
-          </div>
+          <div className="text-center">Loading...</div>
         ) : (
           <form onSubmit={handleSubmit}>
             {fileAttachments.map(renderFile)}
@@ -292,13 +289,12 @@ const Modal = ({ isOpen, handleClose, itemId, onToast, refreshData }) => {
       </div>
       <button
         onClick={handleClose}
-        className="absolute transition-all duration-300 ease-in-out top-[40px] right-[1px] sm:top-[40px] sm:right-[1px] md:top-[40px] md:right-[calc(50%-400px)] lg:top-[50px] lg:right-[calc(50%-450px)] xl:top-[50px] xl:right-[calc(50%-500px)] bg-blue-200 rounded-full w-10 h-10 flex items-center justify-center font-bold hover:bg-red-300 shadow-md z-20"
+        className="absolute top-[40px] right-[1px] bg-blue-200 rounded-full w-10 h-10 flex items-center justify-center font-bold hover:bg-red-300 shadow-md z-20"
         style={{ lineHeight: "0" }}
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
           height="24px"
-          viewBox="0 0 24 24"
           width="24px"
           fill="#000000"
         >

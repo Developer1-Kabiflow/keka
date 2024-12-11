@@ -73,7 +73,18 @@ const EmployeeNewRequest = () => {
       setLoading(false);
     }
   };
-
+  const refreshData = async () => {
+    try {
+      const employeeId = Cookies.get("userId");
+      if (employeeId) {
+        loadRequestData("all", employeeId);
+        loadRequestData("approved", employeeId);
+        loadRequestData("rejected", employeeId);
+      }
+    } catch (error) {
+      console.error("Failed to refresh data:", error);
+    }
+  };
   useEffect(() => {
     const employeeId = Cookies.get("userId");
     if (employeeId) {
@@ -268,6 +279,7 @@ const EmployeeNewRequest = () => {
           isOpen={isViewModalOpen}
           handleClose={closeViewModal}
           requestId={selectedRequestId}
+          refreshData={refreshData}
         />
       )}
     </>

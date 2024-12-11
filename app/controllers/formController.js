@@ -54,12 +54,23 @@ export const getMyFormData = async (requestId) => {
 };
 
 // Prepare form submission data and handle submission
-export const handleFormSubmissionWithData = async (formId, submittedData) => {
+
+// Prepare form submission data and handle submission
+export const handleFormSubmissionWithData = async (
+  formId,
+  formDataToSubmit
+) => {
+  formDataToSubmit.forEach((value, key) => {
+    console.log("formDataToSubmit controller==>>", key, value);
+  });
+
   try {
-    const result = await submitFormData(formId, submittedData);
-    return { submittedData, result };
+    console.log("formDataToSubmit before passing to model-->");
+    console.dir(formDataToSubmit);
+    const result = await submitFormData(formId, formDataToSubmit);
+    return { formDataToSubmit, result }; // Return both formData and response data
   } catch (error) {
     console.error("Error in handleFormSubmissionWithData:", error.message);
-    throw error;
+    throw error; // Propagate the error
   }
 };

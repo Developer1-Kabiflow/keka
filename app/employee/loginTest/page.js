@@ -42,15 +42,15 @@ export default function EmployeeLoginPage() {
   };
 
   const handleSSOLogin = async () => {
-    const options = { method: "GET", headers: { accept: "application/json" } };
-
-    fetch(
-      "https://login.keka.com/connect/authorize?response_type=code&client_id=d2eef869-9daf-4a4e-aea6-0982ea0d787b&state=test&redirect_uri=https%3A%2F%2Falinco.keka.com&scope=openid",
-      options
-    )
-      .then((res) => res.json())
-      .then((res) => console.log(res))
-      .catch((err) => console.error(err));
+    const authorizeUrl = "https://login.keka.com/connect/authorize";
+    const params = new URLSearchParams({
+      response_type: "code",
+      client_id: "d2eef869-9daf-4a4e-aea6-0982ea0d787b",
+      state: "test",
+      redirect_uri: "https://alinco.keka.com",
+      scope: "openid",
+    });
+    window.location.href = `${authorizeUrl}?${params.toString()}`;
   };
 
   return (
