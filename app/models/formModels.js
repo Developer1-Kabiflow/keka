@@ -48,14 +48,26 @@ export const fetchMyFormdata = async (requestId) => {
 
 // Submit form data to backend
 export const submitFormData = async (formId, formData) => {
+  formData.forEach((value, key) => {
+    console.log("FormData in models==>>", key, value);
+  });
+
   try {
     const response = await axios.post(
       `${BASE_URL}/request/addRequest/${formId}`,
-      formData
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data", // Ensure multipart header
+        },
+      }
     );
     return response.data;
   } catch (error) {
-    console.error("Error in submitFormData:", error.message);
+    console.error(
+      "Error in submitFormData:",
+      error.response?.data || error.message
+    );
     throw error;
   }
 };

@@ -4,8 +4,9 @@ import { fetchSubCategoryList } from "@/app/controllers/categoryController";
 import { fetchAllEmployeeRequests } from "@/app/controllers/requestController"; // Import your subcategory fetch method
 import Modal from "./Modal"; // Import your Modal component (adjust the path as needed)
 import { toast } from "react-toastify";
-import Cookies from "js-cookie";
+
 const SubMenu = ({
+  refreshData,
   categoryId,
   handleModalToggle,
   setSubCategoryId,
@@ -22,22 +23,7 @@ const SubMenu = ({
       toast.error(message);
     }
   };
-  const loadRequestData = async (employeeId) => {
-    try {
-      const { Allrequests } = await fetchAllEmployeeRequests(employeeId);
-      setAllRequest(Allrequests);
-    } catch (err) {
-      // setError(err.message || "Error fetching request data.");
-    } finally {
-      setLoading(false);
-    }
-  };
-  const refreshData = () => {
-    const employeeId = Cookies.get("userId");
-    if (employeeId) {
-      loadRequestData(employeeId);
-    }
-  };
+
   const fetchSubcategories = async () => {
     try {
       if (!categoryId) return;

@@ -21,8 +21,8 @@ const ViewModal = ({ isOpen, handleClose, requestId }) => {
       const { requestData, approvalData } = await getMyFormData(requestId);
       setFormData(requestData);
       setApprovalData(approvalData);
-      console.log("approvalData");
-      console.dir(approvalData);
+      console.log("requestData");
+      console.dir(requestData);
     } catch (err) {
       setError("Failed to load form schema. Please try again.");
     } finally {
@@ -109,6 +109,27 @@ const ViewModal = ({ isOpen, handleClose, requestId }) => {
                 ))}
               </form>
             </div>
+
+            {/* Files Section */}
+            {formData?.files?.length > 0 && (
+              <div className="mt-6">
+                <h3 className="text-lg font-semibold">Uploaded Files</h3>
+                <ul className="mt-2">
+                  {formData.files.map((file) => (
+                    <li key={file._id} className="mb-2">
+                      <a
+                        href={file.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-blue-600 hover:underline"
+                      >
+                        {file.originalname}
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
           </>
         )}
 
