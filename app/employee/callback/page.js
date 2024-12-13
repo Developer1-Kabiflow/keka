@@ -18,7 +18,7 @@ export default function Callback() {
       const tokenUrl = "https://login.kekademo.com/connect/token";
       const formData = new URLSearchParams({
         grant_type: "authorization_code",
-        code: "https://keka-1spk.vercel.app/employee/callback",
+        code: code,
         client_id: "bb15d67c-dd06-44c2-8672-2439914200bb",
         client_secret: "Q9zAtxUiVhhRyAkHqxh1", // Use environment variables for sensitive data
       });
