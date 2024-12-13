@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useCallback, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import ProgressStepsContainer from "../utils/ProgressStepsContainer";
 import { getMyFormData } from "@/app/controllers/formController";
 import DownloadIcon from "@mui/icons-material/Download";
@@ -12,35 +12,33 @@ const ViewModal = ({ isOpen, handleClose, requestId }) => {
   const [error, setError] = useState(null);
   const [formData, setFormData] = useState({});
   const [approvalData, setApprovalData] = useState({});
-  const [pdfUrl, setPdfUrl] = useState(null);
-
   const progressStepsRef = useRef(null);
 
   // Define isPdf function inside the component scope
   const isPdf = (url) => url.endsWith(".pdf");
 
-  const fetchForm = useCallback(async () => {
-    if (!isOpen || !requestId) return;
+  // Using useEffect to fetch data when the modal is open and requestId is available
+  useEffect(() => {
+    const fetchForm = async () => {
+      if (!isOpen || !requestId) return;
 
-    setLoading(true);
-    try {
-      const { requestData, approvalData } = await getMyFormData(requestId);
-      console.log("FormData-->");
-      console.dir(requestData);
-      setFormData(requestData);
-      setApprovalData(approvalData);
-    } catch (err) {
-      setError("Failed to load form schema. Please try again.");
-    } finally {
-      setLoading(false);
-    }
+      setLoading(true);
+      try {
+        const { requestData, approvalData } = await getMyFormData(requestId);
+        setFormData(requestData);
+        setApprovalData(approvalData);
+      } catch (err) {
+        console.error("Error fetching form data", err);
+        setError("Failed to load form schema. Please try again.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchForm(); // Call the function on mount or when `requestId` or `isOpen` changes
   }, [isOpen, requestId]);
 
-  useEffect(() => {
-    fetchForm();
-  }, [fetchForm]);
-
-  const handleChange = useCallback((e) => {
+  const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     setFormData((prevData) => {
       const updatedData = { ...prevData };
@@ -53,16 +51,8 @@ const ViewModal = ({ isOpen, handleClose, requestId }) => {
       }
       return updatedData;
     });
-  }, []);
-
-  const handlePdfClick = (url) => {
-    if (url) {
-      window.open(url, "_blank"); // Opens the file URL in a new tab
-    } else {
-      console.error("File URL is not available.");
-    }
-    setPdfUrl(url);
   };
+
   const handleDownload = (url) => {
     const link = document.createElement("a");
     link.href = url;
@@ -71,6 +61,7 @@ const ViewModal = ({ isOpen, handleClose, requestId }) => {
     link.click();
     document.body.removeChild(link);
   };
+
   if (!isOpen) return null;
 
   return (
@@ -125,7 +116,6 @@ const ViewModal = ({ isOpen, handleClose, requestId }) => {
             </div>
 
             {/* Files Section */}
-
             {formData?.files?.length > 0 && (
               <div className="mt-6">
                 <h3 className="text-lg font-semibold mb-4">Uploaded Files</h3>
