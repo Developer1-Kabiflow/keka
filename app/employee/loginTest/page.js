@@ -45,9 +45,9 @@ export default function EmployeeLoginPage() {
     const authorizeUrl = "https://login.kekademo.com/connect/authorize";
     const params = new URLSearchParams({
       response_type: "code",
-      client_id: "bb15d67c-dd06-44c2-8672-2439914200bb",
+      client_id: process.env.NEXT_PUBLIC_CLIENT_ID,
       state: "test", // Consider generating a dynamic state value
-      redirect_uri: "https://keka-1spk.vercel.app/employee/callback",
+      redirect_uri: process.env.NEXT_PUBLIC_REDIRECT_URI,
       scope: "openid",
     });
     window.location.href = `${authorizeUrl}?${params.toString()}`;

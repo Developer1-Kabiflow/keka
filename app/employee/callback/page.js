@@ -19,8 +19,8 @@ export default function Callback() {
       const formData = new URLSearchParams({
         grant_type: "authorization_code",
         code: code,
-        client_id: "bb15d67c-dd06-44c2-8672-2439914200bb",
-        client_secret: "Q9zAtxUiVhhRyAkHqxh1", // Use environment variables for sensitive data
+        client_id: process.env.NEXT_PUBLIC_CLIENT_ID,
+        client_secret: process.env.NEXT_PUBLIC_CLIENT_SECRET, // Use environment variables for sensitive data
       });
 
       try {
@@ -35,7 +35,7 @@ export default function Callback() {
             secure: true,
             sameSite: "Strict",
           });
-          router.push("/dashboard"); // Redirect to the desired page after successful login
+          router.push("/employee/dashboard"); // Redirect to the desired page after successful login
         } else {
           console.error("Failed to retrieve tokens:", data);
         }
@@ -45,7 +45,7 @@ export default function Callback() {
     };
 
     fetchTokens();
-  }, [router.query]);
+  }, [router]);
 
   return <div>Loading...</div>;
 }

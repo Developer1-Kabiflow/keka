@@ -1,7 +1,6 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { fetchSubCategoryList } from "@/app/controllers/categoryController";
-import { fetchAllEmployeeRequests } from "@/app/controllers/requestController"; // Import your subcategory fetch method
 import Modal from "./Modal"; // Import your Modal component (adjust the path as needed)
 import { toast } from "react-toastify";
 
@@ -16,6 +15,7 @@ const SubMenu = ({
   const [subCategoryList, setSubCategoryList] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+
   const handleToast = (message, type) => {
     if (type === "success") {
       toast.success(message);
@@ -24,7 +24,8 @@ const SubMenu = ({
     }
   };
 
-  const fetchSubcategories = async () => {
+  // Define the fetchSubcategories function with useCallback to avoid unnecessary re-renders
+  const fetchSubcategories = useCallback(async () => {
     try {
       if (!categoryId) return;
       const { subCategoryList } = await fetchSubCategoryList(categoryId);
@@ -34,13 +35,25 @@ const SubMenu = ({
     } finally {
       setLoading(false);
     }
-  };
+  }, [categoryId]);
 
   useEffect(() => {
     fetchSubcategories();
-  }, [categoryId]); // Re-fetch subcategories when categoryId changes
+  }, [fetchSubcategories]);
 
-  if (loading) return <p></p>;
+  if (loading) {
+    return (
+      <div className="flex flex-col p-4 bg-white text-center">
+        {/* Skeleton Loader */}
+        <div className="mb-4 animate-pulse">
+          <div className="h-6 bg-gray-300 rounded mb-2"></div>
+          <div className="h-6 bg-gray-300 rounded mb-2"></div>
+          <div className="h-6 bg-gray-300 rounded mb-2"></div>
+        </div>
+      </div>
+    );
+  }
+
   if (error) return <p className="text-red-500">{error}</p>;
 
   // Handle the modal toggle
@@ -52,9 +65,6 @@ const SubMenu = ({
   return (
     <>
       <div className="flex flex-col p-4 bg-white text-center">
-        {/* <span className="font-semibold text-lg mb-4 underline decoration-4 decoration-blue-500">
-          Subcategories
-        </span> */}
         {subCategoryList.length > 0 ? (
           subCategoryList.map((item) => (
             <div key={item._id} className="mb-4">
