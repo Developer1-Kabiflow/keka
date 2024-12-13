@@ -1,14 +1,20 @@
 "use client";
+
 import { useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Cookies from "js-cookie";
 
 export default function Callback() {
   const router = useRouter();
+  const searchParams = useSearchParams(); // Use Next.js's hook to access query parameters
 
   useEffect(() => {
     const fetchTokens = async () => {
-      const { code, state } = router.query;
+      // Extract `code` and `state` from the query parameters
+      const code = searchParams.get("code");
+      const state = searchParams.get("state"); // If you need the state parameter for validation
+
+      console.log("Extracted code:", code);
 
       if (!code || !state) {
         console.error("Invalid callback parameters");
@@ -21,16 +27,21 @@ export default function Callback() {
         code: code,
         client_id: process.env.NEXT_PUBLIC_CLIENT_ID,
         client_secret: process.env.NEXT_PUBLIC_CLIENT_SECRET, // Use environment variables for sensitive data
+        redirect_uri: process.env.NEXT_PUBLIC_REDIRECT_URI, // Ensure you include the redirect URI
       });
 
       try {
         const response = await fetch(tokenUrl, {
           method: "POST",
-          body: formData,
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+          },
+          body: formData.toString(),
         });
-        const data = await response.json();
 
-        if (data.access_token) {
+        const data = await response.json();
+        console.log("access tokn:" + data);
+        if (response.ok && data.access_token) {
           Cookies.set("access_token", data.access_token, {
             secure: true,
             sameSite: "Strict",
@@ -45,7 +56,7 @@ export default function Callback() {
     };
 
     fetchTokens();
-  }, [router]);
+  }, [router, searchParams]);
 
   return <div>Loading...</div>;
 }
