@@ -40,7 +40,7 @@ export default function Callback() {
         });
 
         const data = await response.json();
-        console.log("access tokn:" + data);
+        console.log("access tokn:" + data.access_token);
         if (response.ok && data.access_token) {
           Cookies.set("access_token", data.access_token, {
             secure: true,
