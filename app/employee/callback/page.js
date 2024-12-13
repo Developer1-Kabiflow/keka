@@ -46,7 +46,7 @@ export default function Callback() {
             secure: true,
             sameSite: "Strict",
           });
-          router.push("/employee/home"); // Redirect to the desired page after successful login
+          router.push("/employee/dashboard"); // Redirect to the desired page after successful login
         } else {
           console.error("Failed to retrieve tokens:", data);
         }
