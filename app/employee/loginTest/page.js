@@ -42,12 +42,12 @@ export default function EmployeeLoginPage() {
   };
 
   const handleSSOLogin = async () => {
-    const authorizeUrl = "https://login.keka.com/connect/authorize";
+    const authorizeUrl = "https://login.kekademo.com/connect/authorize";
     const params = new URLSearchParams({
       response_type: "code",
       client_id: "d2eef869-9daf-4a4e-aea6-0982ea0d787b",
       state: "test",
-      redirect_uri: "https://alinco.keka.com",
+      redirect_uri: "http://localhost:3000/employee/callback",
       scope: "openid",
     });
     window.location.href = `${authorizeUrl}?${params.toString()}`;

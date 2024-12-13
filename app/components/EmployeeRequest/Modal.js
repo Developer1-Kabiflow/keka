@@ -55,10 +55,11 @@ const Modal = ({ isOpen, handleClose, itemId, onToast, refreshData }) => {
     }
   }, [isOpen, formId]);
 
-  const handleFileChange = (event) => {
-    const newFiles = Array.from(event.target.files);
-    setSelectedFiles((prevFiles) => [...prevFiles, ...newFiles]);
-  };
+  useEffect(() => {
+    if (isOpen) {
+      setSelectedFiles(new Array(fileAttachments.length).fill(null));
+    }
+  }, [isOpen, fileAttachments.length]);
 
   const validateField = (name, value, validationRules) => {
     for (const rule of validationRules) {
@@ -145,45 +146,73 @@ const Modal = ({ isOpen, handleClose, itemId, onToast, refreshData }) => {
         formDataToSubmit.append(key, value);
       });
 
-      selectedFiles.forEach((file, index) => {
-        formDataToSubmit.append(`files[]`, file); // Append files to FormData
+      selectedFiles.forEach((file) => {
+        formDataToSubmit.append("files[]", file); // Append files to FormData
       });
-      // Step 3: Submit form data
 
+      // Step 3: Submit form data
       formDataToSubmit.forEach((value, key) => {
         console.log("new formDataToSubmit==>>", key, value);
       });
 
       await handleFormSubmissionWithData(formId, formDataToSubmit);
       onToast("Created Request Successfully", "success");
-      handleClose(); // Close form/modal if needed
-      refreshData();
+
+      refreshData(); // Call refreshData from the grandparent
+      handleClose();
     } catch (err) {
       console.error("Error submitting form:", err);
       setError(err.message);
     }
   };
 
+  const handleFileChange = (event, index) => {
+    const fileInput = event.target;
+    const newFile = fileInput.files[0]; // Get the first file from the input
+
+    if (!newFile) return; // Exit if no file is selected
+
+    setSelectedFiles((prevFiles) => {
+      const updatedFiles = [...prevFiles];
+      updatedFiles[index] = newFile; // Replace the file at the specific index
+      return updatedFiles;
+    });
+
+    // Clear the file input value to allow re-uploading the same file
+    fileInput.value = "";
+  };
+
   const renderFile = (attachment, index) => (
-    <div key={index} className="mb-4">
+    <div
+      key={index}
+      className="mb-6 border rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow"
+    >
       <label
         htmlFor={`file-upload-${index}`}
-        className="block text-sm font-semibold"
+        className="block text-sm font-medium text-gray-700 mb-2"
       >
         {attachment.display}
       </label>
-      <input
-        type={attachment.type}
-        id={`file-upload-${index}`}
-        name={`file-upload-${index}`}
-        onChange={(e) => handleFileChange(e, index)} // Handles file selection
-        className="mt-2"
-      />
-      {selectedFiles[index] && (
-        <p className="mt-2 text-sm text-gray-600">
-          Selected file: {selectedFiles[index].name}
-        </p>
-      )}
+      <div className="flex items-center space-x-4">
+        <input
+          type="file"
+          id={`file-upload-${index}`}
+          name={`file-upload-${index}`}
+          onChange={(e) => handleFileChange(e, index)} // Handle file change
+          className="hidden" // Hide the default input
+        />
+        <label
+          htmlFor={`file-upload-${index}`}
+          className="px-4 py-2 bg-blue-500 text-white text-sm font-semibold rounded cursor-pointer hover:bg-blue-600 focus:outline-none"
+        >
+          Choose File
+        </label>
+        <span className="text-sm text-gray-600 truncate max-w-xs">
+          {selectedFiles[index]
+            ? `Selected: ${selectedFiles[index].name}`
+            : "No file chosen"}
+        </span>
+      </div>
     </div>
   );
 
@@ -281,7 +310,7 @@ const Modal = ({ isOpen, handleClose, itemId, onToast, refreshData }) => {
               type="submit"
               className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
             >
-              Submit
+              {loading ? "Submitting..." : "Submit"}
             </button>
           </form>
         )}
@@ -289,18 +318,9 @@ const Modal = ({ isOpen, handleClose, itemId, onToast, refreshData }) => {
       </div>
       <button
         onClick={handleClose}
-        className="absolute top-[40px] right-[1px] bg-blue-200 rounded-full w-10 h-10 flex items-center justify-center font-bold hover:bg-red-300 shadow-md z-20"
-        style={{ lineHeight: "0" }}
+        className="absolute transition-all duration-300 ease-in-out top-[40px] right-[1px] sm:top-[40px] sm:right-[1px] md:top-[40px] md:right-[calc(50%-400px)] lg:top-[10px] lg:right-[calc(50%-480px)] text-white text-3xl font-semibold"
       >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          height="24px"
-          width="24px"
-          fill="#000000"
-        >
-          <path d="M0 0h24v24H0V0z" fill="none" />
-          <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z" />
-        </svg>
+        X
       </button>
     </div>
   );

@@ -75,7 +75,7 @@ const SubMenu = ({
       <Modal
         isOpen={isModalOpen}
         handleClose={handleModalToggle}
-        refreshData={refreshData}
+        refreshData={refreshData} // Pass refreshData here
         itemId={selectedSubCategoryId}
         onToast={handleToast}
       />

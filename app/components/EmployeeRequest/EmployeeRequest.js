@@ -75,16 +75,20 @@ const EmployeeNewRequest = () => {
   };
   const refreshData = async () => {
     try {
+      setLoading(true); // Set loading to true when refreshing
       const employeeId = Cookies.get("userId");
       if (employeeId) {
-        loadRequestData("all", employeeId);
-        loadRequestData("approved", employeeId);
-        loadRequestData("rejected", employeeId);
+        await loadRequestData("all", employeeId);
+        await loadRequestData("approved", employeeId);
+        await loadRequestData("rejected", employeeId);
       }
     } catch (error) {
       console.error("Failed to refresh data:", error);
+    } finally {
+      setLoading(false); // Set loading to false after data is fetched
     }
   };
+
   useEffect(() => {
     const employeeId = Cookies.get("userId");
     if (employeeId) {
@@ -186,6 +190,7 @@ const EmployeeNewRequest = () => {
                         handleModalToggle={handleModalToggle}
                         setSubCategoryId={setSubCategoryId}
                         isModalOpen={isModalOpen}
+                        refreshData={refreshData}
                         selectedSubCategoryId={selectedSubCategoryId}
                       />
                     </div>
@@ -279,7 +284,6 @@ const EmployeeNewRequest = () => {
           isOpen={isViewModalOpen}
           handleClose={closeViewModal}
           requestId={selectedRequestId}
-          refreshData={refreshData}
         />
       )}
     </>
