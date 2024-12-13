@@ -122,6 +122,7 @@ const EmployeeNewRequest = () => {
   }, []);
 
   const openViewModal = (requestId) => {
+    console.log("trying to open view model from employee request" + requestId);
     setSelectedRequestId(requestId);
     setIsViewModalOpen(true);
   };
@@ -274,7 +275,11 @@ const EmployeeNewRequest = () => {
 
       {/* View Modal */}
       {isViewModalOpen && (
-        <ViewModal requestId={selectedRequestId} onClose={closeViewModal} />
+        <ViewModal
+          isOpen={isViewModalOpen}
+          handleClose={closeViewModal}
+          requestId={selectedRequestId}
+        />
       )}
     </>
   );
