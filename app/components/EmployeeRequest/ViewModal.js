@@ -25,6 +25,7 @@ const ViewModal = ({ isOpen, handleClose, requestId }) => {
       setLoading(true);
       try {
         const { requestData, approvalData } = await getMyFormData(requestId);
+        console.log();
         setFormData(requestData);
         setApprovalData(approvalData);
       } catch (err) {
