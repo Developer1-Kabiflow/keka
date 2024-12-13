@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import RequestTable from "../utils/RequestTable";
 import {
   fetchAll,
@@ -10,6 +10,7 @@ import {
 import ViewModal from "./ViewModal";
 import Cookies from "js-cookie";
 import { toast } from "react-toastify";
+
 const EmployeeTask = () => {
   const [activeTab, setActiveTab] = useState("All Requests");
   const [loading, setLoading] = useState(false);
@@ -41,6 +42,7 @@ const EmployeeTask = () => {
       loadRequestData(type, approverId, newPage);
     }
   };
+
   const handleToast = (message, type) => {
     if (type === "success") {
       toast.success(message);
@@ -48,7 +50,8 @@ const EmployeeTask = () => {
       toast.error(message);
     }
   };
-  const loadRequestData = async (type, approverId, page = 1) => {
+
+  const loadRequestData = useCallback(async (type, approverId, page = 1) => {
     try {
       setLoading(true);
       setError(null); // Reset error state before fetching data
@@ -76,8 +79,6 @@ const EmployeeTask = () => {
         Pendingrequests,
         pagination,
       } = response;
-      console.log("Approvedrequests-->");
-      console.dir(Approvedrequests);
 
       setRequestData((prevState) => ({
         ...prevState,
@@ -96,15 +97,13 @@ const EmployeeTask = () => {
           },
         },
       }));
-      console.log("requestData.all.data-->");
-      console.dir(requestData.all.data);
     } catch (err) {
       console.error("Error fetching request data:", err);
       setError("Failed to load data. Please try again.");
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     const approverId = Cookies.get("userId");
@@ -114,11 +113,13 @@ const EmployeeTask = () => {
       loadRequestData("pending", approverId);
       loadRequestData("rejected", approverId);
     }
-  }, []);
+  }, [loadRequestData]); // Correct dependency to avoid unnecessary re-renders
+
   const refreshData = () => {
     const approverId = Cookies.get("userId");
     loadRequestData("pending", approverId);
   };
+
   const renderContent = () => {
     switch (activeTab) {
       case "All Requests":

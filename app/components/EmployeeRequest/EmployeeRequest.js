@@ -12,26 +12,26 @@ import SubMenu from "./SubCategory"; // Import SubMenu component (if you need it
 import { fetchCategoryList } from "@/app/controllers/categoryController";
 
 const EmployeeNewRequest = () => {
-  const [activeTab, setActiveTab] = useState("New Request"); // Initialize the activeTab state
+  const [activeTab, setActiveTab] = useState("New Request");
   const [requestData, setRequestData] = useState({
     all: { data: [], pagination: { currentPage: 1, totalPages: 1 } },
     approved: { data: [], pagination: { currentPage: 1, totalPages: 1 } },
     rejected: { data: [], pagination: { currentPage: 1, totalPages: 1 } },
   });
-  const [loading, setLoading] = useState(false); // Adjusted loading state
-  const [error, setError] = useState(null); // Error state to capture any errors
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
   const [selectedRequestId, setSelectedRequestId] = useState(null);
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [categories, setCategories] = useState([]);
-  const [selectedCategory, setSelectedCategory] = useState(null); // State to track selected category
-  const [isModalOpen, setIsModalOpen] = useState(false); // Modal state
-  const [selectedSubCategoryId, setSubCategoryId] = useState(null); // Track selected subcategory ID
-  const [categoryLoading, setCategoryLoading] = useState(false); // State to track category loading
+  const [selectedCategory, setSelectedCategory] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedSubCategoryId, setSubCategoryId] = useState(null);
+  const [categoryLoading, setCategoryLoading] = useState(false);
 
   const loadRequestData = async (type, employeeId, page = 1) => {
     try {
       setLoading(true);
-      setError(null); // Reset error state before fetching data
+      setError(null);
       let response;
       switch (type) {
         case "all":
@@ -73,9 +73,10 @@ const EmployeeNewRequest = () => {
       setLoading(false);
     }
   };
+
   const refreshData = async () => {
     try {
-      setLoading(true); // Set loading to true when refreshing
+      setLoading(true);
       const employeeId = Cookies.get("userId");
       if (employeeId) {
         await loadRequestData("all", employeeId);
@@ -85,7 +86,7 @@ const EmployeeNewRequest = () => {
     } catch (error) {
       console.error("Failed to refresh data:", error);
     } finally {
-      setLoading(false); // Set loading to false after data is fetched
+      setLoading(false);
     }
   };
 
@@ -99,7 +100,7 @@ const EmployeeNewRequest = () => {
   }, []);
 
   const fetchCategoryData = async () => {
-    setCategoryLoading(true); // Start category loading
+    setCategoryLoading(true);
     try {
       const { category } = await fetchCategoryList();
       console.log("category-->" + category);
@@ -107,13 +108,13 @@ const EmployeeNewRequest = () => {
     } catch (err) {
       setError(err.message || "Error fetching categories.");
     } finally {
-      setCategoryLoading(false); // Stop category loading
+      setCategoryLoading(false);
     }
   };
 
   const handleModalToggle = (itemId) => {
-    setSubCategoryId(itemId); // Set the selected subcategory ID
-    setIsModalOpen(!isModalOpen); // Toggle modal visibility
+    setSubCategoryId(itemId);
+    setIsModalOpen(!isModalOpen);
   };
 
   useEffect(() => {
@@ -266,25 +267,14 @@ const EmployeeNewRequest = () => {
             </div>
           )}
 
-          {/* Loading Skeleton */}
-          {loading && !error ? (
-            <div className="w-full p-6 bg-gray-200 animate-pulse">
-              <div className="h-12 bg-gray-300 rounded mb-4"></div>
-              <div className="h-12 bg-gray-300 rounded mb-4"></div>
-              <div className="h-12 bg-gray-300 rounded mb-4"></div>
-            </div>
-          ) : (
-            renderContent()
-          )}
+          {/* Content */}
+          {renderContent()}
         </div>
       </div>
 
+      {/* View Modal */}
       {isViewModalOpen && (
-        <ViewModal
-          isOpen={isViewModalOpen}
-          handleClose={closeViewModal}
-          requestId={selectedRequestId}
-        />
+        <ViewModal requestId={selectedRequestId} onClose={closeViewModal} />
       )}
     </>
   );
