@@ -301,7 +301,19 @@ const Modal = ({ isOpen, handleClose, itemId, onToast, refreshData }) => {
           <h2 className="text-xl font-semibold">{formType || "Form"}</h2>
         </div>
         {loading ? (
-          <div className="text-center">Loading...</div>
+          <div className="animate-pulse space-y-4">
+            <div className="h-8 bg-gray-200 rounded w-1/3 mx-auto"></div>
+            <div className="h-6 bg-gray-200 rounded w-2/3 mx-auto"></div>
+            <div className="space-y-2">
+              {[...Array(4)].map((_, index) => (
+                <div
+                  key={index}
+                  className="h-4 bg-gray-200 rounded w-full"
+                ></div>
+              ))}
+            </div>
+            <div className="h-48 bg-gray-200 rounded w-full"></div>
+          </div>
         ) : (
           <form onSubmit={handleSubmit}>
             {fileAttachments.map(renderFile)}
