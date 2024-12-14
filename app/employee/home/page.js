@@ -19,7 +19,7 @@ export default function Dashboard() {
       //   return;
       // }
 
-      const apiUrl = "https://login.keka.com/connect/userinfo";
+      const apiUrl = "https://login.kekademo.com/connect/userinfo";
       const headers = {
         Authorization: `Bearer ${accessToken}`,
         Accept: "application/json",
