@@ -14,10 +14,10 @@ export default function Dashboard() {
     const fetchUserData = async () => {
       const accessToken = Cookies.get("access_token"); // Get token from cookie
 
-      // if (!accessToken) {
-      //   router.push("/login"); // Redirect to login if no access token
-      //   return;
-      // }
+      if (!accessToken) {
+        router.push("/login"); // Redirect to login if no access token
+        return;
+      }
 
       const apiUrl = "https://login.kekademo.com/connect/userinfo";
       const headers = {
@@ -31,9 +31,9 @@ export default function Dashboard() {
         if (response.ok) {
           const data = await response.json();
           setUserData(data);
-          // } else if (response.status === 401) {
-          //   console.error("Unauthorized access. Redirecting to login.");
-          //   router.push("/");
+        } else if (response.status === 401) {
+          console.error("Unauthorized access. Redirecting to login.");
+          router.push("/");
         } else {
           throw new Error(`Failed to fetch user info: ${response.statusText}`);
         }
