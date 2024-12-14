@@ -137,7 +137,7 @@ const EmployeeSidebar = ({ closeSidebar }) => {
               Notification
             </p>
           </li>
-          <li
+          {/* <li
             className={`mb-2 ${getActiveClass("/employee/loginTest")}`}
             onClick={handleItemClick}
           >
@@ -147,7 +147,7 @@ const EmployeeSidebar = ({ closeSidebar }) => {
                 Login Test
               </span>
             </Link>
-          </li>
+          </li> */}
           <li
             className={`mb-2 ${getActiveClass("/employee/logout")}`}
             onClick={handleItemClick}
