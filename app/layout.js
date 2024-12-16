@@ -40,14 +40,14 @@ export default function RootLayout({ children }) {
     setIsSidebarOpen(!isSidebarOpen);
   };
 
-  useEffect(() => {
-    const userId = Cookies.get("userId");
+  // useEffect(() => {
+  //   const userId = Cookies.get("userId");
 
-    // Redirect only if the current page is not `/`
-    if (!userId && pathname !== "/") {
-      redirect("/");
-    }
-  }, [pathname]); // Add pathname to dependencies to re-run the effect when it changes
+  //   Redirect only if the current page is not `/`
+  //   if (!userId && pathname !== "/") {
+  //     redirect("/");
+  //   }
+  // }, [pathname]); // Add pathname to dependencies to re-run the effect when it changes
 
   return (
     <html lang="en">
