@@ -26,7 +26,7 @@ const EmployeeLoginPage = () => {
       if (response.redirectUrl) {
         Cookies.set("userId", response.userId, {
           expires: 1,
-          path: "",
+          path: "/",
           secure: true,
           sameSite: "Strict",
         });
@@ -41,7 +41,8 @@ const EmployeeLoginPage = () => {
       setLoading(false);
     }
   };
-  const handleSSOLogin = async () => {
+  const handleSSOLogin = async (e) => {
+    e.preventDefault();
     console.log(
       " process.env.NEXT_PUBLIC_CLIENT_ID-->" +
         process.env.NEXT_PUBLIC_CLIENT_ID
