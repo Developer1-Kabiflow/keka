@@ -7,7 +7,7 @@ const Logout = () => {
   const router = useRouter();
 
   useEffect(() => {
-    Cookies.remove("userId", { path: "/" });
+    Cookies.remove("userId");
     // document.cookie.split(";").forEach((cookie) => {
     //   // Split the cookie string into name and value using '='
     //   // const [name] = cookie.split("=").map((part) => part.trim());
