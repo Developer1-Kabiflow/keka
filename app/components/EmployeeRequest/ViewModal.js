@@ -7,7 +7,7 @@ import DownloadIcon from "@mui/icons-material/Download";
 import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
 import Tooltip from "@mui/material/Tooltip"; // Tooltip for better UX
 
-const ViewModal = ({ isOpen, handleClose, requestId }) => {
+const ViewModal = ({ isOpen, handleClose, requestId, formTemplateId }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [formData, setFormData] = useState({});
@@ -19,6 +19,7 @@ const ViewModal = ({ isOpen, handleClose, requestId }) => {
 
   // Using useEffect to fetch data when the modal is open and requestId is available
   useEffect(() => {
+    console.log("template id--> " + formTemplateId);
     const fetchForm = async () => {
       if (!isOpen || !requestId) return;
 

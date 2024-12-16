@@ -31,7 +31,7 @@ const RequestTable = ({
       ));
     }
 
-    if (data.length === 0) {
+    if (!data || data.length === 0) {
       return (
         <tr>
           <td colSpan="5" className="text-center py-6">
@@ -74,7 +74,8 @@ const RequestTable = ({
             onClick={() =>
               handleViewModal(
                 request.request_id,
-                request.status === "In-progress"
+                request.status === "In-progress",
+                request.formTemplateId
               )
             }
           >

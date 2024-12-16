@@ -6,52 +6,106 @@ import Cookies from "js-cookie";
 
 export default function Callback() {
   const router = useRouter();
-  const searchParams = useSearchParams(); // Use Next.js's hook to access query parameters
+  const searchParams = useSearchParams();
 
   useEffect(() => {
     const fetchTokens = async () => {
-      // Extract `code` and `state` from the query parameters
       const code = searchParams.get("code");
-      const state = searchParams.get("state"); // If you need the state parameter for validation
-
-      console.log("Extracted code:", code);
+      console.log("code-->" + code);
+      const state = searchParams.get("state");
 
       if (!code || !state) {
-        console.error("Invalid callback parameters");
+        console.error("Missing or invalid callback parameters.");
+        router.push("/"); // Redirect to login page on error
+        return;
+      }
+
+      // Ensure required environment variables are set
+      const {
+        NEXT_PUBLIC_CLIENT_ID,
+        NEXT_PUBLIC_CLIENT_SECRET,
+        NEXT_PUBLIC_REDIRECT_URI,
+      } = process.env;
+      if (
+        !NEXT_PUBLIC_CLIENT_ID ||
+        !NEXT_PUBLIC_CLIENT_SECRET ||
+        !NEXT_PUBLIC_REDIRECT_URI
+      ) {
+        console.error("Missing required environment variables.");
+        router.push("/"); // Redirect to login page
         return;
       }
 
       const tokenUrl = "https://login.kekademo.com/connect/token";
       const formData = new URLSearchParams({
         grant_type: "authorization_code",
-        code: code,
-        client_id: process.env.NEXT_PUBLIC_CLIENT_ID,
-        client_secret: process.env.NEXT_PUBLIC_CLIENT_SECRET, // Use environment variables for sensitive data
-        redirect_uri: process.env.NEXT_PUBLIC_REDIRECT_URI, // Ensure you include the redirect URI
+        code,
+        client_id: NEXT_PUBLIC_CLIENT_ID,
+        client_secret: NEXT_PUBLIC_CLIENT_SECRET,
+        redirect_uri: NEXT_PUBLIC_REDIRECT_URI,
       });
 
       try {
         const response = await fetch(tokenUrl, {
           method: "POST",
-          headers: {
-            "Content-Type": "application/x-www-form-urlencoded",
-          },
+          headers: { "Content-Type": "application/x-www-form-urlencoded" },
           body: formData.toString(),
         });
 
-        const data = await response.json();
-        console.log("access tokn:" + data.access_token);
-        if (response.ok && data.access_token) {
-          Cookies.set("access_token", data.access_token, {
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(
+            `Token exchange failed: ${errorData.error || response.statusText}`
+          );
+        }
+
+        const { access_token } = await response.json();
+        console.log("accessToken:" + access_token);
+        if (!access_token)
+          throw new Error("Access token is missing in the response.");
+
+        // Proceed to fetch user data
+        await fetchUserData(access_token);
+      } catch (error) {
+        console.error("Error during token exchange:", error.message);
+        router.push("/"); // Redirect to login page
+      }
+    };
+
+    const fetchUserData = async (accessToken) => {
+      const apiUrl = "https://login.kekademo.com/connect/userinfo";
+
+      try {
+        const response = await fetch(apiUrl, {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            Accept: "application/json",
+          },
+        });
+
+        if (response.ok) {
+          const userData = await response.json();
+
+          // Store user ID in cookies
+          Cookies.set("userId", userData.EmployeePersonalId, {
+            expires: 1, // 1 day expiration
+            path: "/",
             secure: true,
             sameSite: "Strict",
           });
-          router.push("/employee/dashboard"); // Redirect to the desired page after successful login
+
+          // Redirect to dashboard after successful login
+          router.push("/employee/dashboard");
+        } else if (response.status === 401) {
+          console.error("Unauthorized access. Redirecting to login.");
+          router.push("/");
         } else {
-          console.error("Failed to retrieve tokens:", data);
+          throw new Error(`Failed to fetch user info: ${response.statusText}`);
         }
       } catch (error) {
-        console.error("Error exchanging authorization code:", error);
+        console.error("Error fetching user data:", error.message);
+        router.push("/"); // Redirect to login page on error
       }
     };
 

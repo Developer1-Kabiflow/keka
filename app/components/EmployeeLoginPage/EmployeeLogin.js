@@ -1,15 +1,17 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import Cookies from "js-cookie";
 import { employeeLoginRequest } from "@/app/controllers/employeeController";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { IoMdLogIn } from "react-icons/io";
+import Cookies from "js-cookie";
 
-export default function EmployeeLoginPage() {
+const EmployeeLoginPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+
   const router = useRouter();
 
   const handleLogin = async (e) => {
@@ -19,7 +21,6 @@ export default function EmployeeLoginPage() {
 
     try {
       const formData = { email, password };
-      // Assuming `employeeLoginRequest` is your existing function
       const response = await employeeLoginRequest(formData);
 
       if (response.redirectUrl) {
@@ -40,7 +41,6 @@ export default function EmployeeLoginPage() {
       setLoading(false);
     }
   };
-
   const handleSSOLogin = async () => {
     const authorizeUrl = "https://login.kekademo.com/connect/authorize";
     const params = new URLSearchParams({
@@ -52,10 +52,12 @@ export default function EmployeeLoginPage() {
     });
     window.location.href = `${authorizeUrl}?${params.toString()}`;
   };
-
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
       <div className="w-full max-w-md bg-white shadow-md rounded-lg p-8">
+        <div className="flex justify-center mb-4">
+          <IoMdLogIn className="w-16 h-16" />
+        </div>
         <h2 className="text-2xl font-bold text-center text-gray-800 mb-6">
           Employee Login
         </h2>
@@ -101,16 +103,18 @@ export default function EmployeeLoginPage() {
           >
             {loading ? "Logging in..." : "Login"}
           </button>
+          <div className="mt-4 text-center">
+            <button
+              onClick={handleSSOLogin}
+              className="w-full bg-green-500 text-white py-2 px-4 rounded-md hover:bg-green-600 transition"
+            >
+              Login with SSO
+            </button>
+          </div>
         </form>
-        <div className="mt-4 text-center">
-          <button
-            onClick={handleSSOLogin}
-            className="w-full bg-green-500 text-white py-2 px-4 rounded-md hover:bg-green-600 transition"
-          >
-            Login with SSO
-          </button>
-        </div>
       </div>
     </div>
   );
-}
+};
+
+export default EmployeeLoginPage;

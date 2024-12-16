@@ -121,8 +121,8 @@ const EmployeeNewRequest = () => {
     fetchCategoryData();
   }, []);
 
-  const openViewModal = (requestId) => {
-    console.log("trying to open view model from employee request" + requestId);
+  const openViewModal = (requestId, formTemplateId) => {
+    console.log("formTemplateId" + formTemplateId);
     setSelectedRequestId(requestId);
     setIsViewModalOpen(true);
   };
