@@ -70,7 +70,8 @@ export default function Callback() {
 
         if (response.ok) {
           const userData = await response.json();
-          console.log("userData-->" + userData);
+          console.log("userData-->");
+          console.dir(userData);
 
           // Store user ID in cookies
           Cookies.set("userId", userData.EmployeePersonalId, {
