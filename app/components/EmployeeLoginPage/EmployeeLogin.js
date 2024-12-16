@@ -42,6 +42,14 @@ const EmployeeLoginPage = () => {
     }
   };
   const handleSSOLogin = async () => {
+    console.log(
+      " process.env.NEXT_PUBLIC_CLIENT_ID-->" +
+        process.env.NEXT_PUBLIC_CLIENT_ID
+    );
+    console.log(
+      "  process.env.NEXT_PUBLIC_REDIRECT_URI-->" +
+        process.env.NEXT_PUBLIC_REDIRECT_URI
+    );
     const authorizeUrl = "https://login.kekademo.com/connect/authorize";
     const params = new URLSearchParams({
       response_type: "code",
