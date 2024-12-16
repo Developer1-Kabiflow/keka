@@ -12,7 +12,7 @@ export default function Callback() {
   useEffect(() => {
     const fetchTokens = async () => {
       const code = searchParams.get("code");
-
+      console.log("code:" + code);
       if (!code) {
         console.error("Missing or invalid callback parameters.");
         router.push("/"); // Redirect to login page on error
@@ -44,7 +44,6 @@ export default function Callback() {
 
         const { access_token } = await response.json();
         console.log("accessToken:", access_token);
-
         if (!access_token) {
           throw new Error("Access token is missing in the response.");
         }
