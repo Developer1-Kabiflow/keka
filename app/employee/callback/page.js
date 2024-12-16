@@ -74,9 +74,9 @@ export default function Callback() {
 
           // Store user ID in cookies
           Cookies.set("userId", user_id, {
-            expires: 1, // 1 day expiration
-            path: "",
-            secure: true,
+            expires: 1,
+            path: "/",
+            secure: process.env.NODE_ENV === "production", // Only secure in production
             sameSite: "Strict",
           });
 
