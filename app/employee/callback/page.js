@@ -1,21 +1,19 @@
 "use client";
 
-import { useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Cookies from "js-cookie";
 
 export default function Callback() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    console.log("reached callback");
     const fetchTokens = async () => {
       const code = searchParams.get("code");
-      console.log("code-->" + code);
-      const state = searchParams.get("state");
 
-      if (!code || !state) {
+      if (!code) {
         console.error("Missing or invalid callback parameters.");
         router.push("/"); // Redirect to login page on error
         return;
@@ -45,9 +43,11 @@ export default function Callback() {
         }
 
         const { access_token } = await response.json();
-        console.log("accessToken:" + access_token);
-        if (!access_token)
+        console.log("accessToken:", access_token);
+
+        if (!access_token) {
           throw new Error("Access token is missing in the response.");
+        }
 
         // Proceed to fetch user data
         await fetchUserData(access_token);
@@ -71,7 +71,8 @@ export default function Callback() {
 
         if (response.ok) {
           const { user_id } = await response.json();
-          console.log("user_id-->" + user_id);
+          console.log("user_id:", user_id);
+
           // Store user ID in cookies
           Cookies.set("userId", user_id, {
             expires: 1, // 1 day expiration
@@ -91,11 +92,18 @@ export default function Callback() {
       } catch (error) {
         console.error("Error fetching user data:", error.message);
         router.push("/"); // Redirect to login page on error
+      } finally {
+        setLoading(false);
       }
     };
 
+    // Start the token fetch process
     fetchTokens();
   }, [router, searchParams]);
 
-  return <div>Loading...</div>;
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  return null; // Return null when not loading
 }
