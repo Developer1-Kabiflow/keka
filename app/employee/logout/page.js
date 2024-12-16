@@ -7,14 +7,11 @@ const Logout = () => {
   const router = useRouter();
 
   useEffect(() => {
-    // Clear the user-related cookies (e.g., authentication cookies)
-    Cookies.remove("userId"); // Remove the cookie for user ID
-
-    // Show a message that the user is being logged out
+    Cookies.remove("userId");
+    Cookies.remove("access_token");
     setTimeout(() => {
-      // Redirect to the login page after 2 seconds
-      router.push("/"); // Replace with your actual login page route
-    }, 2000); // You can adjust the delay as needed (2000ms = 2 seconds)
+      router.push("/");
+    }, 2000);
   }, [router]);
 
   return (

@@ -1,69 +1,13 @@
 "use client";
+import React from "react";
 
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import Cookies from "js-cookie";
 const EmployeeDashBoard = () => {
-  const router = useRouter();
-  const [userData, setUserData] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  useEffect(() => {
-    const fetchUserData = async () => {
-      const accessToken = Cookies.get("access_token"); // Get token from cookie
-
-      if (!accessToken) {
-        router.push("/login"); // Redirect to login if no access token
-        return;
-      }
-
-      const apiUrl = "https://login.kekademo.com/connect/userinfo";
-      const headers = {
-        Authorization: `Bearer ${accessToken}`,
-        Accept: "application/json",
-      };
-
-      try {
-        const response = await fetch(apiUrl, { method: "GET", headers });
-
-        if (response.ok) {
-          const data = await response.json();
-          setUserData(data);
-        } else if (response.status === 401) {
-          console.error("Unauthorized access. Redirecting to login.");
-          router.push("/");
-        } else {
-          throw new Error(`Failed to fetch user info: ${response.statusText}`);
-        }
-      } catch (err) {
-        console.error("Error fetching user data:", err);
-        setError("Failed to fetch user information.");
-        router.push("/");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchUserData();
-  }, [router]);
   return (
     <div className="flex-1 p-6 bg-gray-100 min-h-screen">
       {/* Header Section */}
       <div className="mb-6">
         <div className="flex justify-between items-center">
-          <h1 className="text-2xl font-bold text-blue-700">
-            {loading ? (
-              <p>Loading Logged in User name...</p>
-            ) : error ? (
-              <p className="text-red-500">{error}</p>
-            ) : (
-              <>
-                Welcome, {userData?.username || "User"}!
-                <pre>your User Id : {userData?.user_id || "ID"}</pre>
-                <pre>your Email Id : {userData?.email || "Email"}</pre>
-              </>
-            )}
-          </h1>
+          <h1 className="text-2xl font-bold text-blue-700">Welcome Back!</h1>
           <div className="w-8 h-8 bg-gray-300 rounded-full animate-pulse"></div>
         </div>
         <p className="text-gray-600 mt-2">
