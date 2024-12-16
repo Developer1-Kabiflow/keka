@@ -19,22 +19,24 @@ export default function Callback() {
         router.push("/"); // Redirect to login page on error
         return;
       }
-
+      console.log("NEXT_PUBLIC_CLIENT_ID-->" + NEXT_PUBLIC_CLIENT_ID);
+      console.log("NEXT_PUBLIC_CLIENT_SECRET-->" + NEXT_PUBLIC_CLIENT_SECRET);
+      console.log("NEXT_PUBLIC_REDIRECT_URI-->" + NEXT_PUBLIC_REDIRECT_URI);
       // Ensure required environment variables are set
-      const {
-        NEXT_PUBLIC_CLIENT_ID,
-        NEXT_PUBLIC_CLIENT_SECRET,
-        NEXT_PUBLIC_REDIRECT_URI,
-      } = process.env;
-      if (
-        !NEXT_PUBLIC_CLIENT_ID ||
-        !NEXT_PUBLIC_CLIENT_SECRET ||
-        !NEXT_PUBLIC_REDIRECT_URI
-      ) {
-        console.error("Missing required environment variables.");
-        router.push("/"); // Redirect to login page
-        return;
-      }
+      // const {
+      //   NEXT_PUBLIC_CLIENT_ID,
+      //   NEXT_PUBLIC_CLIENT_SECRET,
+      //   NEXT_PUBLIC_REDIRECT_URI,
+      // } = process.env;
+      // if (
+      //   !NEXT_PUBLIC_CLIENT_ID ||
+      //   !NEXT_PUBLIC_CLIENT_SECRET ||
+      //   !NEXT_PUBLIC_REDIRECT_URI
+      // ) {
+      //   console.error("Missing required environment variables.");
+      //   router.push("/"); // Redirect to login page
+      //   return;
+      // }
 
       const tokenUrl = "https://login.kekademo.com/connect/token";
       const formData = new URLSearchParams({
