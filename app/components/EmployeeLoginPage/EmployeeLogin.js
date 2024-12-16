@@ -49,6 +49,7 @@ const EmployeeLoginPage = () => {
       response_type: "code",
       client_id: process.env.NEXT_PUBLIC_CLIENT_ID,
       redirect_uri: process.env.NEXT_PUBLIC_REDIRECT_URI,
+      state: "test",
       scope: "openid",
     });
     window.location.href = `${authorizeUrl}?${params.toString()}`;
