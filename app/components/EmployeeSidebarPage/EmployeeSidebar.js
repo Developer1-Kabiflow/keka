@@ -22,6 +22,7 @@ const EmployeeSidebar = ({ closeSidebar }) => {
 
   const getEmployeeDetails = async () => {
     const employeeId = Cookies.get("userId");
+    console.log("employeeId-->" + employeeId);
     try {
       if (!employeeId) {
         throw new Error("No employee ID found in cookies.");
