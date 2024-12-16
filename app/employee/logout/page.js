@@ -8,16 +8,15 @@ const Logout = () => {
 
   useEffect(() => {
     Cookies.remove("userId", { path: "/" });
-    document.cookie.split(";").forEach((cookie) => {
-      // Split the cookie string into name and value using '='
-      const [name] = cookie.split("=").map((part) => part.trim());
-
-      // Attempt to delete the cookie for different paths
-      const paths = ["/", "/employee"]; // Add paths as needed
-      paths.forEach((path) => {
-        document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=${path}`;
-      });
-    });
+    // document.cookie.split(";").forEach((cookie) => {
+    //   // Split the cookie string into name and value using '='
+    //   // const [name] = cookie.split("=").map((part) => part.trim());
+    //   // Attempt to delete the cookie for different paths
+    //   // const paths = ["/", "/employee"]; // Add paths as needed
+    //   // paths.forEach((path) => {
+    //   //   document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=${path}`;
+    //   // });
+    // });
 
     setTimeout(() => {
       router.push("/");
