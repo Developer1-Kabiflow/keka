@@ -48,7 +48,6 @@ const EmployeeLoginPage = () => {
     const params = new URLSearchParams({
       response_type: "code",
       client_id: process.env.NEXT_PUBLIC_CLIENT_ID,
-      state: "test", // Consider generating a dynamic state value
       redirect_uri: process.env.NEXT_PUBLIC_REDIRECT_URI,
       scope: "openid",
     });
@@ -100,7 +99,6 @@ const EmployeeLoginPage = () => {
             />
           </div>
           <button
-            type="submit"
             onClick={handleLogin}
             className="w-full bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 transition"
           >
