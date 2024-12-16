@@ -3,7 +3,9 @@ import BASE_URL from "@/utils/utils";
 
 export const fetchEmployeeData = async (employeeId) => {
   try {
-    const response = await axios.get(`${BASE_URL}/employee/details/1026`);
+    const response = await axios.get(
+      `${BASE_URL}/employee/details/${employeeId}`
+    );
     return response.data;
   } catch (error) {
     console.error("Error fetching employee data:", error);
