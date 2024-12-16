@@ -70,9 +70,7 @@ export default function Callback() {
 
         if (response.ok) {
           const { user_id } = await response.json();
-          console.log("user_id-->");
-          console.dir(user_id);
-
+          console.log("user_id-->" + user_id);
           // Store user ID in cookies
           Cookies.set("userId", user_id, {
             expires: 1, // 1 day expiration
