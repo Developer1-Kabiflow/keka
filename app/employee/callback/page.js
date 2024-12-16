@@ -69,18 +69,18 @@ export default function Callback() {
         });
 
         if (response.ok) {
-          const userData = await response.json();
-          console.log("userData-->");
-          console.dir(userData);
+          const { user_id } = await response.json();
+          console.log("user_id-->");
+          console.dir(user_id);
 
           // Store user ID in cookies
-          Cookies.set("userId", userData.EmployeePersonalId, {
+          Cookies.set("userId", user_id, {
             expires: 1, // 1 day expiration
             path: "/",
             secure: true,
             sameSite: "Strict",
           });
-          console.log("userId-->" + userData.EmployeePersonalId);
+
           // Redirect to dashboard after successful login
           router.push("/employee/dashboard");
         } else if (response.status === 401) {
