@@ -9,6 +9,7 @@ export default function Callback() {
   const searchParams = useSearchParams();
 
   useEffect(() => {
+    console.log("reached callback");
     const fetchTokens = async () => {
       const code = searchParams.get("code");
       console.log("code-->" + code);
@@ -74,7 +75,7 @@ export default function Callback() {
           // Store user ID in cookies
           Cookies.set("userId", user_id, {
             expires: 1, // 1 day expiration
-            path: "/",
+            path: "",
             secure: true,
             sameSite: "Strict",
           });

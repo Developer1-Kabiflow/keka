@@ -26,7 +26,7 @@ const EmployeeLoginPage = () => {
       if (response.redirectUrl) {
         Cookies.set("userId", response.userId, {
           expires: 1,
-          path: "/",
+          path: "",
           secure: true,
           sameSite: "Strict",
         });
@@ -43,6 +43,7 @@ const EmployeeLoginPage = () => {
   };
   const handleSSOLogin = async (e) => {
     e.preventDefault();
+    console.log("reached handleSSOLogin");
     const authorizeUrl = "https://login.kekademo.com/connect/authorize";
     const params = new URLSearchParams({
       response_type: "code",
