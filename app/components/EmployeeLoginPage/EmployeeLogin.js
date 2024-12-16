@@ -61,7 +61,7 @@ const EmployeeLoginPage = () => {
         <h2 className="text-2xl font-bold text-center text-gray-800 mb-6">
           Employee Login
         </h2>
-        <form onSubmit={handleLogin} className="space-y-4">
+        <form className="space-y-4">
           {error && <div className="text-red-500 text-sm">{error}</div>}
           <div>
             <label
@@ -99,6 +99,7 @@ const EmployeeLoginPage = () => {
           </div>
           <button
             type="submit"
+            onClick={handleLogin}
             className="w-full bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 transition"
           >
             {loading ? "Logging in..." : "Login"}
