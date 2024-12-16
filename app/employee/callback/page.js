@@ -19,30 +19,6 @@ export default function Callback() {
         router.push("/"); // Redirect to login page on error
         return;
       }
-      console.log(
-        "NEXT_PUBLIC_CLIENT_ID-->" + process.env.NEXT_PUBLIC_CLIENT_ID
-      );
-      console.log(
-        "NEXT_PUBLIC_CLIENT_SECRET-->" + process.env.NEXT_PUBLIC_CLIENT_SECRET
-      );
-      console.log(
-        "NEXT_PUBLIC_REDIRECT_URI-->" + process.env.NEXT_PUBLIC_REDIRECT_URI
-      );
-      // Ensure required environment variables are set
-      // const {
-      //   NEXT_PUBLIC_CLIENT_ID,
-      //   NEXT_PUBLIC_CLIENT_SECRET,
-      //   NEXT_PUBLIC_REDIRECT_URI,
-      // } = process.env;
-      // if (
-      //   !NEXT_PUBLIC_CLIENT_ID ||
-      //   !NEXT_PUBLIC_CLIENT_SECRET ||
-      //   !NEXT_PUBLIC_REDIRECT_URI
-      // ) {
-      //   console.error("Missing required environment variables.");
-      //   router.push("/"); // Redirect to login page
-      //   return;
-      // }
 
       const tokenUrl = "https://login.kekademo.com/connect/token";
       const formData = new URLSearchParams({
@@ -94,6 +70,7 @@ export default function Callback() {
 
         if (response.ok) {
           const userData = await response.json();
+          console.log("userData-->" + userData);
 
           // Store user ID in cookies
           Cookies.set("userId", userData.EmployeePersonalId, {
@@ -102,7 +79,7 @@ export default function Callback() {
             secure: true,
             sameSite: "Strict",
           });
-
+          console.log("userId-->" + userData.EmployeePersonalId);
           // Redirect to dashboard after successful login
           router.push("/employee/dashboard");
         } else if (response.status === 401) {
