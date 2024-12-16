@@ -19,9 +19,15 @@ export default function Callback() {
         router.push("/"); // Redirect to login page on error
         return;
       }
-      console.log("NEXT_PUBLIC_CLIENT_ID-->" + NEXT_PUBLIC_CLIENT_ID);
-      console.log("NEXT_PUBLIC_CLIENT_SECRET-->" + NEXT_PUBLIC_CLIENT_SECRET);
-      console.log("NEXT_PUBLIC_REDIRECT_URI-->" + NEXT_PUBLIC_REDIRECT_URI);
+      console.log(
+        "NEXT_PUBLIC_CLIENT_ID-->" + process.env.NEXT_PUBLIC_CLIENT_ID
+      );
+      console.log(
+        "NEXT_PUBLIC_CLIENT_SECRET-->" + process.env.NEXT_PUBLIC_CLIENT_SECRET
+      );
+      console.log(
+        "NEXT_PUBLIC_REDIRECT_URI-->" + process.env.NEXT_PUBLIC_REDIRECT_URI
+      );
       // Ensure required environment variables are set
       // const {
       //   NEXT_PUBLIC_CLIENT_ID,
@@ -42,9 +48,9 @@ export default function Callback() {
       const formData = new URLSearchParams({
         grant_type: "authorization_code",
         code,
-        client_id: NEXT_PUBLIC_CLIENT_ID,
-        client_secret: NEXT_PUBLIC_CLIENT_SECRET,
-        redirect_uri: NEXT_PUBLIC_REDIRECT_URI,
+        client_id: process.env.NEXT_PUBLIC_CLIENT_ID,
+        client_secret: process.env.NEXT_PUBLIC_CLIENT_SECRET,
+        redirect_uri: process.env.NEXT_PUBLIC_REDIRECT_URI,
       });
 
       try {
