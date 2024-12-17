@@ -73,7 +73,13 @@ export default function Callback() {
           console.log("user_id:", user_id);
 
           await new Promise((resolve) => {
-            Cookies.set("userId", user_id, {
+            Cookies.set("kekaId", user_id, {
+              expires: 1,
+              path: "/",
+              secure: true,
+              sameSite: "Strict",
+            });
+            Cookies.set("SSO", true, {
               expires: 1,
               path: "/",
               secure: true,

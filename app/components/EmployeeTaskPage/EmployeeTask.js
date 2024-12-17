@@ -10,7 +10,7 @@ import {
 import ViewModal from "./ViewModal";
 import Cookies from "js-cookie";
 import { toast } from "react-toastify";
-
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 const EmployeeTask = () => {
   const [activeTab, setActiveTab] = useState("All Requests");
   const [loading, setLoading] = useState(false);
@@ -29,11 +29,32 @@ const EmployeeTask = () => {
     setShowAcceptReject(isPending);
     setSelectedRequestId(requestId);
     setIsModalOpen(true);
+    const query = new URLSearchParams(window.location.search);
+    query.set("requestId", requestId); // Add or update requestId
+    // query.set("formTemplateId", formTemplateId); // Add or update formTemplateId
+
+    // Update the URL without reloading the page
+    window.history.pushState(
+      null,
+      "", // You can leave the title empty
+      `${window.location.pathname}?${query.toString()}` // Set the updated URL
+    );
   };
 
   const closeModal = () => {
     setIsModalOpen(false);
     setSelectedRequestId(null);
+    const query = new URLSearchParams(window.location.search);
+    query.delete("requestId"); // Remove requestId
+    // query.delete("formTemplateId"); // Remove formTemplateId
+    // query.delete("modalOpen"); // Optionally remove modalOpen state if you are tracking it
+
+    // Update the URL without reloading the page, removing the query parameters
+    window.history.pushState(
+      null,
+      "",
+      `${window.location.pathname}?${query.toString()}`
+    );
   };
 
   const handlePageChange = (type, newPage) => {
