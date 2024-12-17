@@ -135,9 +135,6 @@ const EmployeeNewRequest = () => {
 
   const openViewModal = (requestId, status, formTemplateId) => {
     console.log("formTemplateId: ", formTemplateId);
-    console.log("Current pathname type:", typeof router.pathname);
-    console.log("Current pathname value:", router.pathname);
-
     setFormTemplateId(formTemplateId);
     setSelectedRequestId(requestId);
     setIsViewModalOpen(true);

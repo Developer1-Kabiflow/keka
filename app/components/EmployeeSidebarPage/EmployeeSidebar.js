@@ -13,7 +13,7 @@ const EmployeeSidebar = ({ closeSidebar }) => {
   const [employeeData, setEmployeeData] = useState(null); // Store employee data
   const [isLoading, setIsLoading] = useState(true); // Loading state
   const [error, setError] = useState(null); // Error state
-
+  const [employeeId, setEmployeeId] = useState();
   const handleItemClick = () => {
     if (isMobileOrTablet && closeSidebar) {
       closeSidebar();
@@ -25,28 +25,27 @@ const EmployeeSidebar = ({ closeSidebar }) => {
 
     const fetchData = async () => {
       try {
-        const employeeId = Cookies.get("userId");
-        console.log("Fetched employeeId from cookie:", employeeId);
-
-        if (!employeeId) {
-          // Keep checking until the userId is found in cookies
-          return;
+        const isSSO = Cookies.get("SSO");
+        if (isSSO === true) {
+          setEmployeeId(Cookies.get("kekaId"));
+          console.log("Fetched employeeId from cookie:", employeeId);
+          if (!employeeId) {
+            // Keep checking until the userId is found in cookies
+            return;
+          }
+        } else {
+          setEmployeeId(Cookies.get("userId"));
         }
 
         // Once userId is found, fetch employee details
         const { userData } = await fetchEmployeeDetails(employeeId);
         setEmployeeData(userData);
-        console.log("Employee title");
-        console.dir(userData);
-        console.log("Employee dATA");
-        console.dir(employeeData);
-        // Cookies.remove("userId");
-        // Cookies.set("userId", employeeData.EmployeeId, {
-        //   expires: 1,
-        //   path: "/",
-        //   secure: true,
-        //   sameSite: "Strict",
-        // });
+        Cookies.set("userId", employeeData.EmployeeId, {
+          expires: 1,
+          path: "/",
+          secure: true,
+          sameSite: "Strict",
+        });
         setIsLoading(false); // Data fetched, stop loading
 
         // Stop polling once data is fetched successfully
