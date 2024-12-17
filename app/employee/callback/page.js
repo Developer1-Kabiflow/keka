@@ -77,9 +77,9 @@ export default function Callback() {
             expires: 1,
             path: "/",
             secure: process.env.NODE_ENV === "production", // Only secure in production
-            sameSite: "Strict",
           });
-
+          const userid = Cookies.get("userId");
+          onsole.log("user_id from cookie:", userid);
           // Redirect to dashboard after successful login
           router.push("/employee/dashboard");
         } else if (response.status === 401) {

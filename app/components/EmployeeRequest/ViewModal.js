@@ -6,12 +6,13 @@ import { getMyFormData } from "@/app/controllers/formController";
 import DownloadIcon from "@mui/icons-material/Download";
 import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
 import Tooltip from "@mui/material/Tooltip"; // Tooltip for better UX
-
+import ShareIcon from "@mui/icons-material/Share";
 const ViewModal = ({ isOpen, handleClose, requestId, formTemplateId }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [formData, setFormData] = useState({});
   const [approvalData, setApprovalData] = useState({});
+  const [isUrlCopied, setIsUrlCopied] = useState(false); // State to track if URL is copied
   const progressStepsRef = useRef(null);
 
   // Define isPdf function inside the component scope
@@ -19,7 +20,6 @@ const ViewModal = ({ isOpen, handleClose, requestId, formTemplateId }) => {
 
   // Using useEffect to fetch data when the modal is open and requestId is available
   useEffect(() => {
-    console.log("template id--> " + formTemplateId);
     const fetchForm = async () => {
       if (!isOpen || !requestId) return;
 
@@ -64,16 +64,40 @@ const ViewModal = ({ isOpen, handleClose, requestId, formTemplateId }) => {
     document.body.removeChild(link);
   };
 
+  const copyUrlToClipboard = () => {
+    const url = window.location.href; // Get the current URL
+    navigator.clipboard
+      .writeText(url)
+      .then(() => {
+        setIsUrlCopied(true); // Set state to indicate URL has been copied
+        setTimeout(() => setIsUrlCopied(false), 2000); // Reset the state after 2 seconds
+      })
+      .catch((err) => console.error("Error copying URL to clipboard: ", err));
+  };
+
   if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center z-50">
       <div className="relative bg-white p-6 rounded-lg w-full sm:w-[600px] md:w-[800px] lg:w-[900px] xl:w-[1000px] max-h-[80vh] flex flex-col overflow-y-auto">
-        <div className="flex justify-center items-center mb-4">
+        <div className="flex justify-between items-center mb-4">
           <span className="text-2xl font-semibold text-blue-600">
             Request Details
           </span>
+          <button
+            onClick={copyUrlToClipboard}
+            className="text-sm text-blue-600 hover:text-blue-800 font-medium"
+          >
+            <ShareIcon fontSize="medium" />
+          </button>
         </div>
+
+        {/* Show feedback when URL is copied */}
+        {isUrlCopied && (
+          <div className="text-green-500 text-sm mb-2">
+            URL copied to clipboard!
+          </div>
+        )}
 
         {loading ? (
           <div className="animate-pulse space-y-4">
