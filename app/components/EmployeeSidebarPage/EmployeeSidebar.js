@@ -29,15 +29,17 @@ const EmployeeSidebar = ({ closeSidebar }) => {
         console.log("isSSO-->" + isSSO);
         if (isSSO === true) {
           const kekaId = Cookies.get("kekaId");
-          setEmployeeId(kekaId);
-
-          if (!employeeId) {
-            // Keep checking until the userId is found in cookies
+          if (!kekaId) {
             return;
           }
-          console.log("Fetched employeeId from cookie:", employeeId);
+          console.log("kekaId-->" + kekaId);
+          setEmployeeId(kekaId);
         } else {
           const userId = Cookies.get("userId");
+          console.log("userId-->" + userId);
+          if (!userId) {
+            return;
+          }
           setEmployeeId(userId);
         }
 
