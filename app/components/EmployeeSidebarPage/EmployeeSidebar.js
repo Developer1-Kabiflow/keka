@@ -1,14 +1,16 @@
 "use client";
+
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import useMediaQuery from "@/app/hooks/useMediaQuery"; // Import the custom hook
-import Cookies from "js-cookie";
 import { fetchEmployeeDetails } from "@/app/controllers/employeeController";
+import { useAuth } from "@/app/context/authContext";
 
 const EmployeeSidebar = ({ closeSidebar }) => {
   const pathname = usePathname(); // Get the current pathname
+  const { userId, loading } = useAuth();
   const isMobileOrTablet = useMediaQuery("(max-width: 1024px)"); // Detect mobile or tablet screen size
   const [employeeData, setEmployeeData] = useState(null); // Store employee data
   const [isLoading, setIsLoading] = useState(true); // Loading state
@@ -22,15 +24,13 @@ const EmployeeSidebar = ({ closeSidebar }) => {
 
   useEffect(() => {
     const fetchData = async () => {
-      const employeeId = Cookies.get("userId");
-      console.log("Fetched employeeId from cookie:", employeeId);
-      if (!employeeId) {
-        setError("No employee ID found in cookies.");
+      if (!userId) {
+        setError("No user ID found.");
         setIsLoading(false);
         return;
       }
       try {
-        const { userData } = await fetchEmployeeDetails(employeeId);
+        const { userData } = await fetchEmployeeDetails(userId); // Pass userId directly
         setEmployeeData(userData);
       } catch (err) {
         setError(err.message || "Error fetching employee details.");
@@ -40,13 +40,10 @@ const EmployeeSidebar = ({ closeSidebar }) => {
     };
 
     fetchData();
-  }, []);
+  }, [userId]); // Add userId as a dependency
 
   const getActiveClass = (path) => {
-    if (pathname === path) {
-      return "bg-gray-300 font-semibold"; // Highlight if on "/employee/request"
-    }
-    return ""; // Default class if no conditions are met
+    return pathname === path ? "bg-gray-300 font-semibold" : ""; // Highlight if the path matches
   };
 
   return (
@@ -85,16 +82,15 @@ const EmployeeSidebar = ({ closeSidebar }) => {
                   priority
                   width={80}
                   height={80}
-                  style={{ width: "auto", height: "auto" }}
                 />
                 <span className="mt-3 text-xl font-semibold text-blue-900">
                   {employeeData?.DisplayName} ({employeeData?.EmployeeId})
                 </span>
                 <span className="mt-1 text-sm font-medium text-gray-600">
-                  {employeeData?.JobTitle}
+                  {employeeData?.JobTitle?.title}
                 </span>
                 <span className="mt-1 text-sm font-medium text-gray-600">
-                  {employeeData?.Department} Department
+                  {employeeData?.Department?.title} Department
                 </span>
                 <span className="mt-1 text-sm text-gray-500 mb-4">
                   {employeeData?.Email}
@@ -107,12 +103,9 @@ const EmployeeSidebar = ({ closeSidebar }) => {
           <li
             className={`mb-2 ${getActiveClass("/employee/request")}`}
             onClick={handleItemClick}
-            id="request"
           >
             <Link href="/employee/request">
-              <span className="block py-2 px-4 hover:bg-gray-200 hover:cursor-pointer">
-                Request
-              </span>
+              <span className="block py-2 px-4 hover:bg-gray-200">Request</span>
             </Link>
           </li>
           <li
@@ -120,7 +113,7 @@ const EmployeeSidebar = ({ closeSidebar }) => {
             onClick={handleItemClick}
           >
             <Link href="/employee/approvals">
-              <span className="block py-2 px-4 hover:bg-gray-200 hover:cursor-pointer">
+              <span className="block py-2 px-4 hover:bg-gray-200">
                 Approvals
               </span>
             </Link>
@@ -130,23 +123,18 @@ const EmployeeSidebar = ({ closeSidebar }) => {
             onClick={handleItemClick}
           >
             <Link href="/employee/task">
-              <span className="block py-2 px-4 hover:bg-gray-200 hover:cursor-pointer">
-                Task
-              </span>
+              <span className="block py-2 px-4 hover:bg-gray-200">Task</span>
             </Link>
           </li>
           <li className="mb-2" onClick={handleItemClick}>
-            <p className="block py-2 px-4 hover:bg-gray-200 hover:cursor-pointer">
-              Notification
-            </p>
+            <p className="block py-2 px-4 hover:bg-gray-200">Notification</p>
           </li>
           <li
             className={`mb-2 ${getActiveClass("/employee/loginTest")}`}
             onClick={handleItemClick}
           >
-            {" "}
             <Link href="/employee/loginTest">
-              <span className="block py-2 px-4 hover:bg-gray-200 hover:cursor-pointer">
+              <span className="block py-2 px-4 hover:bg-gray-200">
                 Login Test
               </span>
             </Link>
