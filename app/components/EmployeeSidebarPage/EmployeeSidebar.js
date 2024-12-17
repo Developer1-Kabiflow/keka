@@ -36,6 +36,17 @@ const EmployeeSidebar = ({ closeSidebar }) => {
         // Once userId is found, fetch employee details
         const { userData } = await fetchEmployeeDetails(employeeId);
         setEmployeeData(userData);
+        console.log("Employee title");
+        console.dir(employeeData.Department.title);
+        console.log("Employee ID");
+        console.dir(employeeData.EmployeeId);
+        // Cookies.remove("userId");
+        // Cookies.set("userId", employeeData.EmployeeId, {
+        //   expires: 1,
+        //   path: "/",
+        //   secure: true,
+        //   sameSite: "Strict",
+        // });
         setIsLoading(false); // Data fetched, stop loading
 
         // Stop polling once data is fetched successfully
