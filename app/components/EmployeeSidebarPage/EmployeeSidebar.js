@@ -21,6 +21,8 @@ const EmployeeSidebar = ({ closeSidebar }) => {
   };
 
   useEffect(() => {
+    let interval;
+
     const fetchData = async () => {
       try {
         const isSSO = Cookies.get("SSO");
@@ -48,6 +50,11 @@ const EmployeeSidebar = ({ closeSidebar }) => {
         });
 
         setIsLoading(false); // Data fetched, stop loading
+
+        // Stop polling once data is fetched successfully
+        if (interval) {
+          clearInterval(interval);
+        }
       } catch (err) {
         setError(err.message || "Error fetching employee details.");
         setIsLoading(false);
