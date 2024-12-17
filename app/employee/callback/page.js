@@ -72,16 +72,16 @@ export default function Callback() {
           const { user_id } = await response.json();
           console.log("user_id:", user_id);
 
-          // Store user ID in cookies
-          Cookies.set("userId", user_id, {
-            expires: 1,
-            path: "",
-            secure: true,
-            sameSite: "Strict",
+          await new Promise((resolve) => {
+            Cookies.set("userId", user_id, {
+              expires: 1,
+              path: "/",
+              secure: true,
+              sameSite: "Strict",
+            });
+            resolve();
           });
-          const userid = Cookies.get("userId");
-          console.log("user_id from cookie:", userid);
-          // Redirect to dashboard after successful login
+          console.log("Cookie after setting:", Cookies.get("userId"));
           router.push("/employee/dashboard");
         } else if (response.status === 401) {
           console.error("Unauthorized access. Redirecting to login.");
