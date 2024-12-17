@@ -75,8 +75,9 @@ export default function Callback() {
           // Store user ID in cookies
           Cookies.set("userId", user_id, {
             expires: 1,
-            path: "/",
-            secure: process.env.NODE_ENV === "production", // Only secure in production
+            path: "",
+            secure: true,
+            sameSite: "Strict",
           });
           const userid = Cookies.get("userId");
           console.log("user_id from cookie:", userid);
