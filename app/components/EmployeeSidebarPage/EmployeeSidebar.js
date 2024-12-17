@@ -37,9 +37,9 @@ const EmployeeSidebar = ({ closeSidebar }) => {
         const { userData } = await fetchEmployeeDetails(employeeId);
         setEmployeeData(userData);
         console.log("Employee title");
-        console.dir(employeeData.Department.title);
-        console.log("Employee ID");
-        console.dir(employeeData.EmployeeId);
+        console.dir(userData);
+        console.log("Employee dATA");
+        console.dir(employeeData);
         // Cookies.remove("userId");
         // Cookies.set("userId", employeeData.EmployeeId, {
         //   expires: 1,
