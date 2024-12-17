@@ -20,24 +20,26 @@ const EmployeeSidebar = ({ closeSidebar }) => {
     }
   };
 
-  const getEmployeeDetails = async () => {
-    const employeeId = Cookies.get("userId");
-    console.log("employeeId-->" + employeeId);
-    try {
-      if (!employeeId) {
-        throw new Error("No employee ID found in cookies.");
-      }
-      const { userData } = await fetchEmployeeDetails(employeeId);
-      setEmployeeData(userData);
-    } catch (err) {
-      setError(err.message || "Error fetching employee details.");
-    } finally {
-      setIsLoading(false); // Stop loading once data is fetched
-    }
-  };
-
   useEffect(() => {
-    getEmployeeDetails();
+    const fetchData = async () => {
+      const employeeId = Cookies.get("userId");
+      console.log("Fetched employeeId from cookie:", employeeId);
+      if (!employeeId) {
+        setError("No employee ID found in cookies.");
+        setIsLoading(false);
+        return;
+      }
+      try {
+        const { userData } = await fetchEmployeeDetails(employeeId);
+        setEmployeeData(userData);
+      } catch (err) {
+        setError(err.message || "Error fetching employee details.");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchData();
   }, []);
 
   const getActiveClass = (path) => {
