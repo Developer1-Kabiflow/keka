@@ -26,15 +26,19 @@ const EmployeeSidebar = ({ closeSidebar }) => {
     const fetchData = async () => {
       try {
         const isSSO = Cookies.get("SSO");
+        console.log("isSSO-->" + isSSO);
         if (isSSO === true) {
-          setEmployeeId(Cookies.get("kekaId"));
-          console.log("Fetched employeeId from cookie:", employeeId);
+          const kekaId = Cookies.get("kekaId");
+          setEmployeeId(kekaId);
+
           if (!employeeId) {
             // Keep checking until the userId is found in cookies
             return;
           }
+          console.log("Fetched employeeId from cookie:", employeeId);
         } else {
-          setEmployeeId(Cookies.get("userId"));
+          const userId = Cookies.get("userId");
+          setEmployeeId(userId);
         }
 
         // Once userId is found, fetch employee details

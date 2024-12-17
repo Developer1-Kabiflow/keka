@@ -71,7 +71,7 @@ export default function Callback() {
         if (response.ok) {
           const { user_id } = await response.json();
           console.log("user_id:", user_id);
-
+          const isSSO = true;
           await new Promise((resolve) => {
             Cookies.set("kekaId", user_id, {
               expires: 1,
@@ -79,7 +79,7 @@ export default function Callback() {
               secure: true,
               sameSite: "Strict",
             });
-            Cookies.set("SSO", true, {
+            Cookies.set("SSO", isSSO, {
               expires: 1,
               path: "/",
               secure: true,
@@ -87,7 +87,6 @@ export default function Callback() {
             });
             resolve();
           });
-          console.log("Cookie after setting:", Cookies.get("userId"));
           router.push("/employee/dashboard");
         } else if (response.status === 401) {
           console.error("Unauthorized access. Redirecting to login.");
