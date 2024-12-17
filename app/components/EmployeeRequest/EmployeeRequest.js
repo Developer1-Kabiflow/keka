@@ -10,14 +10,19 @@ import {
 import RequestTable from "../utils/RequestTable"; // Import the RequestTable component
 import SubMenu from "./SubCategory"; // Import SubMenu component (if you need it)
 import { fetchCategoryList } from "@/app/controllers/categoryController";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 const EmployeeNewRequest = () => {
+  const router = useRouter();
+  const p = usePathname(); // Get the current pathname
   const [activeTab, setActiveTab] = useState("New Request");
+  const [pathname, setPathname] = useState(p);
   const [requestData, setRequestData] = useState({
     all: { data: [], pagination: { currentPage: 1, totalPages: 1 } },
     approved: { data: [], pagination: { currentPage: 1, totalPages: 1 } },
     rejected: { data: [], pagination: { currentPage: 1, totalPages: 1 } },
   });
+  const searchParams = useSearchParams(); // To access current query params
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [selectedRequestId, setSelectedRequestId] = useState(null);
@@ -27,6 +32,7 @@ const EmployeeNewRequest = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedSubCategoryId, setSubCategoryId] = useState(null);
   const [categoryLoading, setCategoryLoading] = useState(false);
+  const [formTemplateId, setFormTemplateId] = useState(null);
 
   const loadRequestData = async (type, employeeId, page = 1) => {
     try {
@@ -89,7 +95,13 @@ const EmployeeNewRequest = () => {
       setLoading(false);
     }
   };
-
+  useEffect(() => {
+    if (router.pathname) {
+      console.log("Router is ready, pathname:", router.pathname);
+    } else {
+      console.log("Router pathname is still undefined.");
+    }
+  }, [router.pathname]);
   useEffect(() => {
     const employeeId = Cookies.get("userId");
     if (employeeId) {
@@ -121,15 +133,43 @@ const EmployeeNewRequest = () => {
     fetchCategoryData();
   }, []);
 
-  const openViewModal = (requestId, formTemplateId) => {
-    console.log("formTemplateId" + formTemplateId);
+  const openViewModal = (requestId, status, formTemplateId) => {
+    console.log("formTemplateId: ", formTemplateId);
+    console.log("Current pathname type:", typeof router.pathname);
+    console.log("Current pathname value:", router.pathname);
+
+    setFormTemplateId(formTemplateId);
     setSelectedRequestId(requestId);
     setIsViewModalOpen(true);
+
+    const query = new URLSearchParams(window.location.search);
+    query.set("requestId", requestId); // Add or update requestId
+    query.set("formTemplateId", formTemplateId); // Add or update formTemplateId
+
+    // Update the URL without reloading the page
+    window.history.pushState(
+      null,
+      "", // You can leave the title empty
+      `${window.location.pathname}?${query.toString()}` // Set the updated URL
+    );
   };
 
   const closeViewModal = () => {
     setIsViewModalOpen(false);
     setSelectedRequestId(null);
+
+    // Remove requestId and formTemplateId from the query parameters
+    const query = new URLSearchParams(window.location.search);
+    query.delete("requestId"); // Remove requestId
+    query.delete("formTemplateId"); // Remove formTemplateId
+    query.delete("modalOpen"); // Optionally remove modalOpen state if you are tracking it
+
+    // Update the URL without reloading the page, removing the query parameters
+    window.history.pushState(
+      null,
+      "",
+      `${window.location.pathname}?${query.toString()}`
+    );
   };
 
   const handlePageChange = (type, newPage) => {
