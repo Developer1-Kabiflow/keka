@@ -8,7 +8,6 @@ import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import EmployeeSidebar from "@/app/components/EmployeeSidebarPage/EmployeeSidebar";
 import { metadata } from "./metadata";
-import { AuthProvider } from "@/app/context/authContext";
 
 export const Metadata = metadata;
 
