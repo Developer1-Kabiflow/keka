@@ -21,43 +21,33 @@ const EmployeeSidebar = ({ closeSidebar }) => {
   };
 
   useEffect(() => {
-    let interval;
-
     const fetchData = async () => {
       try {
         const isSSO = Cookies.get("SSO");
-        console.log("isSSO-->" + isSSO);
-        if (isSSO === true) {
-          const kekaId = Cookies.get("kekaId");
-          if (!kekaId) {
-            return;
-          }
-          console.log("kekaId-->" + kekaId);
-          setEmployeeId(kekaId);
-        } else {
-          const userId = Cookies.get("userId");
-          console.log("userId-->" + userId);
-          if (!userId) {
-            return;
-          }
-          setEmployeeId(userId);
+        console.log("isSSO-->", isSSO);
+        const idFromCookie =
+          isSSO === "true" ? Cookies.get("kekaId") : Cookies.get("userId");
+
+        if (!idFromCookie) {
+          return; // Continue polling until ID is available in cookies
         }
 
-        // Once userId is found, fetch employee details
-        const { userData } = await fetchEmployeeDetails(employeeId);
+        console.log("employeeId-->", idFromCookie);
+        setEmployeeId(idFromCookie); // Save it in state if needed for other purposes
+
+        // Fetch employee details
+        const { userData } = await fetchEmployeeDetails(idFromCookie);
         setEmployeeData(userData);
-        Cookies.set("userId", employeeData.EmployeeId, {
+
+        // Save `userId` in cookies if needed
+        Cookies.set("userId", userData.EmployeeId, {
           expires: 1,
           path: "/",
           secure: true,
           sameSite: "Strict",
         });
-        setIsLoading(false); // Data fetched, stop loading
 
-        // Stop polling once data is fetched successfully
-        if (interval) {
-          clearInterval(interval);
-        }
+        setIsLoading(false); // Data fetched, stop loading
       } catch (err) {
         setError(err.message || "Error fetching employee details.");
         setIsLoading(false);
