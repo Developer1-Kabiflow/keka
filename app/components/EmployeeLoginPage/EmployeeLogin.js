@@ -30,6 +30,13 @@ const EmployeeLoginPage = () => {
           secure: true,
           sameSite: "Strict",
         });
+
+        Cookies.set("isPassBasedAuth", true, {
+          expires: 1,
+          path: "",
+          secure: true,
+          sameSite: "Strict",
+        });
         router.push(response.redirectUrl);
       } else {
         setError("Unexpected response from server.");
