@@ -8,7 +8,6 @@ export function middleware(req) {
     return NextResponse.next();
   }
   if (!authToken) {
-    url.pathname = "/login";
     url.searchParams.set(
       "redirectTo",
       req.nextUrl.pathname + req.nextUrl.search
