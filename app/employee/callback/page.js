@@ -87,7 +87,11 @@ export default function Callback() {
             });
             resolve();
           });
-          router.push("/employee/dashboard");
+
+          const redirectTo =
+            new URLSearchParams(window.location.search).get("redirectTo") ||
+            "/employee/dashboard";
+          router.push(redirectTo);
         } else if (response.status === 401) {
           console.error("Unauthorized access. Redirecting to login.");
           router.push("/");

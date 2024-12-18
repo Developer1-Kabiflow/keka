@@ -80,7 +80,7 @@ const ViewModal = ({ isOpen, handleClose, requestId, formTemplateId }) => {
   return (
     <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center z-50">
       <div className="relative bg-white p-6 rounded-lg w-full sm:w-[600px] md:w-[800px] lg:w-[900px] xl:w-[1000px] max-h-[80vh] flex flex-col overflow-y-auto">
-        <div className="flex justify-between items-center mb-4">
+        <div className="flex justify-center gap-10 items-center mb-4">
           <span className="text-2xl font-semibold text-blue-600">
             Request Details
           </span>

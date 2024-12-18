@@ -8,7 +8,7 @@ import {
   handleReject,
 } from "@/app/controllers/approvalController";
 import Cookies from "js-cookie";
-
+import ShareIcon from "@mui/icons-material/Share";
 const ViewModal = ({
   isOpen,
   handleClose,
@@ -28,9 +28,10 @@ const ViewModal = ({
   const [rejectionNote, setRejectionNote] = useState("");
   const bottomRef = useRef(null);
   const progressStepsRef = useRef(null);
-
+  const [isUrlCopied, setIsUrlCopied] = useState(false);
   const approverId = Cookies.get("userId");
   console.log("showAcceptReject-->" + showAcceptReject);
+
   // Fetch Form Data
   const fetchForm = useCallback(async () => {
     if (isOpen && requestId) {
@@ -60,7 +61,16 @@ const ViewModal = ({
       0
     );
   };
-
+  const copyUrlToClipboard = () => {
+    const url = window.location.href; // Get the current URL
+    navigator.clipboard
+      .writeText(url)
+      .then(() => {
+        setIsUrlCopied(true); // Set state to indicate URL has been copied
+        setTimeout(() => setIsUrlCopied(false), 2000); // Reset the state after 2 seconds
+      })
+      .catch((err) => console.error("Error copying URL to clipboard: ", err));
+  };
   // Close Reject Textbox
   const handleRejectClose = () => setShowRejectTextbox(false);
 
@@ -120,11 +130,23 @@ const ViewModal = ({
   return (
     <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center z-50">
       <div className="relative bg-white p-6 rounded-lg w-full sm:w-[600px] md:w-[800px] lg:w-[900px] xl:w-[1000px] h-auto max-h-[80vh] overflow-y-auto">
-        <div className="flex justify-center items-center mb-4">
+        <div className="flex justify-center gap-10 items-center mb-4">
           <span className="text-2xl font-semibold text-blue-600">
             Task Details
           </span>
+          <button
+            onClick={copyUrlToClipboard}
+            className="text-sm text-blue-600 hover:text-blue-800 font-medium"
+          >
+            <ShareIcon fontSize="medium" />
+          </button>
         </div>
+        {/* Show feedback when URL is copied */}
+        {isUrlCopied && (
+          <div className="text-green-500 text-sm mb-2">
+            URL copied to clipboard!
+          </div>
+        )}
         {loading ? (
           /* Skeletal Loader */
           <div className="animate-pulse space-y-4">

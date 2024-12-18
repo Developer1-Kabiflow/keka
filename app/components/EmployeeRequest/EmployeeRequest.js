@@ -14,6 +14,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 const EmployeeNewRequest = () => {
   const router = useRouter();
+
   const p = usePathname(); // Get the current pathname
   const [activeTab, setActiveTab] = useState("New Request");
   const [pathname, setPathname] = useState(p);
@@ -23,6 +24,7 @@ const EmployeeNewRequest = () => {
     rejected: { data: [], pagination: { currentPage: 1, totalPages: 1 } },
   });
   const searchParams = useSearchParams(); // To access current query params
+  const requestId = searchParams.get("requestId");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [selectedRequestId, setSelectedRequestId] = useState(null);
@@ -33,7 +35,15 @@ const EmployeeNewRequest = () => {
   const [selectedSubCategoryId, setSubCategoryId] = useState(null);
   const [categoryLoading, setCategoryLoading] = useState(false);
   const [formTemplateId, setFormTemplateId] = useState(null);
-
+  useEffect(() => {
+    if (requestId) {
+      if (activeTab !== "Track All Request") {
+        setActiveTab("Track All Request");
+      }
+      setSelectedRequestId(requestId);
+      setIsViewModalOpen(true);
+    }
+  }, [requestId, activeTab]);
   const loadRequestData = async (type, employeeId, page = 1) => {
     try {
       setLoading(true);
@@ -95,13 +105,7 @@ const EmployeeNewRequest = () => {
       setLoading(false);
     }
   };
-  useEffect(() => {
-    if (router.pathname) {
-      console.log("Router is ready, pathname:", router.pathname);
-    } else {
-      console.log("Router pathname is still undefined.");
-    }
-  }, [router.pathname]);
+
   useEffect(() => {
     const employeeId = Cookies.get("userId");
     if (employeeId) {

@@ -28,7 +28,7 @@ export default function RootLayout({ children }) {
   const pathname = usePathname(); // Get the current pathname
 
   // Define pages where the sidebar is not needed
-  const pagesWithoutSidebar = ["/", "/employee/logout"]; // Add more paths here if needed
+  const pagesWithoutSidebar = ["/", "/employee/logout", "/login"]; // Add more paths here if needed
 
   // Determine whether the sidebar should be displayed
   const shouldDisplaySidebar = !pagesWithoutSidebar.includes(pathname);
