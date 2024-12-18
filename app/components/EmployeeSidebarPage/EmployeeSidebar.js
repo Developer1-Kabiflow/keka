@@ -25,7 +25,7 @@ const EmployeeSidebar = ({ closeSidebar }) => {
     const fetchData = async () => {
       try {
         setUserId(Cookies.get("userId"));
-        const isSSO = Cookies.get("SSO") === "true"; // Corrected comparison
+        const isSSO = Cookies.get("SSO") === true; // Corrected comparison
 
         if (isSSO) {
           setEmployeeData({
@@ -36,7 +36,7 @@ const EmployeeSidebar = ({ closeSidebar }) => {
           });
           setIsLoading(false);
         } else {
-          const { userData } = await fetchEmployeeDetails(idFromCookie);
+          const { userData } = await fetchEmployeeDetails(userId);
           setEmployeeData({
             Department: userData?.Department?.title,
             Designation: userData?.JobTitle?.title,
