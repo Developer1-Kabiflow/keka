@@ -70,10 +70,42 @@ export default function Callback() {
 
         if (response.ok) {
           const { user_id } = await response.json();
+          const { userData } = await fetchEmployeeDetails(user_id);
+
           console.log("user_id:", user_id);
+          console.log("user_data:", userData);
+          console.log(userData?.DisplayName);
+          console.log(userData?.EmployeeId);
+          console.log(userData?.JobTitle?.title);
+          console.log(userData?.Department?.title);
+          console.log(userData?.Email);
           const isSSO = true;
           await new Promise((resolve) => {
             Cookies.set("kekaId", user_id, {
+              expires: 1,
+              path: "/",
+              secure: true,
+              sameSite: "Strict",
+            });
+            Cookies.set("userId", userData?.EmployeeId, {
+              expires: 1,
+              path: "/",
+              secure: true,
+              sameSite: "Strict",
+            });
+            Cookies.set("Designation", userData?.JobTitle?.title, {
+              expires: 1,
+              path: "/",
+              secure: true,
+              sameSite: "Strict",
+            });
+            Cookies.set("Department", userData?.Department?.title, {
+              expires: 1,
+              path: "/",
+              secure: true,
+              sameSite: "Strict",
+            });
+            Cookies.set("email", userData?.Email, {
               expires: 1,
               path: "/",
               secure: true,

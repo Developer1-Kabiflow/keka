@@ -24,48 +24,55 @@ const EmployeeSidebar = ({ closeSidebar }) => {
     let interval;
 
     const fetchData = async () => {
-      try {
-        const isSSO = Cookies.get("SSO");
-        console.log("isSSO-->", isSSO);
-        const idFromCookie =
-          isSSO === "true" ? Cookies.get("kekaId") : Cookies.get("userId");
+      // try {
+      const isSSO = Cookies.get("SSO");
+      console.log("isSSO-->", isSSO);
+      const userId = Cookies.get("userId");
+      console.log("userId-->", userId);
+      const Department = Cookies.get("Department");
+      console.log("Department-->", Department);
+      const Designation = Cookies.get("Designation");
+      console.log("Designation-->", Designation);
+      const email = Cookies.get("email");
+      console.log("email-->", email);
+      const idFromCookie =
+        isSSO === "true" ? Cookies.get("kekaId") : Cookies.get("userId");
+      console.log("idFromCookie-->" + idFromCookie);
+      //   if (!idFromCookie) {
+      //     return; // Continue polling until ID is available in cookies
+      //   }
+      //   const userId = Cookies.get("SSO");
+      //   setEmployeeId(idFromCookie); // Save it in state if needed for other purposes
 
-        if (!idFromCookie) {
-          return; // Continue polling until ID is available in cookies
-        }
+      //   // Fetch employee details
+      //   const { userData } = await fetchEmployeeDetails(idFromCookie);
+      //   setEmployeeData(userData);
 
-        console.log("employeeId-->", idFromCookie);
-        setEmployeeId(idFromCookie); // Save it in state if needed for other purposes
+      //   // Save `userId` in cookies if needed
+      //   Cookies.set("userId", userData.EmployeeId, {
+      //     expires: 1,
+      //     path: "/",
+      //     secure: true,
+      //     sameSite: "Strict",
+      //   });
 
-        // Fetch employee details
-        const { userData } = await fetchEmployeeDetails(idFromCookie);
-        setEmployeeData(userData);
+      //   setIsLoading(false); // Data fetched, stop loading
 
-        // Save `userId` in cookies if needed
-        Cookies.set("userId", userData.EmployeeId, {
-          expires: 1,
-          path: "/",
-          secure: true,
-          sameSite: "Strict",
-        });
-
-        setIsLoading(false); // Data fetched, stop loading
-
-        // Stop polling once data is fetched successfully
-        if (interval) {
-          clearInterval(interval);
-        }
-      } catch (err) {
-        setError(err.message || "Error fetching employee details.");
-        setIsLoading(false);
-      }
+      //   // Stop polling once data is fetched successfully
+      //   if (interval) {
+      //     clearInterval(interval);
+      //   }
+      // } catch (err) {
+      //   setError(err.message || "Error fetching employee details.");
+      //   setIsLoading(false);
+      // }
     };
 
     // Poll every 500ms to check if userId is available in cookies
-    interval = setInterval(fetchData, 500);
+    // interval = setInterval(fetchData, 500);
 
     // Cleanup interval on component unmount
-    return () => clearInterval(interval);
+    // return () => clearInterval(interval);
   }, []);
 
   const getActiveClass = (path) => {
