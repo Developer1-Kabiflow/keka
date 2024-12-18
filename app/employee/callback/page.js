@@ -94,6 +94,12 @@ export default function Callback() {
               secure: true,
               sameSite: "Strict",
             });
+            Cookies.set("userName", userData?.DisplayName, {
+              expires: 1,
+              path: "/",
+              secure: true,
+              sameSite: "Strict",
+            });
             Cookies.set("Designation", userData?.JobTitle?.title, {
               expires: 1,
               path: "/",

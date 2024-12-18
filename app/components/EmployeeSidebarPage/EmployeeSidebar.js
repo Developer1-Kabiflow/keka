@@ -13,7 +13,12 @@ const EmployeeSidebar = ({ closeSidebar }) => {
   const [employeeData, setEmployeeData] = useState(null); // Store employee data
   const [isLoading, setIsLoading] = useState(true); // Loading state
   const [error, setError] = useState(null); // Error state
-  const [employeeId, setEmployeeId] = useState();
+  const [userId, setUserId] = useState();
+  const [Department, setDepartment] = useState();
+  const [Designation, setDesignation] = useState();
+  const [email, setEmail] = useState();
+  const [userName, setUserName] = useState();
+
   const handleItemClick = () => {
     if (isMobileOrTablet && closeSidebar) {
       closeSidebar();
@@ -24,48 +29,36 @@ const EmployeeSidebar = ({ closeSidebar }) => {
     let interval;
 
     const fetchData = async () => {
-      // try {
-      const isSSO = Cookies.get("SSO");
-      console.log("isSSO-->", isSSO);
-      const userId = Cookies.get("userId");
-      console.log("userId-->", userId);
-      const Department = Cookies.get("Department");
-      console.log("Department-->", Department);
-      const Designation = Cookies.get("Designation");
-      console.log("Designation-->", Designation);
-      const email = Cookies.get("email");
-      console.log("email-->", email);
-      const idFromCookie =
-        isSSO === "true" ? Cookies.get("kekaId") : Cookies.get("userId");
-      console.log("idFromCookie-->" + idFromCookie);
-      //   if (!idFromCookie) {
-      //     return; // Continue polling until ID is available in cookies
-      //   }
-      //   const userId = Cookies.get("SSO");
-      //   setEmployeeId(idFromCookie); // Save it in state if needed for other purposes
-
-      //   // Fetch employee details
-      //   const { userData } = await fetchEmployeeDetails(idFromCookie);
-      //   setEmployeeData(userData);
-
-      //   // Save `userId` in cookies if needed
-      //   Cookies.set("userId", userData.EmployeeId, {
-      //     expires: 1,
-      //     path: "/",
-      //     secure: true,
-      //     sameSite: "Strict",
-      //   });
-
-      //   setIsLoading(false); // Data fetched, stop loading
-
-      //   // Stop polling once data is fetched successfully
-      //   if (interval) {
-      //     clearInterval(interval);
-      //   }
-      // } catch (err) {
-      //   setError(err.message || "Error fetching employee details.");
-      //   setIsLoading(false);
-      // }
+      try {
+        setUserId(Cookies.get("userId"));
+        const isSSO = Cookies.get("SSO");
+        if (isSSO === true) {
+          setDepartment(Cookies.get("Department"));
+          console.log("Department-->", Department);
+          setDesignation(Cookies.get("Designation"));
+          console.log("Designation-->", Designation);
+          setEmail(Cookies.get("email"));
+          setUserName(Cookies.get("userName"));
+          console.log("userName-->", userName);
+          setIsLoading(false);
+        } else {
+          const { userData } = await fetchEmployeeDetails(idFromCookie);
+          setDepartment(userData?.Department?.title);
+          console.log("Department-->", Department);
+          setDesignation(userData?.JobTitle?.title);
+          console.log("Designation-->", Designation);
+          setEmail(userData?.Email);
+          setUserName(userData?.DisplayName);
+          console.log("userName-->", userName);
+          setIsLoading(false);
+        }
+        // if (interval) {
+        //   clearInterval(interval);
+        // }
+      } catch (err) {
+        setError(err.message || "Error fetching employee details.");
+        setIsLoading(false);
+      }
     };
 
     // Poll every 500ms to check if userId is available in cookies
@@ -73,6 +66,7 @@ const EmployeeSidebar = ({ closeSidebar }) => {
 
     // Cleanup interval on component unmount
     // return () => clearInterval(interval);
+    fetchData();
   }, []);
 
   const getActiveClass = (path) => {
@@ -112,17 +106,15 @@ const EmployeeSidebar = ({ closeSidebar }) => {
                   style={{ width: "auto", height: "auto" }}
                 />
                 <span className="mt-3 text-xl font-semibold text-blue-900">
-                  {employeeData?.DisplayName} ({employeeData?.EmployeeId})
+                  {employeeData?.DisplayName} ({userId})
                 </span>
                 <span className="mt-1 text-sm font-medium text-gray-600">
-                  {employeeData?.JobTitle?.title}
+                  {Designation}
                 </span>
                 <span className="mt-1 text-sm font-medium text-gray-600">
-                  {employeeData?.Department?.title} Department
+                  {Department} Department
                 </span>
-                <span className="mt-1 text-sm text-gray-500 mb-4">
-                  {employeeData?.Email}
-                </span>
+                <span className="mt-1 text-sm text-gray-500 mb-4">{email}</span>
               </>
             )}
           </li>
