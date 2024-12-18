@@ -24,9 +24,9 @@ const EmployeeSidebar = ({ closeSidebar }) => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const isSSO = Cookies.get("SSO") === "true"; // Corrected comparison
-        console.log("isSSO-->" + isSSO);
-        if (isSSO) {
+        const isPassBasedAuth = Cookies.get("isPassBasedAuth") === "true";
+        console.log("isPassBasedAuth-->" + isPassBasedAuth);
+        if (!isPassBasedAuth) {
           const interval = setInterval(() => {
             const cookieUserId = Cookies.get("userId");
             if (cookieUserId) {
