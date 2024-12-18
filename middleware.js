@@ -4,7 +4,11 @@ export function middleware(req) {
   const url = req.nextUrl.clone();
   const authToken = req.cookies.get("userId"); // Adjust cookie key to match your app
   console.log("REACHED MIDDLEWARE");
-  if (url.pathname.includes("callback") || url.pathname.includes("login")) {
+  if (
+    url.pathname.includes("callback") ||
+    url.pathname.includes("login") ||
+    url.pathname.includes("logout")
+  ) {
     return NextResponse.next();
   }
   if (!authToken) {

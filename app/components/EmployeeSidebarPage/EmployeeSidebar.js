@@ -14,10 +14,6 @@ const EmployeeSidebar = ({ closeSidebar }) => {
   const [isLoading, setIsLoading] = useState(true); // Loading state
   const [error, setError] = useState(null); // Error state
   const [userId, setUserId] = useState();
-  const [Department, setDepartment] = useState();
-  const [Designation, setDesignation] = useState();
-  const [email, setEmail] = useState();
-  const [userName, setUserName] = useState();
 
   const handleItemClick = () => {
     if (isMobileOrTablet && closeSidebar) {
@@ -26,34 +22,28 @@ const EmployeeSidebar = ({ closeSidebar }) => {
   };
 
   useEffect(() => {
-    let interval;
-
     const fetchData = async () => {
       try {
         setUserId(Cookies.get("userId"));
-        const isSSO = Cookies.get("SSO");
-        if (isSSO === true) {
-          setDepartment(Cookies.get("Department"));
-          console.log("Department-->", Department);
-          setDesignation(Cookies.get("Designation"));
-          console.log("Designation-->", Designation);
-          setEmail(Cookies.get("email"));
-          setUserName(Cookies.get("userName"));
-          console.log("userName-->", userName);
+        const isSSO = Cookies.get("SSO") === "true"; // Corrected comparison
+
+        if (isSSO) {
+          setEmployeeData({
+            Department: Cookies.get("Department"),
+            Designation: Cookies.get("Designation"),
+            Email: Cookies.get("email"),
+            DisplayName: Cookies.get("userName"),
+          });
           setIsLoading(false);
         } else {
           const { userData } = await fetchEmployeeDetails(idFromCookie);
-          setDepartment(userData?.Department?.title);
-          console.log("Department-->", Department);
-          setDesignation(userData?.JobTitle?.title);
-          console.log("Designation-->", Designation);
-          setEmail(userData?.Email);
-          setUserName(userData?.DisplayName);
-          console.log("userName-->", userName);
+          setEmployeeData({
+            Department: userData?.Department?.title,
+            Designation: userData?.JobTitle?.title,
+            Email: userData?.Email,
+            DisplayName: userData?.DisplayName,
+          });
           setIsLoading(false);
-        }
-        if (interval) {
-          clearInterval(interval);
         }
       } catch (err) {
         setError(err.message || "Error fetching employee details.");
@@ -61,8 +51,7 @@ const EmployeeSidebar = ({ closeSidebar }) => {
       }
     };
 
-    interval = setInterval(fetchData, 500);
-    return () => clearInterval(interval);
+    fetchData(); // Only call once when the component mounts
   }, []);
 
   const getActiveClass = (path) => {
@@ -105,58 +94,18 @@ const EmployeeSidebar = ({ closeSidebar }) => {
                   {employeeData?.DisplayName} ({userId})
                 </span>
                 <span className="mt-1 text-sm font-medium text-gray-600">
-                  {Designation}
+                  {employeeData?.Designation}
                 </span>
                 <span className="mt-1 text-sm font-medium text-gray-600">
-                  {Department} Department
+                  {employeeData?.Department} Department
                 </span>
-                <span className="mt-1 text-sm text-gray-500 mb-4">{email}</span>
+                <span className="mt-1 text-sm text-gray-500 mb-4">
+                  {employeeData?.Email}
+                </span>
               </>
             )}
           </li>
-          <li
-            className={`mb-2 ${getActiveClass("/employee/request")}`}
-            onClick={handleItemClick}
-          >
-            <Link href="/employee/request">
-              <span className="block py-2 px-4 hover:bg-gray-200 hover:cursor-pointer">
-                Request
-              </span>
-            </Link>
-          </li>
-          <li
-            className={`mb-2 ${getActiveClass("/employee/approvals")}`}
-            onClick={handleItemClick}
-          >
-            <Link href="/employee/approvals">
-              <span className="block py-2 px-4 hover:bg-gray-200 hover:cursor-pointer">
-                Approvals
-              </span>
-            </Link>
-          </li>
-          <li
-            className={`mb-2 ${getActiveClass("/employee/task")}`}
-            onClick={handleItemClick}
-          >
-            <Link href="/employee/task">
-              <span className="block py-2 px-4 hover:bg-gray-200 hover:cursor-pointer">
-                Task
-              </span>
-            </Link>
-          </li>
-          <li className="mb-2" onClick={handleItemClick}>
-            <p className="block py-2 px-4 hover:bg-gray-200 hover:cursor-pointer">
-              Notification
-            </p>
-          </li>
-          <li
-            className={`mb-2 ${getActiveClass("/employee/logout")}`}
-            onClick={handleItemClick}
-          >
-            <Link href="/employee/logout">
-              <span className="block py-2 px-4 hover:bg-gray-200">Logout</span>
-            </Link>
-          </li>
+          {/* List items */}
         </ul>
       </nav>
     </div>
