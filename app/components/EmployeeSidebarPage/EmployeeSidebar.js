@@ -25,8 +25,8 @@ const EmployeeSidebar = ({ closeSidebar }) => {
     const fetchData = async () => {
       try {
         setUserId(Cookies.get("userId"));
-        const isSSO = Cookies.get("SSO") === true; // Corrected comparison
-
+        const isSSO = Cookies.get("SSO") === "true"; // Corrected comparison
+        console.log("isSSO-->" + isSSO);
         if (isSSO) {
           setEmployeeData({
             Department: Cookies.get("Department"),
@@ -105,7 +105,61 @@ const EmployeeSidebar = ({ closeSidebar }) => {
               </>
             )}
           </li>
-          {/* List items */}
+          <li
+            className={`mb-2 ${getActiveClass("/employee/request")}`}
+            onClick={handleItemClick}
+            id="request"
+          >
+            <Link href="/employee/request">
+              <span className="block py-2 px-4 hover:bg-gray-200 hover:cursor-pointer">
+                Request
+              </span>
+            </Link>
+          </li>
+          <li
+            className={`mb-2 ${getActiveClass("/employee/approvals")}`}
+            onClick={handleItemClick}
+          >
+            <Link href="/employee/approvals">
+              <span className="block py-2 px-4 hover:bg-gray-200 hover:cursor-pointer">
+                Approvals
+              </span>
+            </Link>
+          </li>
+          <li
+            className={`mb-2 ${getActiveClass("/employee/task")}`}
+            onClick={handleItemClick}
+          >
+            <Link href="/employee/task">
+              <span className="block py-2 px-4 hover:bg-gray-200 hover:cursor-pointer">
+                Task
+              </span>
+            </Link>
+          </li>
+          <li className="mb-2" onClick={handleItemClick}>
+            <p className="block py-2 px-4 hover:bg-gray-200 hover:cursor-pointer">
+              Notification
+            </p>
+          </li>
+          <li
+            className={`mb-2 ${getActiveClass("/employee/loginTest")}`}
+            onClick={handleItemClick}
+          >
+            {" "}
+            <Link href="/employee/loginTest">
+              <span className="block py-2 px-4 hover:bg-gray-200 hover:cursor-pointer">
+                Login Test
+              </span>
+            </Link>
+          </li>
+          <li
+            className={`mb-2 ${getActiveClass("/employee/logout")}`}
+            onClick={handleItemClick}
+          >
+            <Link href="/employee/logout">
+              <span className="block py-2 px-4 hover:bg-gray-200">Logout</span>
+            </Link>
+          </li>
         </ul>
       </nav>
     </div>
