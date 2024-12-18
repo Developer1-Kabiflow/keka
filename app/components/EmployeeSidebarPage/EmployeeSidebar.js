@@ -33,13 +33,14 @@ const EmployeeSidebar = ({ closeSidebar }) => {
               setUserId(cookieUserId);
               clearInterval(interval); // Stop checking once userId is found
             }
+
+            setEmployeeData({
+              Department: Cookies.get("Department"),
+              Designation: Cookies.get("Designation"),
+              Email: Cookies.get("email"),
+              DisplayName: Cookies.get("userName"),
+            });
           }, 500);
-          setEmployeeData({
-            Department: Cookies.get("Department"),
-            Designation: Cookies.get("Designation"),
-            Email: Cookies.get("email"),
-            DisplayName: Cookies.get("userName"),
-          });
           setIsLoading(false);
         } else {
           setUserId(Cookies.get("userId"));
