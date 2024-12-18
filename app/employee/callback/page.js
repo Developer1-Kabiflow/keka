@@ -88,9 +88,14 @@ export default function Callback() {
             resolve();
           });
 
+          // Retrieve the redirectTo URL from sessionStorage or use the fallback
           const redirectTo =
-            sessionStorage.getItem("redirectTo") || "/employee/dashboard";
-          console.log("redirectTo-->" + redirectTo);
+            sessionStorage.getItem("redirectTo") &&
+            sessionStorage.getItem("redirectTo").trim() !== ""
+              ? sessionStorage.getItem("redirectTo")
+              : "/employee/dashboard";
+
+          console.log("redirectTo-->", redirectTo);
           router.push(redirectTo);
         } else if (response.status === 401) {
           console.error("Unauthorized access. Redirecting to login.");
