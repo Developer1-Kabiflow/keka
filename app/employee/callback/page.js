@@ -89,8 +89,9 @@ export default function Callback() {
           });
 
           const redirectTo =
-            new URLSearchParams(window.location.search).get("redirectTo") ||
-            "/employee/dashboard";
+            sessionStorage.getItem("redirectTo") || "/employee/dashboard";
+          console.log("redirectTo-->" + redirectTo);
+          router.push(redirectTo);
           router.push(redirectTo);
         } else if (response.status === 401) {
           console.error("Unauthorized access. Redirecting to login.");

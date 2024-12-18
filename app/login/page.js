@@ -52,7 +52,11 @@ const EmployeeLoginPage = () => {
 
   const handleSSOLogin = async (e) => {
     e.preventDefault();
-    console.log("reached handleSSOLogin");
+    // Capture the current URL as redirectTo
+    const redirectTo = window.location.pathname + window.location.search;
+
+    // Store redirectTo in sessionStorage or cookies
+    sessionStorage.setItem("redirectTo", redirectTo);
     const authorizeUrl = "https://login.kekademo.com/connect/authorize";
     const params = new URLSearchParams({
       response_type: "code",
