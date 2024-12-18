@@ -96,7 +96,7 @@ export default function Callback() {
               : "/employee/dashboard";
           sessionStorage.removeItem("redirectTo");
           console.log("redirectTo-->", redirectTo);
-          router.push("/employee/dashboard");
+          router.push(redirectTo);
         } else if (response.status === 401) {
           console.error("Unauthorized access. Redirecting to login.");
           router.push("/");
