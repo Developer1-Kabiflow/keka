@@ -52,21 +52,17 @@ const EmployeeSidebar = ({ closeSidebar }) => {
           console.log("userName-->", userName);
           setIsLoading(false);
         }
-        // if (interval) {
-        //   clearInterval(interval);
-        // }
+        if (interval) {
+          clearInterval(interval);
+        }
       } catch (err) {
         setError(err.message || "Error fetching employee details.");
         setIsLoading(false);
       }
     };
 
-    // Poll every 500ms to check if userId is available in cookies
-    // interval = setInterval(fetchData, 500);
-
-    // Cleanup interval on component unmount
-    // return () => clearInterval(interval);
-    fetchData();
+    interval = setInterval(fetchData, 500);
+    return () => clearInterval(interval);
   }, []);
 
   const getActiveClass = (path) => {
