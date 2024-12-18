@@ -24,10 +24,16 @@ const EmployeeSidebar = ({ closeSidebar }) => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        setUserId(Cookies.get("userId"));
         const isSSO = Cookies.get("SSO") === "true"; // Corrected comparison
         console.log("isSSO-->" + isSSO);
         if (isSSO) {
+          const interval = setInterval(() => {
+            const cookieUserId = Cookies.get("userId");
+            if (cookieUserId) {
+              setUserId(cookieUserId);
+              clearInterval(interval); // Stop checking once userId is found
+            }
+          }, 500);
           setEmployeeData({
             Department: Cookies.get("Department"),
             Designation: Cookies.get("Designation"),
@@ -36,6 +42,7 @@ const EmployeeSidebar = ({ closeSidebar }) => {
           });
           setIsLoading(false);
         } else {
+          setUserId(Cookies.get("userId"));
           const { userData } = await fetchEmployeeDetails(userId);
           setEmployeeData({
             Department: userData?.Department?.title,
