@@ -94,7 +94,7 @@ export default function Callback() {
             sessionStorage.getItem("redirectTo").trim() !== ""
               ? sessionStorage.getItem("redirectTo")
               : "/employee/dashboard";
-
+          sessionStorage.removeItem("redirectTo");
           console.log("redirectTo-->", redirectTo);
           router.push("/employee/dashboard");
         } else if (response.status === 401) {
