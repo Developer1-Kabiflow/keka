@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Cookies from "js-cookie";
+import { fetchEmployeeDetails } from "@/app/controllers/employeeController";
 
 export default function Callback() {
   const router = useRouter();
