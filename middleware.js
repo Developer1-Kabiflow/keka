@@ -4,7 +4,7 @@ export function middleware(req) {
   const url = req.nextUrl.clone();
   const authToken = req.cookies.get("userId"); // Adjust cookie key to match your app
   console.log("REACHED MIDDLEWARE");
-  if (url.pathname.startsWith("/employee/callback")) {
+  if (url.pathname.includes("/employee/callback")) {
     return NextResponse.next();
   }
   if (!authToken) {
