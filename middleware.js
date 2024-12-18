@@ -5,7 +5,7 @@ export function middleware(req) {
   const authToken = req.cookies.get("userId"); // Adjust cookie key to match your app
 
   // If the user is not logged in, redirect to login with the current URL as a query param
-  if (!authToken) {
+  if (!authToken || !url.searchParams.get("redirectTo")) {
     url.pathname = "/login";
     url.searchParams.set(
       "redirectTo",
