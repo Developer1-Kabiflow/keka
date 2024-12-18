@@ -4,18 +4,20 @@ export function middleware(req) {
   const url = req.nextUrl.clone();
   const authToken = req.cookies.get("userId"); // Adjust cookie key to match your app
   console.log("REACHED MIDDLEWARE");
-  //   // If the user is not logged in, redirect to login with the current URL as a query param
-  //   if (!authToken) {
-  //     url.pathname = "/login";
-  //     url.searchParams.set(
-  //       "redirectTo",
-  //       req.nextUrl.pathname + req.nextUrl.search
-  //     ); // Preserve original URL
-  //     return NextResponse.redirect(url);
-  //   }
+  if (url.pathname.startsWith("/employee/callback")) {
+    return NextResponse.next();
+  }
+  if (!authToken) {
+    url.pathname = "/login";
+    url.searchParams.set(
+      "redirectTo",
+      req.nextUrl.pathname + req.nextUrl.search
+    ); // Preserve original URL
+    return NextResponse.redirect(url);
+  }
 
-  //   // If logged in, allow the request to proceed
-  //   return NextResponse.next();
+  // If logged in, allow the request to proceed
+  return NextResponse.next();
 }
 
 // Define the paths where this middleware should apply

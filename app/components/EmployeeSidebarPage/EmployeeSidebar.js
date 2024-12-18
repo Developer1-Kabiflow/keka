@@ -155,16 +155,6 @@ const EmployeeSidebar = ({ closeSidebar }) => {
             </p>
           </li>
           <li
-            className={`mb-2 ${getActiveClass("/employee/loginTest")}`}
-            onClick={handleItemClick}
-          >
-            <Link href="/employee/loginTest">
-              <span className="block py-2 px-4 hover:bg-gray-200 hover:cursor-pointer">
-                Login Test
-              </span>
-            </Link>
-          </li>
-          <li
             className={`mb-2 ${getActiveClass("/employee/logout")}`}
             onClick={handleItemClick}
           >
