@@ -26,14 +26,14 @@ const EmployeeLoginPage = () => {
       if (response.redirectUrl) {
         Cookies.set("userId", response.userId, {
           expires: 1,
-          path: "",
+          path: "/",
           secure: true,
           sameSite: "Strict",
         });
 
         Cookies.set("isPassBasedAuth", true, {
           expires: 1,
-          path: "",
+          path: "/",
           secure: true,
           sameSite: "Strict",
         });
