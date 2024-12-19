@@ -38,8 +38,7 @@ const EmployeeLoginPage = () => {
           sameSite: "Strict",
         });
         const redirectTo =
-          sessionStorage.getItem("redirectTo", redirectTo) ||
-          response.redirectUrl;
+          sessionStorage.getItem("redirectTo") || response.redirectUrl;
         sessionStorage.clear();
         console.log("Redirecting to:", redirectTo);
         router.push(redirectTo);
