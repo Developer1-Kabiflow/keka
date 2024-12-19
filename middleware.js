@@ -3,28 +3,31 @@ import { NextResponse } from "next/server";
 export function middleware(req) {
   const url = req.nextUrl.clone();
   const authToken = req.cookies.get("userId"); // Adjust cookie key to match your app
-  console.log("REACHED MIDDLEWARE");
-  if (
-    url.pathname.includes("callback") ||
-    url.pathname.includes("login") ||
-    url.pathname.includes("logout")
-  ) {
+  const exemptPaths = ["/callback", "/login", "/logout"];
+
+  console.log("Middleware triggered for:", url.pathname);
+
+  // Exempt paths for login, logout, or callback
+  if (exemptPaths.some((path) => url.pathname.includes(path))) {
     return NextResponse.next();
   }
+
+  // Redirect to login if not authenticated
   if (!authToken) {
+    // Add original URL for redirection after login
+    url.pathname = "/"; // Redirect to login page
     url.searchParams.set(
       "redirectTo",
       req.nextUrl.pathname + req.nextUrl.search
-    ); // Preserve original URL
-    sessionStorage.removeItem("redirectTo");
+    );
     return NextResponse.redirect(url);
   }
 
-  // If logged in, allow the request to proceed
+  // Allow request to proceed if authenticated
   return NextResponse.next();
 }
 
-// Define the paths where this middleware should apply
+// Apply middleware to specific routes
 export const config = {
-  matcher: ["/employee/:path*"], // Middleware will run for all routes under /employee
+  matcher: ["/employee/:path*"], // Middleware runs for all routes under /employee
 };
