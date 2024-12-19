@@ -1,27 +1,42 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import Cookies from "js-cookie";
 import { useRouter } from "next/navigation";
 
-const Logout = () => {
-  const router = useRouter();
-
-  useEffect(() => {
-    // Clear cookies and session storage
+const clearCookies = () =>
+  new Promise((resolve) => {
     Cookies.remove("userId", { path: "/" });
     Cookies.remove("userInfo", { path: "/" });
     Cookies.remove("isPassBasedAuth", { path: "/" });
-    sessionStorage.clear();
 
-    console.log("Cleared cookies and session storage");
-    console.log("Remaining cookies:", document.cookie);
-
-    // Redirect after ensuring cleanup
     setTimeout(() => {
-      router.replace("/"); // Navigate to home or login page
-    }, 500); // Reduce delay to avoid unnecessary loops
-  }, [router]);
+      console.log("Remaining cookies:", document.cookie);
+      resolve();
+    }, 100); // Small delay to ensure cookies are cleared
+  });
+
+const Logout = () => {
+  const router = useRouter();
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
+
+  useEffect(() => {
+    const performLogout = async () => {
+      if (isLoggingOut) return; // Prevent duplicate logout triggers
+      setIsLoggingOut(true);
+
+      // Clear cookies and session storage
+      await clearCookies();
+      sessionStorage.clear();
+
+      console.log("Cookies and session cleared");
+
+      // Redirect after ensuring cleanup
+      router.replace("/");
+    };
+
+    performLogout();
+  }, [router, isLoggingOut]);
 
   return (
     <div className="flex justify-center items-center h-screen">
