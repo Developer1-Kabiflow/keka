@@ -9,7 +9,7 @@ export function middleware(req) {
     url.search.includes("requestId") || url.search.includes("formTemplateId");
 
   if (!isIncludePath) {
-    console.log("skipping middleware:", url.pathname);
+    console.log("Skipping middleware for:", url.pathname);
     return NextResponse.next(); // Skip middleware for these paths
   }
 
@@ -19,17 +19,18 @@ export function middleware(req) {
   if (!authToken) {
     url.pathname = "/"; // Redirect to the login page
     const redirectTo = req.nextUrl.pathname + req.nextUrl.search;
-    console.log("path-->" + redirectTo);
+    console.log("Redirecting to login. Redirect URL:", redirectTo);
+
     // Setting a cookie to store the redirect URL
     const response = NextResponse.redirect(url);
     response.cookies.set("redirectTo", redirectTo, {
-      expires: 1,
-      path: "/",
-      secure: true,
-      sameSite: "Strict",
+      // expires: new Date(Date.now() + 60 * 1000), // 1-minute expiration
+      path: "/", // Make sure it's accessible across your app
+      // secure: process.env.NODE_ENV === "production", // Use secure cookies in production
+      sameSite: "Strict", // Helps to avoid cross-site request issues
     });
 
-    console.log("redirectTo-->" + redirectTo);
+    console.log("Cookie 'redirectTo' set with value:", redirectTo);
     console.log("Redirecting to login from middleware:", url.toString());
 
     return response; // Return the response with the redirect
