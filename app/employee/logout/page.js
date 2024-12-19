@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 const clearCookies = () =>
   new Promise((resolve) => {
     Cookies.remove("userId", { path: "/", domain: window.location.hostname });
+    Cookies.remove("userInfo", { path: "/", domain: window.location.hostname });
     Cookies.remove("isPassBasedAuth", {
       path: "/",
       domain: window.location.hostname,
@@ -14,6 +15,8 @@ const clearCookies = () =>
     Cookies.remove("userInfo", { path: "/", domain: window.location.hostname });
 
     document.cookie = "userId=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
+    document.cookie =
+      "userInfo=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
     document.cookie =
       "isPassBasedAuth=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
 
