@@ -32,7 +32,7 @@ const EmployeeSidebar = ({ closeSidebar }) => {
             if (userInfoCookie) {
               try {
                 const userInfo = JSON.parse(userInfoCookie);
-                setUserId(userInfo.userId);
+                setUserId(Cookies.get("userId"));
                 setEmployeeData({
                   Department: userInfo.Department,
                   Designation: userInfo.Designation,

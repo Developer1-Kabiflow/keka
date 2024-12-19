@@ -76,7 +76,6 @@ export default function Callback() {
 
           const cookieData = {
             kekaId: user_id,
-            userId: userData?.EmployeeId,
             userName: userData?.DisplayName,
             Designation: userData?.JobTitle?.title,
             Department: userData?.Department?.title,
@@ -91,15 +90,21 @@ export default function Callback() {
             secure: true,
             sameSite: "Strict",
           });
+          Cookies.set("userId", JSON.stringify(userData?.EmployeeId), {
+            expires: 1,
+            path: "/",
+            secure: true,
+            sameSite: "Strict",
+          });
 
           // Retrieve the redirectTo URL from sessionStorage or use the fallback
-          const redirectTo =
-            sessionStorage.getItem("redirectTo") &&
-            sessionStorage.getItem("redirectTo").trim() !== ""
-              ? sessionStorage.getItem("redirectTo")
-              : "/employee/dashboard";
-          sessionStorage.removeItem("redirectTo");
-          console.log("redirectTo-->", redirectTo);
+          // const redirectTo =
+          //   sessionStorage.getItem("redirectTo") &&
+          //   sessionStorage.getItem("redirectTo").trim() !== ""
+          //     ? sessionStorage.getItem("redirectTo")
+          //     : "/employee/dashboard";
+          // sessionStorage.removeItem("redirectTo");
+          // console.log("redirectTo-->", redirectTo);
           router.push("/employee/dashboard");
         } else if (response.status === 401) {
           console.error("Unauthorized access. Redirecting to login.");
