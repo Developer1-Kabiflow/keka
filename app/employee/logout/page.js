@@ -19,9 +19,8 @@ const Logout = () => {
 
     // Redirect after ensuring cleanup
     setTimeout(() => {
-      router.replace("/");
-      location.reload(); // Clear any stale cache
-    }, 2000);
+      router.replace("/"); // Navigate to home or login page
+    }, 500); // Reduce delay to avoid unnecessary loops
   }, [router]);
 
   return (
