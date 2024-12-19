@@ -4,7 +4,7 @@ export function middleware(req) {
   const url = req.nextUrl.clone();
   const authToken = req.cookies.get("userId");
 
-  const exemptPaths = ["/callback", "/login", "/logout"];
+  const exemptPaths = ["/callback", "/login", "/logout", "/"];
   console.log("Middleware triggered for:", url.pathname);
 
   // Skip middleware for exempt paths
