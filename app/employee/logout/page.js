@@ -6,14 +6,21 @@ import { useRouter } from "next/navigation";
 
 const clearCookies = () =>
   new Promise((resolve) => {
-    Cookies.remove("userId", { path: "/" });
-    Cookies.remove("userInfo", { path: "/" });
-    Cookies.remove("isPassBasedAuth", { path: "/" });
+    Cookies.remove("userId", { path: "/", domain: window.location.hostname });
+    Cookies.remove("isPassBasedAuth", {
+      path: "/",
+      domain: window.location.hostname,
+    });
+    Cookies.remove("userInfo", { path: "/", domain: window.location.hostname });
+
+    document.cookie = "userId=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
+    document.cookie =
+      "isPassBasedAuth=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
 
     setTimeout(() => {
       console.log("Remaining cookies:", document.cookie);
       resolve();
-    }, 100); // Small delay to ensure cookies are cleared
+    }, 100);
   });
 
 const Logout = () => {
@@ -22,17 +29,17 @@ const Logout = () => {
 
   useEffect(() => {
     const performLogout = async () => {
-      if (isLoggingOut) return; // Prevent duplicate logout triggers
+      if (isLoggingOut) return;
       setIsLoggingOut(true);
 
-      // Clear cookies and session storage
       await clearCookies();
       sessionStorage.clear();
 
       console.log("Cookies and session cleared");
+      console.log("Remaining cookies after clearing:", document.cookie);
 
       // Redirect after ensuring cleanup
-      router.replace("/");
+      setTimeout(() => router.replace("/"), 200);
     };
 
     performLogout();
