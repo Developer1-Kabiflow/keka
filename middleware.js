@@ -28,5 +28,5 @@ export function middleware(req) {
 }
 
 export const config = {
-  matcher: ["/employee/:path*"], // Middleware will not apply to /logout
+  matcher: ["/employee/:path*"], // Middleware applies only to /employee paths
 };
