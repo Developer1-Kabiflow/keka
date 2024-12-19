@@ -1,4 +1,5 @@
 "use client";
+
 import { useEffect } from "react";
 import Cookies from "js-cookie";
 import { useRouter } from "next/navigation";
@@ -7,21 +8,18 @@ const Logout = () => {
   const router = useRouter();
 
   useEffect(() => {
-    Cookies.remove("userId");
-    Cookies.remove("userInfo");
-    sessionStorage.removeItem("redirectTo");
-    // document.cookie.split(";").forEach((cookie) => {
-    //   // Split the cookie string into name and value using '='
-    //   // const [name] = cookie.split("=").map((part) => part.trim());
-    //   // Attempt to delete the cookie for different paths
-    //   // const paths = ["/", "/employee"]; // Add paths as needed
-    //   // paths.forEach((path) => {
-    //   //   document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=${path}`;
-    //   // });
-    // });
+    // Clear cookies and session storage
+    Cookies.remove("userId", { path: "/" });
+    Cookies.remove("userInfo", { path: "/" });
+    sessionStorage.clear();
 
+    console.log("Cleared cookies and session storage");
+    console.log("Remaining cookies:", document.cookie);
+
+    // Redirect after ensuring cleanup
     setTimeout(() => {
-      router.push("/");
+      router.replace("/");
+      location.reload(); // Clear any stale cache
     }, 2000);
   }, [router]);
 
