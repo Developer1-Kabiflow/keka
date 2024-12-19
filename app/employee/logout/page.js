@@ -8,8 +8,8 @@ const Logout = () => {
 
   useEffect(() => {
     Cookies.remove("userId");
-    Cookies.remove("kekaId");
-    Cookies.remove("SSO");
+    Cookies.remove("userInfo");
+    sessionStorage.removeItem("redirectTo");
     // document.cookie.split(";").forEach((cookie) => {
     //   // Split the cookie string into name and value using '='
     //   // const [name] = cookie.split("=").map((part) => part.trim());
