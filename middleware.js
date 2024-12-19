@@ -16,6 +16,7 @@ export function middleware(req) {
       "redirectTo",
       req.nextUrl.pathname + req.nextUrl.search
     ); // Preserve original URL
+    sessionStorage.removeItem("redirectTo");
     return NextResponse.redirect(url);
   }
 
