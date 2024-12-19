@@ -2,7 +2,7 @@
 
 import { employeeLoginRequest } from "@/app/controllers/employeeController";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { IoMdLogIn } from "react-icons/io";
 import Cookies from "js-cookie";
 
@@ -11,8 +11,18 @@ const EmployeeLoginPage = () => {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-
+  const [redirectTo, setRedirectTo] = useState(""); // State to store redirectTo value
   const router = useRouter();
+
+  // Retrieve the redirect URL from cookies when the page loads
+  useEffect(() => {
+    const cookieRedirectTo = Cookies.get("redirectTo");
+    if (cookieRedirectTo) {
+      console.log("Redirect URL found in cookies:", cookieRedirectTo);
+      setRedirectTo(cookieRedirectTo); // Store in state
+      Cookies.remove("redirectTo"); // Clean up the cookie after reading it
+    }
+  }, []); // Only run on initial render
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -37,13 +47,12 @@ const EmployeeLoginPage = () => {
           secure: true,
           sameSite: "Strict",
         });
-        const redirectTo = Cookies.get("redirectTo") || response.redirectUrl;
-        Cookies.remove("redirectTo", {
-          path: "/",
-          domain: window.location.hostname,
-        });
-        console.log("Redirecting to:", redirectTo);
-        router.push(redirectTo);
+
+        // Use the redirectTo from state (which was set in useEffect)
+        const finalRedirectTo = redirectTo || response.redirectUrl;
+        console.log("Redirecting to:", finalRedirectTo);
+
+        router.push(finalRedirectTo); // Redirect to the saved URL
       } else {
         setError("Unexpected response from server.");
       }
@@ -54,6 +63,7 @@ const EmployeeLoginPage = () => {
       setLoading(false);
     }
   };
+
   const handleSSOLogin = async (e) => {
     e.preventDefault();
     console.log("reached handleSSOLogin");
@@ -67,6 +77,7 @@ const EmployeeLoginPage = () => {
     });
     window.location.href = `${authorizeUrl}?${params.toString()}`;
   };
+
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
       <div className="w-full max-w-md bg-white shadow-md rounded-lg p-8">

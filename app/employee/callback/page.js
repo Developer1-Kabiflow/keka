@@ -9,13 +9,15 @@ export default function Callback() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null); // Add error state
 
   useEffect(() => {
     const fetchTokens = async () => {
       const code = searchParams.get("code");
-      console.log("code:" + code);
+      console.log("code:", code);
       if (!code) {
         console.error("Missing or invalid callback parameters.");
+        setError("Missing or invalid callback parameters."); // Set error state
         router.push("/"); // Redirect to login page on error
         return;
       }
@@ -53,6 +55,7 @@ export default function Callback() {
         await fetchUserData(access_token);
       } catch (error) {
         console.error("Error during token exchange:", error.message);
+        setError(error.message); // Set error state
         router.push("/"); // Redirect to login page
       }
     };
@@ -70,7 +73,8 @@ export default function Callback() {
         });
 
         if (response.ok) {
-          const { user_id } = await response.json();
+          const userInfo = await response.json();
+          const { user_id } = userInfo;
           const { userData } = await fetchEmployeeDetails(user_id);
           const isSSO = true;
 
@@ -96,21 +100,27 @@ export default function Callback() {
             secure: true,
             sameSite: "Strict",
           });
-          const redirectTo = Cookies.get("redirectTo") || "/employee/dashboard";
-          Cookies.remove("redirectTo", {
-            path: "/",
-            domain: window.location.hostname,
-          });
-          console.log("Redirecting to:", redirectTo);
-          router.push(redirectTo);
+
+          const cookieRedirectTo = Cookies.get("redirectTo");
+
+          if (cookieRedirectTo) {
+            console.log("Redirect URL found in cookies:", cookieRedirectTo);
+            Cookies.remove("redirectTo"); // Clean up cookie after use
+            router.push(cookieRedirectTo); // Redirect to saved URL
+          } else {
+            // Fallback to dashboard if no redirectTo cookie
+            router.push("/employee/dashboard");
+          }
         } else if (response.status === 401) {
           console.error("Unauthorized access. Redirecting to login.");
-          router.push("/");
+          setError("Unauthorized access. Redirecting to login.");
+          router.push("/"); // Redirect to login page
         } else {
           throw new Error(`Failed to fetch user info: ${response.statusText}`);
         }
       } catch (error) {
         console.error("Error fetching user data:", error.message);
+        setError(error.message); // Set error state
         router.push("/"); // Redirect to login page on error
       } finally {
         setLoading(false);
@@ -125,5 +135,9 @@ export default function Callback() {
     return <div>Loading...</div>;
   }
 
-  return null; // Return null when not loading
+  if (error) {
+    return <div>Error: {error}</div>; // Show error if there is one
+  }
+
+  return null; // Return null when not loading and no error
 }
