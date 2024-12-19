@@ -35,10 +35,10 @@ const EmployeeLoginPage = () => {
         // Fetch the `redirectTo` parameter safely
         const redirectTo =
           new URLSearchParams(window.location.search).get("redirectTo") ||
-          "/employee/dashboard";
+          response.redirectUrl;
 
         console.log("Redirecting to:", redirectTo);
-        router.push(redirectTo); // Redirect to the intended page
+        router.push("/employee/dashboard"); // Redirect to the intended page
       } else {
         setError("Unexpected response from server.");
       }
@@ -52,10 +52,6 @@ const EmployeeLoginPage = () => {
 
   const handleSSOLogin = async (e) => {
     e.preventDefault();
-    // Capture the current URL as redirectTo
-    const redirectTo = window.location.pathname + window.location.search; // Capture current URL
-    sessionStorage.setItem("redirectTo", redirectTo); // Store in sessionStorage
-    console.log("redirectTo-->" + redirectTo);
     const authorizeUrl = "https://login.kekademo.com/connect/authorize";
     const params = new URLSearchParams({
       response_type: "code",

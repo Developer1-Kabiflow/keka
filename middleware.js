@@ -4,21 +4,21 @@ export function middleware(req) {
   const url = req.nextUrl.clone();
   const authToken = req.cookies.get("userId");
 
-  const exemptPaths = ["/callback", "/login", "/logout", "/"];
-  console.log("Middleware triggered for:", url.pathname);
-
-  // Skip middleware for exempt paths
-  if (exemptPaths.some((path) => url.pathname.includes(path))) {
+  const isIncludePath =
+    url.pathname.includes("requestId") ||
+    url.pathname.includes("formTemplateId");
+  if (!isIncludePath) {
+    console.log("skipping middleware:", url.pathname);
     return NextResponse.next();
   }
 
-  // Redirect if no authToken
+  console.log("Middleware triggered for:", url.pathname);
+
   if (!authToken) {
     url.pathname = "/"; // Redirect to login page
-    url.searchParams.set(
-      "redirectTo",
-      req.nextUrl.pathname + req.nextUrl.search
-    );
+    const redirectTo = req.nextUrl.pathname + req.nextUrl.search;
+    sessionStorage.setItem("redirectTo", redirectTo);
+    console.log("redirectTo-->" + redirectTo);
     console.log("Redirecting to login from middleware:", url.toString());
     return NextResponse.redirect(url);
   }

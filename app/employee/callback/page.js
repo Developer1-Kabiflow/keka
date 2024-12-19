@@ -97,14 +97,12 @@ export default function Callback() {
             sameSite: "Strict",
           });
 
-          // Retrieve the redirectTo URL from sessionStorage or use the fallback
-          // const redirectTo =
-          //   sessionStorage.getItem("redirectTo") &&
-          //   sessionStorage.getItem("redirectTo").trim() !== ""
-          //     ? sessionStorage.getItem("redirectTo")
-          //     : "/employee/dashboard";
-          // sessionStorage.removeItem("redirectTo");
-          // console.log("redirectTo-->", redirectTo);
+          const redirectTo =
+            sessionStorage.getItem("redirectTo", redirectTo) ||
+            "/employee/dashboard";
+          sessionStorage.clear();
+          console.log("Redirecting to:", redirectTo);
+          router.push(redirectTo);
           router.push("/employee/dashboard");
         } else if (response.status === 401) {
           console.error("Unauthorized access. Redirecting to login.");

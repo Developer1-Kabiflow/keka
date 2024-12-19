@@ -37,7 +37,12 @@ const EmployeeLoginPage = () => {
           secure: true,
           sameSite: "Strict",
         });
-        router.push(response.redirectUrl);
+        const redirectTo =
+          sessionStorage.getItem("redirectTo", redirectTo) ||
+          response.redirectUrl;
+        sessionStorage.clear();
+        console.log("Redirecting to:", redirectTo);
+        router.push(redirectTo);
       } else {
         setError("Unexpected response from server.");
       }
