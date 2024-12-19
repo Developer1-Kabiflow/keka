@@ -19,7 +19,7 @@ export function middleware(req) {
   if (!authToken) {
     url.pathname = "/"; // Redirect to the login page
     const redirectTo = req.nextUrl.pathname + req.nextUrl.search;
-
+    console.log("path-->" + redirectTo);
     // Setting a cookie to store the redirect URL
     const response = NextResponse.redirect(url);
     response.cookies.set("redirectTo", redirectTo, {

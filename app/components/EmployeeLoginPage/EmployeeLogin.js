@@ -44,8 +44,6 @@ const EmployeeLoginPage = () => {
         });
         console.log("Redirecting to:", redirectTo);
         router.push(redirectTo);
-        console.log("Redirecting to:", redirectTo);
-        router.push(redirectTo);
       } else {
         setError("Unexpected response from server.");
       }
