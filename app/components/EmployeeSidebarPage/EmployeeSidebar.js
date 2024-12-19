@@ -20,37 +20,49 @@ const EmployeeSidebar = ({ closeSidebar }) => {
       closeSidebar();
     }
   };
-
   useEffect(() => {
     const fetchData = async () => {
       try {
         const isPassBasedAuth = Cookies.get("isPassBasedAuth") === "true";
-        console.log("isPassBasedAuth-->" + isPassBasedAuth);
+
         if (!isPassBasedAuth) {
           const interval = setInterval(() => {
-            const cookieUserId = Cookies.get("userId");
-            if (cookieUserId) {
-              setUserId(cookieUserId);
-              clearInterval(interval); // Stop checking once userId is found
-            }
+            const userInfoCookie = Cookies.get("userInfo");
 
-            setEmployeeData({
-              Department: Cookies.get("Department"),
-              Designation: Cookies.get("Designation"),
-              Email: Cookies.get("email"),
-              DisplayName: Cookies.get("userName"),
-            });
+            if (userInfoCookie) {
+              try {
+                const userInfo = JSON.parse(userInfoCookie);
+                setUserId(userInfo.userId);
+                setEmployeeData({
+                  Department: userInfo.Department,
+                  Designation: userInfo.Designation,
+                  Email: userInfo.email,
+                  DisplayName: userInfo.userName,
+                });
+                clearInterval(interval); // Clear interval once data is set
+                setIsLoading(false);
+              } catch (parseError) {
+                setError("Invalid user info format in cookies.");
+                clearInterval(interval); // Clear interval in case of error
+              }
+            }
           }, 500);
-          setIsLoading(false);
+
+          // Cleanup interval on component unmount
+          return () => clearInterval(interval);
         } else {
-          setUserId(Cookies.get("userId"));
-          const { userData } = await fetchEmployeeDetails(userId);
-          setEmployeeData({
-            Department: userData?.Department?.title,
-            Designation: userData?.JobTitle?.title,
-            Email: userData?.Email,
-            DisplayName: userData?.DisplayName,
-          });
+          const userIdFromCookie = Cookies.get("userId");
+          setUserId(userIdFromCookie);
+
+          if (userIdFromCookie) {
+            const { userData } = await fetchEmployeeDetails(userIdFromCookie);
+            setEmployeeData({
+              Department: userData?.Department?.title,
+              Designation: userData?.JobTitle?.title,
+              Email: userData?.Email,
+              DisplayName: userData?.DisplayName,
+            });
+          }
           setIsLoading(false);
         }
       } catch (err) {
@@ -59,7 +71,7 @@ const EmployeeSidebar = ({ closeSidebar }) => {
       }
     };
 
-    fetchData(); // Only call once when the component mounts
+    fetchData();
   }, []);
 
   const getActiveClass = (path) => {
