@@ -90,7 +90,7 @@ export default function Callback() {
             secure: true,
             sameSite: "Strict",
           });
-          Cookies.set("userId", JSON.stringify(userData?.EmployeeId), {
+          Cookies.set("userId", userData?.EmployeeId, {
             expires: 1,
             path: "/",
             secure: true,
