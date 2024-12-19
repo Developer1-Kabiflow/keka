@@ -5,8 +5,7 @@ export function middleware(req) {
   const authToken = req.cookies.get("userId");
 
   const isIncludePath =
-    url.pathname.includes("requestId") ||
-    url.pathname.includes("formTemplateId");
+    url.search.includes("requestId") || url.search.includes("formTemplateId");
   if (!isIncludePath) {
     console.log("skipping middleware:", url.pathname);
     return NextResponse.next();
