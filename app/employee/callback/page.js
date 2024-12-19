@@ -73,50 +73,23 @@ export default function Callback() {
           const { user_id } = await response.json();
           const { userData } = await fetchEmployeeDetails(user_id);
           const isSSO = true;
-          await new Promise((resolve) => {
-            Cookies.set("kekaId", user_id, {
-              expires: 1,
-              path: "/",
-              secure: true,
-              sameSite: "Strict",
-            });
-            Cookies.set("userId", userData?.EmployeeId, {
-              expires: 1,
-              path: "/",
-              secure: true,
-              sameSite: "Strict",
-            });
-            Cookies.set("userName", userData?.DisplayName, {
-              expires: 1,
-              path: "/",
-              secure: true,
-              sameSite: "Strict",
-            });
-            Cookies.set("Designation", userData?.JobTitle?.title, {
-              expires: 1,
-              path: "/",
-              secure: true,
-              sameSite: "Strict",
-            });
-            Cookies.set("Department", userData?.Department?.title, {
-              expires: 1,
-              path: "/",
-              secure: true,
-              sameSite: "Strict",
-            });
-            Cookies.set("email", userData?.Email, {
-              expires: 1,
-              path: "/",
-              secure: true,
-              sameSite: "Strict",
-            });
-            Cookies.set("SSO", isSSO, {
-              expires: 1,
-              path: "/",
-              secure: true,
-              sameSite: "Strict",
-            });
-            resolve();
+
+          const cookieData = {
+            kekaId: user_id,
+            userId: userData?.EmployeeId,
+            userName: userData?.DisplayName,
+            Designation: userData?.JobTitle?.title,
+            Department: userData?.Department?.title,
+            email: userData?.Email,
+            SSO: isSSO,
+          };
+
+          // Set a single cookie with all data
+          Cookies.set("userInfo", JSON.stringify(cookieData), {
+            expires: 1,
+            path: "/",
+            secure: true,
+            sameSite: "Strict",
           });
 
           // Retrieve the redirectTo URL from sessionStorage or use the fallback
