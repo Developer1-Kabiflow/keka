@@ -11,6 +11,7 @@ const Logout = () => {
     // Clear cookies and session storage
     Cookies.remove("userId", { path: "/" });
     Cookies.remove("userInfo", { path: "/" });
+    Cookies.remove("isPassBasedAuth", { path: "/" });
     sessionStorage.clear();
 
     console.log("Cleared cookies and session storage");
