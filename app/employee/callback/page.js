@@ -98,8 +98,7 @@ export default function Callback() {
           });
 
           const redirectTo =
-            sessionStorage.getItem("redirectTo", redirectTo) ||
-            "/employee/dashboard";
+            sessionStorage.getItem("redirectTo") || "/employee/dashboard";
           sessionStorage.clear();
           console.log("Redirecting to:", redirectTo);
           router.push(redirectTo);
