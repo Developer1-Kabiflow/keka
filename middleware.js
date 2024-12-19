@@ -16,7 +16,12 @@ export function middleware(req) {
   if (!authToken) {
     url.pathname = "/"; // Redirect to login page
     const redirectTo = req.nextUrl.pathname + req.nextUrl.search;
-    sessionStorage.setItem("redirectTo", redirectTo);
+    Cookies.set("redirectTo", JSON.stringify(redirectTo), {
+      expires: 1,
+      path: "/",
+      secure: true,
+      sameSite: "Strict",
+    });
     console.log("redirectTo-->" + redirectTo);
     console.log("Redirecting to login from middleware:", url.toString());
     return NextResponse.redirect(url);

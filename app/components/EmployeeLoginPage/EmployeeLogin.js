@@ -37,9 +37,13 @@ const EmployeeLoginPage = () => {
           secure: true,
           sameSite: "Strict",
         });
-        const redirectTo =
-          sessionStorage.getItem("redirectTo") || response.redirectUrl;
-        sessionStorage.clear();
+        const redirectTo = Cookies.get("redirectTo") || response.redirectUrl;
+        Cookies.remove("redirectTo", {
+          path: "/",
+          domain: window.location.hostname,
+        });
+        console.log("Redirecting to:", redirectTo);
+        router.push(redirectTo);
         console.log("Redirecting to:", redirectTo);
         router.push(redirectTo);
       } else {

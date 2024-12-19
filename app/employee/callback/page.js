@@ -96,13 +96,13 @@ export default function Callback() {
             secure: true,
             sameSite: "Strict",
           });
-
-          const redirectTo =
-            sessionStorage.getItem("redirectTo") || "/employee/dashboard";
-          sessionStorage.clear();
+          const redirectTo = Cookies.get("redirectTo") || "/employee/dashboard";
+          Cookies.remove("redirectTo", {
+            path: "/",
+            domain: window.location.hostname,
+          });
           console.log("Redirecting to:", redirectTo);
           router.push(redirectTo);
-          router.push("/employee/dashboard");
         } else if (response.status === 401) {
           console.error("Unauthorized access. Redirecting to login.");
           router.push("/");
