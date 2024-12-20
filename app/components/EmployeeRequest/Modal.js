@@ -16,7 +16,7 @@ const Modal = ({ isOpen, handleClose, itemId, onToast, refreshData }) => {
   const [formErrors, setFormErrors] = useState({});
   const [selectedFiles, setSelectedFiles] = useState([]);
   const [fileAttachments, setFileAttachments] = useState([]);
-
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const formId = itemId;
 
   useEffect(() => {
@@ -107,7 +107,9 @@ const Modal = ({ isOpen, handleClose, itemId, onToast, refreshData }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (isSubmitting) return; // Prevent further submissions if already submitting
 
+    setIsSubmitting(true); // Set submitting state
     // Step 1: Validate form fields
     const errors = formSchema.reduce((acc, field) => {
       const fieldValue = formData[field.name] || "";
@@ -125,9 +127,9 @@ const Modal = ({ isOpen, handleClose, itemId, onToast, refreshData }) => {
     setFormErrors(errors);
 
     if (Object.keys(errors).length > 0) {
+      setIsSubmitting(false); // Allow resubmission after resolving errors
       return; // Exit if there are validation errors
     }
-
     try {
       // Step 2: Prepare form data
       const submittedData = formSchema.reduce((acc, field) => {
@@ -163,6 +165,8 @@ const Modal = ({ isOpen, handleClose, itemId, onToast, refreshData }) => {
     } catch (err) {
       console.error("Error submitting form:", err);
       setError(err.message);
+    } finally {
+      setIsSubmitting(false); // Reset the submitting state
     }
   };
 
@@ -322,7 +326,7 @@ const Modal = ({ isOpen, handleClose, itemId, onToast, refreshData }) => {
               type="submit"
               className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
             >
-              {loading ? "Submitting..." : "Submit"}
+              {isSubmitting ? "Submitting..." : "Submit"}
             </button>
           </form>
         )}
