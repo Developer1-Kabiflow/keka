@@ -57,8 +57,8 @@ const EmployeeSidebar = ({ closeSidebar }) => {
           if (userIdFromCookie) {
             const { userData } = await fetchEmployeeDetails(userIdFromCookie);
             setEmployeeData({
-              Department: userData?.Department?.title,
-              Designation: userData?.JobTitle?.title,
+              Department: userData?.Department,
+              Designation: userData?.JobTitle,
               Email: userData?.Email,
               DisplayName: userData?.DisplayName,
             });

@@ -102,7 +102,7 @@ export default function Callback() {
           });
 
           const cookieRedirectTo = Cookies.get("redirectTo");
-
+          Cookies.remove("redirectTo");
           if (cookieRedirectTo) {
             console.log("Redirect URL found in cookies:", cookieRedirectTo);
             Cookies.remove("redirectTo"); // Clean up cookie after use

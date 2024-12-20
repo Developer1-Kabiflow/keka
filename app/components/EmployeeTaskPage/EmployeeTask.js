@@ -23,8 +23,18 @@ const EmployeeTask = () => {
     pending: { data: [], pagination: { currentPage: 1, totalPages: 1 } },
     rejected: { data: [], pagination: { currentPage: 1, totalPages: 1 } },
   });
+  const searchParams = useSearchParams();
+  const requestId = searchParams.get("requestId");
   const [error, setError] = useState(null); // Initialize error state
-
+  useEffect(() => {
+    if (requestId) {
+      if (activeTab !== "All Requests") {
+        setActiveTab("All Requests");
+      }
+      setSelectedRequestId(requestId);
+      setIsModalOpen(true);
+    }
+  }, [requestId, activeTab]);
   const openModal = (requestId, isPending) => {
     setShowAcceptReject(isPending);
     setSelectedRequestId(requestId);
