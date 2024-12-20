@@ -20,7 +20,7 @@ const EmployeeLoginPage = () => {
     if (cookieRedirectTo) {
       console.log("Redirect URL found in cookies:", cookieRedirectTo);
       setRedirectTo(cookieRedirectTo); // Store in state
-      Cookies.remove("redirectTo"); // Clean up the cookie after reading it
+      // Clean up the cookie after reading it
     }
   }, []); // Only run on initial render
 
@@ -51,7 +51,7 @@ const EmployeeLoginPage = () => {
         // Use the redirectTo from state (which was set in useEffect)
         const finalRedirectTo = redirectTo || response.redirectUrl;
         console.log("Redirecting to:", finalRedirectTo);
-
+        Cookies.remove("redirectTo");
         router.push(finalRedirectTo); // Redirect to the saved URL
       } else {
         setError("Unexpected response from server.");
