@@ -10,7 +10,7 @@ import {
 import ViewModal from "./ViewModal";
 import Cookies from "js-cookie";
 import { toast } from "react-toastify";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 const EmployeeTask = () => {
   const [activeTab, setActiveTab] = useState("All Requests");
   const [loading, setLoading] = useState(false);
@@ -104,12 +104,12 @@ const EmployeeTask = () => {
           return;
       }
       const {
-        Allrequests,
-        Approvedrequests,
-        Rejectedrequests,
-        Pendingrequests,
-        pagination,
-      } = response;
+        Allrequests = [],
+        Approvedrequests = [],
+        Rejectedrequests = [],
+        Pendingrequests = [],
+        pagination = { currentPage: 1, totalPages: 1 },
+      } = response || {};
 
       setRequestData((prevState) => ({
         ...prevState,
