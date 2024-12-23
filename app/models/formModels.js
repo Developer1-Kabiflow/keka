@@ -71,3 +71,31 @@ export const submitFormData = async (formId, formData) => {
     throw error;
   }
 };
+// Fetch pending requests for an employee
+export const fetchTaskFormSchema = async (approverId, requestId) => {
+  try {
+    const response = await axios.get(
+      `${BASE_URL}/taskForm/getTaskForm/${requestId}/${approverId}`
+    );
+    return response.data;
+  } catch (error) {
+    //throw new Error(error.response?.data?.message || "Error fetching requests");
+  }
+};
+
+export const submitTaskFormData = async (approverId, requestId, formData) => {
+  try {
+    const response = await axios.post(
+      `${BASE_URL}/taskForm/formSubmit/${requestId}/${approverId}`,
+      formData
+    );
+
+    return response.status === 200;
+  } catch (error) {
+    console.error(
+      "Error in submitTaskFormData:",
+      error.response?.data?.message || error.message
+    );
+    return false;
+  }
+};

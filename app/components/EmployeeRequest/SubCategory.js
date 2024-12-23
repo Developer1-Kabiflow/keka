@@ -59,7 +59,7 @@ const SubMenu = ({
   // Handle the modal toggle
   const handleClick = (itemId) => {
     setSubCategoryId(itemId);
-    handleModalToggle(itemId); // Toggle the modal
+    handleModalToggle(itemId);
   };
 
   return (

@@ -34,7 +34,7 @@ const EmployeeLoginPage = () => {
       const response = await employeeLoginRequest(formData);
 
       if (response.redirectUrl) {
-        Cookies.set("userId", response.userId, {
+        Cookies.set("LoggedinUserId", response.userId, {
           expires: 1,
           path: "/",
           secure: true,

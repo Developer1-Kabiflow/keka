@@ -7,7 +7,7 @@ import DownloadIcon from "@mui/icons-material/Download";
 import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
 import Tooltip from "@mui/material/Tooltip"; // Tooltip for better UX
 import ShareIcon from "@mui/icons-material/Share";
-const ViewModal = ({ isOpen, handleClose, requestId, formTemplateId }) => {
+const ViewModal = ({ isOpen, handleClose, requestId }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [formData, setFormData] = useState({});
