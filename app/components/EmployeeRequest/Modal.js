@@ -21,7 +21,6 @@ const Modal = ({ isOpen, handleClose, itemId, onToast, refreshData }) => {
 
   useEffect(() => {
     if (isOpen) {
-      // Reset the form each time modal opens
       setFormSchema([]);
       setFormData({});
       setFormErrors({});

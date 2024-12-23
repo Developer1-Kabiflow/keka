@@ -32,12 +32,18 @@ const EmployeeSidebar = ({ closeSidebar }) => {
             if (userInfoCookie) {
               try {
                 const userInfo = JSON.parse(userInfoCookie);
-                setUserId(Cookies.get("userId"));
                 setEmployeeData({
                   Department: userInfo.Department,
                   Designation: userInfo.Designation,
                   Email: userInfo.email,
                   DisplayName: userInfo.userName,
+                  EmployeeId: userInfo.EmployeeId,
+                });
+                Cookies.set("userId", userInfo.EmployeeId, {
+                  expires: 1,
+                  path: "/",
+                  secure: true,
+                  sameSite: "Strict",
                 });
                 clearInterval(interval); // Clear interval once data is set
                 setIsLoading(false);
@@ -51,16 +57,22 @@ const EmployeeSidebar = ({ closeSidebar }) => {
           // Cleanup interval on component unmount
           return () => clearInterval(interval);
         } else {
-          const userIdFromCookie = Cookies.get("userId");
-          setUserId(userIdFromCookie);
+          const userIdFromCookie = Cookies.get("LoggedinUserId");
 
           if (userIdFromCookie) {
             const { userData } = await fetchEmployeeDetails(userIdFromCookie);
+            Cookies.set("userId", userData?.EmployeeId, {
+              expires: 1,
+              path: "/",
+              secure: true,
+              sameSite: "Strict",
+            });
             setEmployeeData({
               Department: userData?.Department,
               Designation: userData?.JobTitle,
               Email: userData?.Email,
               DisplayName: userData?.DisplayName,
+              EmployeeId: userData?.EmployeeId,
             });
           }
           setIsLoading(false);
@@ -79,14 +91,7 @@ const EmployeeSidebar = ({ closeSidebar }) => {
   };
 
   return (
-    <div className="w-64 h-full bg-blue-50 text-black fixed md:static">
-      <div className="p-4 md:p-0 text-2xl font-bold flex justify-between items-center">
-        {closeSidebar && isMobileOrTablet && (
-          <button onClick={closeSidebar} className="md:hidden text-black ml-24">
-            &times;
-          </button>
-        )}
-      </div>
+    <div className="w-64 h-full bg-blue-50 text-black fixed">
       <nav className="mt-0">
         <ul>
           <li className="mb-8 flex flex-col justify-center items-center bg-blue-100 p-4 rounded-lg shadow-lg hover:bg-blue-200 transition duration-300 ease-in-out">
@@ -111,16 +116,29 @@ const EmployeeSidebar = ({ closeSidebar }) => {
                   style={{ width: "auto", height: "auto" }}
                 />
                 <span className="mt-3 text-xl font-semibold text-blue-900">
-                  {employeeData?.DisplayName} ({userId})
+                  {typeof employeeData?.DisplayName === "string"
+                    ? employeeData.DisplayName
+                    : "N/A"}
+                  (
+                  {typeof employeeData?.EmployeeId === "string"
+                    ? employeeData.EmployeeId
+                    : "N/A"}
+                  )
                 </span>
                 <span className="mt-1 text-sm font-medium text-gray-600">
-                  {employeeData?.Designation}
+                  {typeof employeeData?.Designation === "string"
+                    ? employeeData.Designation
+                    : "N/A"}
                 </span>
                 <span className="mt-1 text-sm font-medium text-gray-600">
-                  {employeeData?.Department} Department
+                  {typeof employeeData?.Department === "string"
+                    ? `${employeeData.Department} Department`
+                    : "N/A"}
                 </span>
                 <span className="mt-1 text-sm text-gray-500 mb-4">
-                  {employeeData?.Email}
+                  {typeof employeeData?.Email === "string"
+                    ? employeeData.Email
+                    : "N/A"}
                 </span>
               </>
             )}
@@ -161,17 +179,7 @@ const EmployeeSidebar = ({ closeSidebar }) => {
               Notification
             </p>
           </li>
-          <li
-            className={`mb-2 ${getActiveClass("/employee/loginTest")}`}
-            onClick={handleItemClick}
-          >
-            {" "}
-            <Link href="/employee/loginTest">
-              <span className="block py-2 px-4 hover:bg-gray-200 hover:cursor-pointer">
-                Login Test
-              </span>
-            </Link>
-          </li>
+
           <li
             className={`mb-2 ${getActiveClass("/employee/logout")}`}
             onClick={handleItemClick}

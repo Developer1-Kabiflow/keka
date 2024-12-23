@@ -1,11 +1,10 @@
 import React from "react";
-import Navbar from "@/app/components/NavbarPage/Navbar";
-import EmployeeTask from "@/app/components/EmployeeTaskPage/EmployeeTask";
+import Navbar from "@/app/components/utils/Navbar";
+import EmployeeTask from "@/app/components/EmployeeTask/EmployeeTask";
 
 const EmployeeTaskPage = () => {
   return (
     <div>
-      <Navbar />
       <EmployeeTask />
     </div>
   );

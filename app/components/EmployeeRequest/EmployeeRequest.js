@@ -1,4 +1,5 @@
 "use client";
+
 import React, { useEffect, useState, useMemo } from "react";
 import Cookies from "js-cookie";
 import ViewModal from "./ViewModal";
@@ -14,7 +15,6 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 const EmployeeNewRequest = () => {
   const router = useRouter();
-
   const p = usePathname(); // Get the current pathname
   const [activeTab, setActiveTab] = useState("New Request");
   const [pathname, setPathname] = useState(p);
@@ -35,6 +35,7 @@ const EmployeeNewRequest = () => {
   const [selectedSubCategoryId, setSubCategoryId] = useState(null);
   const [categoryLoading, setCategoryLoading] = useState(false);
   const [formTemplateId, setFormTemplateId] = useState(null);
+
   useEffect(() => {
     if (requestId) {
       if (activeTab !== "Track All Request") {
@@ -44,6 +45,7 @@ const EmployeeNewRequest = () => {
       setIsViewModalOpen(true);
     }
   }, [requestId, activeTab]);
+
   const loadRequestData = async (type, employeeId, page = 1) => {
     try {
       setLoading(true);
@@ -144,28 +146,19 @@ const EmployeeNewRequest = () => {
     setIsViewModalOpen(true);
 
     const query = new URLSearchParams(window.location.search);
-    query.set("requestId", requestId); // Add or update requestId
-    query.set("formTemplateId", formTemplateId); // Add or update formTemplateId
-
-    // Update the URL without reloading the page
+    query.set("requestId", requestId);
     window.history.pushState(
       null,
-      "", // You can leave the title empty
-      `${window.location.pathname}?${query.toString()}` // Set the updated URL
+      "",
+      `${window.location.pathname}?${query.toString()}`
     );
   };
 
   const closeViewModal = () => {
     setIsViewModalOpen(false);
     setSelectedRequestId(null);
-
-    // Remove requestId and formTemplateId from the query parameters
     const query = new URLSearchParams(window.location.search);
-    query.delete("requestId"); // Remove requestId
-    query.delete("formTemplateId"); // Remove formTemplateId
-    query.delete("modalOpen"); // Optionally remove modalOpen state if you are tracking it
-
-    // Update the URL without reloading the page, removing the query parameters
+    query.delete("requestId");
     window.history.pushState(
       null,
       "",
@@ -280,17 +273,17 @@ const EmployeeNewRequest = () => {
 
   return (
     <>
-      <div className="flex flex-col md:flex-row h-screen">
-        <div className="flex-1 p-6 bg-gray-100">
+      <div className="flex flex-col md:flex-row h-screen overflow-hidden">
+        <div className="flex-1 p-6 bg-gray-100 overflow-auto">
           <ul className="flex text-sm font-medium text-gray-500 border-b">
             {tabs.map((tab) => (
               <li key={tab.key} className="mr-2">
                 <button
-                  className={`p-4 rounded-t-lg ${
+                  className={`p-4 rounded-t-lg text-sm ${
                     activeTab === tab.key
                       ? "text-blue-600 font-bold bg-white"
                       : "hover:text-gray-600 hover:bg-gray-50"
-                  }`}
+                  } `}
                   onClick={() => setActiveTab(tab.key)}
                 >
                   {tab.label}
@@ -299,29 +292,16 @@ const EmployeeNewRequest = () => {
             ))}
           </ul>
 
-          {/* Error Display */}
-          {error && (
-            <div className="bg-red-500 text-white p-4 rounded-lg shadow-md mb-4">
-              <h3 className="font-semibold text-lg">
-                Oops! Something went wrong.
-              </h3>
-              <p>{error}</p>
-            </div>
-          )}
-
-          {/* Content */}
-          {renderContent()}
+          <div className="flex-1 overflow-auto">{renderContent()}</div>
         </div>
+        {isViewModalOpen && (
+          <ViewModal
+            isOpen={isViewModalOpen}
+            handleClose={closeViewModal}
+            requestId={selectedRequestId}
+          />
+        )}
       </div>
-
-      {/* View Modal */}
-      {isViewModalOpen && (
-        <ViewModal
-          isOpen={isViewModalOpen}
-          handleClose={closeViewModal}
-          requestId={selectedRequestId}
-        />
-      )}
     </>
   );
 };

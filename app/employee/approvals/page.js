@@ -1,14 +1,13 @@
 import React from "react";
-import Navbar from "@/app/components/NavbarPage/Navbar";
-import EmployeeTask from "@/app/components/EmployeeTaskPage/EmployeeTask";
+import Navbar from "@/app/components/utils/Navbar";
+import EmployeeApproval from "@/app/components/EmployeeApproval/EmployeeApproval";
 
-const EmployeeTaskPage = () => {
+const EmployeeApprovalPage = () => {
   return (
     <div>
-      <Navbar />
-      <EmployeeTask />
+      <EmployeeApproval />
     </div>
   );
 };
 
-export default EmployeeTaskPage;
+export default EmployeeApprovalPage;

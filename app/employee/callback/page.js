@@ -85,16 +85,11 @@ export default function Callback() {
             Department: userData?.Department?.title,
             email: userData?.Email,
             SSO: isSSO,
+            EmployeeId: userData?.EmployeeId,
           };
 
           // Set a single cookie with all data
           Cookies.set("userInfo", JSON.stringify(cookieData), {
-            expires: 1,
-            path: "/",
-            secure: true,
-            sameSite: "Strict",
-          });
-          Cookies.set("userId", userData?.EmployeeId, {
             expires: 1,
             path: "/",
             secure: true,

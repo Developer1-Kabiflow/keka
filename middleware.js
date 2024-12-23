@@ -6,7 +6,7 @@ export function middleware(req) {
 
   // Check if the URL contains either requestId or formTemplateId in the query string
   const isIncludePath =
-    url.search.includes("requestId") || url.search.includes("formTemplateId");
+    url.search.includes("requestId") || url.search.includes("FormId");
 
   if (!isIncludePath) {
     console.log("Skipping middleware for:", url.pathname);

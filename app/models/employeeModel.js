@@ -6,6 +6,8 @@ export const fetchEmployeeData = async (employeeId) => {
     const response = await axios.get(
       `${BASE_URL}/employee/details/${employeeId}`
     );
+    console.log(`${BASE_URL}/employee/details/${employeeId}`);
+    console.dir(response.data);
     return response.data;
   } catch (error) {
     console.error("Error fetching employee data:", error);
