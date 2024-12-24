@@ -72,11 +72,13 @@ export const submitFormData = async (formId, formData) => {
   }
 };
 // Fetch pending requests for an employee
-export const fetchTaskFormSchema = async (approverId, requestId) => {
+export const fetchTaskFormSchema = async (requestId, approverId) => {
   try {
     const response = await axios.get(
       `${BASE_URL}/taskForm/getTaskForm/${requestId}/${approverId}`
     );
+    console.log(`${BASE_URL}/taskForm/getTaskForm/${requestId}/${approverId}`);
+    console.dir(response.data);
     return response.data;
   } catch (error) {
     //throw new Error(error.response?.data?.message || "Error fetching requests");

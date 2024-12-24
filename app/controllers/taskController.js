@@ -10,9 +10,11 @@ export const fetchAll = async (approverId, page) => {
     const data = await fetchAllTasks(approverId, page);
     const { totalPages, currentPage, totalResults } = data;
     const paginationDetails = [totalPages, currentPage, totalResults];
-    const employeeTaskList = data.taskResult || [];
+    const employeeAllTaskLists = data.taskResult?.flatMap(
+      (result) => result.employee_approval_list || []
+    );
     return {
-      Allrequests: employeeTaskList || [],
+      Allrequests: employeeAllTaskLists || [],
       pagination: paginationDetails,
     };
   } catch (error) {
@@ -27,10 +29,12 @@ export const fetchCompleted = async (approverId, page) => {
     const data = await fetchcompletedTasks(approverId, page);
     const { totalPages, currentPage, totalResults } = data;
     const paginationDetails = [totalPages, currentPage, totalResults];
-    const employeeTaskList = data.taskResult || [];
+    const employeeCompletedTaskLists = data.taskResult?.flatMap(
+      (result) => result.employee_approval_list || []
+    );
 
     return {
-      Completedrequests: employeeTaskList || [],
+      Completedrequests: employeeCompletedTaskLists || [],
       pagination: paginationDetails,
     };
   } catch (error) {
@@ -48,10 +52,12 @@ export const fetchPending = async (approverId, page) => {
     // Extract pagination details
     const { totalPages, currentPage, totalResults } = data;
     const paginationDetails = [totalPages, currentPage, totalResults];
-    const employeeTaskList = data.taskResult || [];
+    const employeePendingTaskLists = data.taskResult?.flatMap(
+      (result) => result.employee_approval_list || []
+    );
 
     return {
-      Pendingrequests: employeeTaskList || [],
+      Pendingrequests: employeePendingTaskLists || [],
       pagination: paginationDetails,
     };
   } catch (error) {

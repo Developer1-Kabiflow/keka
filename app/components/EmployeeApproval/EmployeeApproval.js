@@ -7,10 +7,11 @@ import {
   fetchPending,
   fetchRejected,
 } from "@/app/controllers/approvalController";
-import ViewModal from "./ViewModal";
+
 import Cookies from "js-cookie";
 import { toast } from "react-toastify";
 import { useSearchParams } from "next/navigation";
+import ViewModal from "./ViewModal";
 const EmployeeApproval = () => {
   const [activeTab, setActiveTab] = useState("All Requests");
   const [loading, setLoading] = useState(false);

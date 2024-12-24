@@ -9,13 +9,14 @@ import {
   fetchCompleted,
   fetchPending,
 } from "@/app/controllers/taskController";
-import ViewModal from "./ViewModel";
+import Modal from "./Modal";
+
 const EmployeeTask = () => {
   const [activeTab, setActiveTab] = useState("All Tasks");
   const [loading, setLoading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedRequestId, setSelectedRequestId] = useState(null);
-  const [showAcceptReject, setShowAcceptReject] = useState(false);
+  const [showSubmit, setShowSubmit] = useState(false);
   const [taskData, setTaskData] = useState({
     all: { data: [], pagination: { currentPage: 1, totalPages: 1 } },
     approved: { data: [], pagination: { currentPage: 1, totalPages: 1 } },
@@ -43,7 +44,7 @@ const EmployeeTask = () => {
     }
   }, [requestId, activeTab]);
   const openModal = (requestId, isPending) => {
-    setShowAcceptReject(isPending);
+    setShowSubmit(isPending);
     setSelectedRequestId(requestId);
     setIsModalOpen(true);
     const query = new URLSearchParams(window.location.search);
@@ -205,11 +206,11 @@ const EmployeeTask = () => {
       </div>
       {/* Modal Component */}
       {isModalOpen && (
-        <ViewModal
+        <Modal
           isOpen={isModalOpen}
           handleClose={closeModal}
           requestId={selectedRequestId}
-          showAcceptReject={showAcceptReject}
+          showSubmit={showSubmit}
           onToast={handleToast}
           refreshData={refreshData}
         />

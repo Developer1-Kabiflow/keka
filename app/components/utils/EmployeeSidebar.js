@@ -45,16 +45,14 @@ const EmployeeSidebar = ({ closeSidebar }) => {
                   secure: true,
                   sameSite: "Strict",
                 });
-                clearInterval(interval); // Clear interval once data is set
+                clearInterval(interval);
                 setIsLoading(false);
               } catch (parseError) {
                 setError("Invalid user info format in cookies.");
-                clearInterval(interval); // Clear interval in case of error
+                clearInterval(interval);
               }
             }
           }, 500);
-
-          // Cleanup interval on component unmount
           return () => clearInterval(interval);
         } else {
           const userIdFromCookie = Cookies.get("LoggedinUserId");
