@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState, useMemo } from "react";
 import Cookies from "js-cookie";
-import ViewModal from "./ViewModal";
+
 import {
   fetchAllEmployeeRequests,
   fetchApprovedEmployeeRequests,
@@ -12,6 +12,7 @@ import RequestTable from "../utils/RequestTable"; // Import the RequestTable com
 import SubMenu from "./SubCategory"; // Import SubMenu component (if you need it)
 import { fetchCategoryList } from "@/app/controllers/categoryController";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import ViewModal from "./ViewModal";
 
 const EmployeeNewRequest = () => {
   const router = useRouter();
@@ -34,7 +35,6 @@ const EmployeeNewRequest = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedSubCategoryId, setSubCategoryId] = useState(null);
   const [categoryLoading, setCategoryLoading] = useState(false);
-  const [formTemplateId, setFormTemplateId] = useState(null);
 
   useEffect(() => {
     if (requestId) {
@@ -139,9 +139,7 @@ const EmployeeNewRequest = () => {
     fetchCategoryData();
   }, []);
 
-  const openViewModal = (requestId, status, formTemplateId) => {
-    console.log("formTemplateId: ", formTemplateId);
-    setFormTemplateId(formTemplateId);
+  const openViewModal = (requestId, status) => {
     setSelectedRequestId(requestId);
     setIsViewModalOpen(true);
 

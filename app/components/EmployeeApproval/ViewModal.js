@@ -16,7 +16,6 @@ const ViewModal = ({
   requestId,
   onToast, // Toast handler passed from parent
   refreshData,
-  formTemplateId,
 }) => {
   const [loading, setLoading] = useState(false); // For fetching form data
   const [approving, setApproving] = useState(false); // For approving action

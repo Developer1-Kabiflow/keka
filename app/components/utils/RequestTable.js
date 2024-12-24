@@ -1,6 +1,5 @@
 "use client";
 import React, { useState } from "react";
-import { format } from "date-fns";
 
 const RequestTable = ({
   data = [],
@@ -11,10 +10,9 @@ const RequestTable = ({
 }) => {
   const [isFetching, setIsFetching] = useState(false);
 
-  // Wrapper for handlePageChange to manage the fetching state
   const handlePageClick = async (page) => {
     setIsFetching(true);
-    await handlePageChange(page); // Call the actual function
+    await handlePageChange(page);
     setIsFetching(false);
   };
 
@@ -74,8 +72,7 @@ const RequestTable = ({
             onClick={() =>
               handleViewModal(
                 request.request_id,
-                request.status === "In-progress",
-                request.formTemplateId
+                request.status === "In-progress"
               )
             }
           >
@@ -84,6 +81,82 @@ const RequestTable = ({
         </td>
       </tr>
     ));
+  };
+
+  const renderPagination = () => {
+    const { currentPage, totalPages } = pagination;
+
+    const getPages = () => {
+      const pages = [];
+      const maxVisiblePages = 5; // Number of pages to show around the current page
+      const ellipsis = "...";
+
+      if (totalPages <= maxVisiblePages) {
+        for (let i = 1; i <= totalPages; i++) {
+          pages.push(i);
+        }
+      } else {
+        if (currentPage <= 3) {
+          pages.push(1, 2, 3, ellipsis, totalPages);
+        } else if (currentPage >= totalPages - 2) {
+          pages.push(1, ellipsis, totalPages - 2, totalPages - 1, totalPages);
+        } else {
+          pages.push(
+            1,
+            ellipsis,
+            currentPage - 1,
+            currentPage,
+            currentPage + 1,
+            ellipsis,
+            totalPages
+          );
+        }
+      }
+
+      return pages;
+    };
+
+    return (
+      <div className="flex justify-center items-center mt-6">
+        <div className="flex space-x-2">
+          {currentPage > 1 && (
+            <button
+              className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition duration-200"
+              onClick={() => handlePageClick(currentPage - 1)}
+            >
+              Previous
+            </button>
+          )}
+          {getPages().map((page, index) =>
+            typeof page === "number" ? (
+              <button
+                key={index}
+                className={`px-3 py-2 rounded-lg transition duration-200 ${
+                  page === currentPage
+                    ? "bg-blue-500 text-white font-bold"
+                    : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                }`}
+                onClick={() => handlePageClick(page)}
+              >
+                {page}
+              </button>
+            ) : (
+              <span key={index} className="px-3 py-2 text-gray-500 font-medium">
+                {page}
+              </span>
+            )
+          )}
+          {currentPage < totalPages && (
+            <button
+              className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition duration-200"
+              onClick={() => handlePageClick(currentPage + 1)}
+            >
+              Next
+            </button>
+          )}
+        </div>
+      </div>
+    );
   };
 
   return (
@@ -101,45 +174,7 @@ const RequestTable = ({
         <tbody>{renderTableRows()}</tbody>
       </table>
 
-      {/* Pagination */}
-      {!loading && (data.length > 0 || isFetching) && (
-        <div className="flex justify-center items-center mt-6">
-          <div className="flex space-x-2">
-            {pagination.currentPage > 1 && (
-              <button
-                className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition duration-200"
-                onClick={() => handlePageClick(pagination.currentPage - 1)}
-              >
-                Previous
-              </button>
-            )}
-            {Array.from(
-              { length: pagination.totalPages },
-              (_, pageIndex) => pageIndex + 1
-            ).map((page) => (
-              <button
-                key={page}
-                className={`px-3 py-2 rounded-lg transition duration-200 ${
-                  page === pagination.currentPage
-                    ? "bg-blue-500 text-white font-bold"
-                    : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-                }`}
-                onClick={() => handlePageClick(page)}
-              >
-                {page}
-              </button>
-            ))}
-            {pagination.currentPage < pagination.totalPages && (
-              <button
-                className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition duration-200"
-                onClick={() => handlePageClick(pagination.currentPage + 1)}
-              >
-                Next
-              </button>
-            )}
-          </div>
-        </div>
-      )}
+      {!loading && (data.length > 0 || isFetching) && renderPagination()}
     </div>
   );
 };

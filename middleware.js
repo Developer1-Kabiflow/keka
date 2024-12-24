@@ -4,7 +4,6 @@ export function middleware(req) {
   const url = req.nextUrl.clone();
   const authToken = req.cookies.get("userId"); // Getting cookie from the request
 
-  // Check if the URL contains either requestId or formTemplateId in the query string
   const isIncludePath =
     url.search.includes("requestId") || url.search.includes("FormId");
 

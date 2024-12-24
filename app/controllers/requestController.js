@@ -13,7 +13,6 @@ export const fetchAllEmployeeRequests = async (employeeId, page) => {
     const paginationDetails = [totalPages, currentPage, totalRequests];
     return {
       Allrequests: data.requests || [],
-      formTemplateData: data.formTemplates || [],
       pagination: paginationDetails,
     };
   } catch (error) {
