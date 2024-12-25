@@ -88,39 +88,21 @@ export const handleTaskFormSubmission = async (
 };
 export const getTaskFormSchema = async (requestId, approverId) => {
   try {
-    const { formFetched, enabledField } = await fetchTaskFormSchema(
+    const { formFetched, taskApprovalData } = await fetchTaskFormSchema(
       requestId,
       approverId
     );
 
-    console.log("formFetched in getTaskFormSchema");
-    console.dir(formFetched);
-    console.log("enabledField in getTaskFormSchema");
-    console.dir(enabledField);
-
-    if (!formFetched || formFetched.length === 0) {
+    if (!formFetched?.fields || formFetched.fields.length === 0) {
       throw new Error("Schema fields are empty or undefined");
     }
 
-    // Use a Set to handle duplicates in enabledField
-    const enabledFieldSet = new Set(enabledField);
-
-    // Add "isDisabled" to each field
-    const updatedFormSchema = formFetched.map((field) => {
-      return {
-        ...field,
-        isDisabled: !enabledFieldSet.has(field.field_name), // Check if field_name is in the Set
-      };
-    });
-
-    console.log("updatedFormSchema in getTaskFormSchema");
-    console.dir(updatedFormSchema);
-
     return {
-      formSchema: updatedFormSchema,
+      formSchema: formFetched.fields, // Pass fields for the form
+      progressData: taskApprovalData, // Task approval-related data
     };
   } catch (error) {
-    console.error("Error in getProcessedFormSchema:", error.message);
-    throw new Error("Failed to process form schema");
+    console.error("Error in getTaskFormSchema:", error.message);
+    throw new Error("Failed to fetch and process form schema");
   }
 };

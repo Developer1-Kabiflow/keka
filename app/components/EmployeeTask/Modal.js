@@ -16,7 +16,7 @@ const Modal = ({
   refreshData,
 }) => {
   const [loading, setLoading] = useState(false);
-  const [formState, setFormState] = useState({}); // Stores user input for the form
+  const [formState, setFormState] = useState({}); // Stores user input
   const [formErrors, setFormErrors] = useState({}); // Stores validation errors
   const [formSchema, setFormSchema] = useState([]); // Stores form fields
   const approverId = Cookies.get("userId");
@@ -67,7 +67,11 @@ const Modal = ({
 
     // Validate the field on change
     const fieldSchema = formSchema.find((field) => field.field_name === name);
-    const error = validateField(name, value, fieldSchema?.validation || []);
+    const error = validateField(
+      name,
+      value,
+      fieldSchema?.field_validation || []
+    );
     setFormErrors((prev) => ({ ...prev, [name]: error }));
   };
 
@@ -82,7 +86,7 @@ const Modal = ({
       const error = validateField(
         field.field_name,
         formState[field.field_name] || "",
-        field.validation || []
+        field.field_validation || []
       );
       if (error) {
         acc[field.field_name] = error;
@@ -100,10 +104,16 @@ const Modal = ({
     }
 
     try {
+      const formDataToSubmit = new FormData();
+      formDataToSubmit.append("EmployeeId", approverId);
+      // Append form fields
+      Object.entries(formState).forEach(([key, value]) => {
+        formDataToSubmit.append(key, value);
+      });
       const result = await handleTaskFormSubmission(
         requestId,
         approverId,
-        formState
+        formDataToSubmit
       );
       if (result === true) {
         onToast("Form submitted successfully!", "success");
@@ -143,7 +153,9 @@ const Modal = ({
                   value={formState[field.field_name] || ""}
                   onChange={handleChange}
                   placeholder={field.field_placeholder}
-                  disabled={field.isDisabled}
+                  disabled={
+                    field.field_value !== undefined && field.field_value !== ""
+                  }
                   className={`w-full px-3 py-2 border rounded ${
                     formErrors[field.field_name] ? "border-red-500" : ""
                   }`}

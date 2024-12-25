@@ -42,7 +42,9 @@ const RequestTable = ({
     return data.map((request, index) => (
       <tr key={request._id || index} className="hover:bg-gray-100">
         <td className="border px-4 py-2">{request.requestIdNumber}</td>
-        <td className="border px-4 py-2">{request.request_name || "N/A"}</td>
+        <td className="border px-4 py-2">
+          {request.request_name || request.subTaskName || "N/A"}
+        </td>
         <td className="border px-4 py-2">
           {new Intl.DateTimeFormat("en-US", {
             month: "short",
