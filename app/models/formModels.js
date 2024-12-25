@@ -85,7 +85,7 @@ export const fetchTaskFormSchema = async (requestId, approverId) => {
   }
 };
 
-export const submitTaskFormData = async (approverId, requestId, formData) => {
+export const submitTaskFormData = async (requestId, approverId, formData) => {
   try {
     const response = await axios.post(
       `${BASE_URL}/taskForm/formSubmit/${requestId}/${approverId}`,

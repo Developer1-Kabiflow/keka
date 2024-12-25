@@ -142,6 +142,8 @@ const EmployeeTask = () => {
 
   const refreshData = () => {
     const approverId = Cookies.get("userId");
+    loadTaskData("all", approverId);
+    loadTaskData("completed", approverId);
     loadTaskData("pending", approverId);
   };
 
