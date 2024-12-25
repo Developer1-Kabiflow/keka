@@ -10,6 +10,7 @@ export const fetchAll = async (approverId, page) => {
     const data = await fetchAllTasks(approverId, page);
     const { totalPages, currentPage, totalResults } = data;
     const paginationDetails = [totalPages, currentPage, totalResults];
+    console.log("paginationDetails-->" + paginationDetails);
     const employeeAllTaskLists = data.taskResult?.flatMap(
       (result) => result.employee_approval_list || []
     );

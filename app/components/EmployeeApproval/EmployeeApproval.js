@@ -158,7 +158,10 @@ const EmployeeApproval = () => {
 
   const refreshData = () => {
     const approverId = Cookies.get("userId");
+    loadRequestData("all", approverId);
+    loadRequestData("approved", approverId);
     loadRequestData("pending", approverId);
+    loadRequestData("rejected", approverId);
   };
 
   const renderContent = () => {
@@ -237,7 +240,7 @@ const EmployeeApproval = () => {
           requestId={selectedRequestId}
           showAcceptReject={showAcceptReject}
           onToast={handleToast}
-          refreshData={refreshData} // Pass the refreshData callback
+          refreshData={refreshData}
         />
       )}
     </div>
