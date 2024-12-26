@@ -1,12 +1,12 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import {
   getTaskFormSchema,
   handleTaskFormSubmission,
 } from "@/app/controllers/formController";
 import Cookies from "js-cookie";
-
+import ProgressStepsContainer from "../utils/ProgressStepsContainer";
 const Modal = ({
   isOpen,
   handleClose,
@@ -16,18 +16,23 @@ const Modal = ({
   refreshData,
 }) => {
   const [loading, setLoading] = useState(false);
-  const [formState, setFormState] = useState({}); // Stores user input
-  const [formErrors, setFormErrors] = useState({}); // Stores validation errors
-  const [formSchema, setFormSchema] = useState([]); // Stores form fields
+  const [formState, setFormState] = useState({});
+  const [formErrors, setFormErrors] = useState({});
+  const [formSchema, setFormSchema] = useState([]);
+  const [ProgressContainerData, setProgressContainerData] = useState();
   const approverId = Cookies.get("userId");
   const [isSubmitting, setIsSubmitting] = useState(false);
-
+  const progressStepsRef = useRef(null);
   // Fetch Form Data
   const fetchForm = useCallback(async () => {
     if (isOpen && approverId) {
       setLoading(true);
       try {
-        const { formSchema } = await getTaskFormSchema(requestId, approverId);
+        const { formSchema, progressData } = await getTaskFormSchema(
+          requestId,
+          approverId
+        );
+        setProgressContainerData(progressData);
         setFormSchema(formSchema);
         setFormState(
           formSchema.reduce((acc, field) => {
@@ -141,45 +146,54 @@ const Modal = ({
         {loading ? (
           <div>Loading...</div>
         ) : (
-          <form onSubmit={handleSubmit} className="space-y-4">
-            {formSchema.map((field) => (
-              <div key={field.field_name}>
-                <label className="block mb-1 font-medium">
-                  {field.field_label}
-                </label>
-                <input
-                  type={field.type || "text"}
-                  name={field.field_name}
-                  value={formState[field.field_name] || ""}
-                  onChange={handleChange}
-                  placeholder={field.field_placeholder}
-                  disabled={
-                    field.field_value !== undefined && field.field_value !== ""
-                  }
-                  className={`w-full px-3 py-2 border rounded ${
-                    formErrors[field.field_name] ? "border-red-500" : ""
-                  }`}
-                />
-                {formErrors[field.field_name] && (
-                  <p className="text-red-500 text-sm mt-1">
-                    {formErrors[field.field_name]}
-                  </p>
-                )}
+          <>
+            {" "}
+            <div className="flex flex-col w-full bg-gray-50 mb-4">
+              <div className="w-full items-center" ref={progressStepsRef}>
+                <ProgressStepsContainer approvalData={ProgressContainerData} />
               </div>
-            ))}
+            </div>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              {formSchema.map((field) => (
+                <div key={field.field_name}>
+                  <label className="block mb-1 font-medium">
+                    {field.field_label}
+                  </label>
+                  <input
+                    type={field.type || "text"}
+                    name={field.field_name}
+                    value={formState[field.field_name] || ""}
+                    onChange={handleChange}
+                    placeholder={field.field_placeholder}
+                    disabled={
+                      field.field_value !== undefined &&
+                      field.field_value !== ""
+                    }
+                    className={`w-full px-3 py-2 border rounded ${
+                      formErrors[field.field_name] ? "border-red-500" : ""
+                    }`}
+                  />
+                  {formErrors[field.field_name] && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {formErrors[field.field_name]}
+                    </p>
+                  )}
+                </div>
+              ))}
 
-            {showSubmit && (
-              <button
-                type="submit"
-                className={`w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 ${
-                  isSubmitting ? "opacity-50 cursor-not-allowed" : ""
-                }`}
-                disabled={isSubmitting}
-              >
-                {isSubmitting ? "Submitting..." : "Submit"}
-              </button>
-            )}
-          </form>
+              {showSubmit && (
+                <button
+                  type="submit"
+                  className={`w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 ${
+                    isSubmitting ? "opacity-50 cursor-not-allowed" : ""
+                  }`}
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting ? "Submitting..." : "Submit"}
+                </button>
+              )}
+            </form>
+          </>
         )}
       </div>
       <button

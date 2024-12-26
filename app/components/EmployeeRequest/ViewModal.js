@@ -5,7 +5,7 @@ import ProgressStepsContainer from "../utils/ProgressStepsContainer";
 import { getMyFormData } from "@/app/controllers/formController";
 import DownloadIcon from "@mui/icons-material/Download";
 import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
-import Tooltip from "@mui/material/Tooltip"; // Tooltip for better UX
+import Tooltip from "@mui/material/Tooltip";
 import ShareIcon from "@mui/icons-material/Share";
 const ViewModal = ({ isOpen, handleClose, requestId }) => {
   const [loading, setLoading] = useState(true);
@@ -55,13 +55,12 @@ const ViewModal = ({ isOpen, handleClose, requestId }) => {
     });
   };
 
-  const handleDownload = (url) => {
+  const handleDownload = (fileData, fileName) => {
+    const blob = new Blob([fileData], { type: "application/pdf" });
     const link = document.createElement("a");
-    link.href = url;
-    link.download = url.split("/").pop(); // Optional: Extract filename from URL
-    document.body.appendChild(link);
+    link.href = URL.createObjectURL(blob);
+    link.download = fileName;
     link.click();
-    document.body.removeChild(link);
   };
 
   const copyUrlToClipboard = () => {
@@ -92,7 +91,6 @@ const ViewModal = ({ isOpen, handleClose, requestId }) => {
           </button>
         </div>
 
-        {/* Show feedback when URL is copied */}
         {isUrlCopied && (
           <div className="text-green-500 text-sm mb-2">
             URL copied to clipboard!
@@ -168,6 +166,7 @@ const ViewModal = ({ isOpen, handleClose, requestId }) => {
                             )}
                           </a>
                         </Tooltip>
+
                         <span className="text-sm font-semibold text-gray-800">
                           {file.originalname}
                         </span>
@@ -175,11 +174,12 @@ const ViewModal = ({ isOpen, handleClose, requestId }) => {
 
                       <Tooltip title="Download File" arrow>
                         <button
-                          onClick={() => handleDownload(file.url)}
+                          onClick={() =>
+                            handleDownload(file.url, file.originalname)
+                          }
                           className="text-black hover:bg-gray-300 py-2 px-4 rounded-md text-sm flex items-center justify-center gap-2"
                         >
                           <DownloadIcon fontSize="small" />
-                          Download
                         </button>
                       </Tooltip>
                     </div>

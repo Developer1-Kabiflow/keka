@@ -57,7 +57,7 @@ const RequestTable = ({
         </td>
         <td
           className={`border px-4 py-2 ${
-            request.status === "Approved"
+            request.status === "Approved" || request.status === "Completed"
               ? "text-green-600 font-semibold"
               : request.status === "Rejected"
               ? "text-red-600 font-semibold"
