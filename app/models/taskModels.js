@@ -1,7 +1,6 @@
 import axios from "axios";
 import BASE_URL from "@/utils/utils";
 
-// Fetch all accepted for an employee
 export const fetchAllTasks = async (approverId, page) => {
   try {
     const response = await axios.get(
@@ -31,7 +30,7 @@ export const fetchcompletedTasks = async (approverId, page) => {
     //   throw new Error(error.response?.data?.message || "Error fetching requests");
   }
 };
-// Fetch rejected requests for an employee
+
 export const fetchPendingTasks = async (approverId, page) => {
   try {
     const response = await axios.get(
@@ -44,5 +43,19 @@ export const fetchPendingTasks = async (approverId, page) => {
     return response.data;
   } catch (error) {
     //  throw new Error(error.response?.data?.message || "Error fetching requests");
+  }
+};
+
+export const fetchProgressStepContainerData = async (requestId) => {
+  try {
+    const response = await axios.get(
+      `http://localhost:5000/api/v1/progress/status/${requestId}`
+    );
+    console.log(`http://localhost:5000/api/v1/progress/status/${requestId}`);
+    console.dir(response.data);
+    return response.data;
+  } catch (err) {
+    console.error("Error fetching progress status:", err);
+    throw new Error("Failed to fetch progress status");
   }
 };

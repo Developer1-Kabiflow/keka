@@ -88,18 +88,20 @@ export const handleTaskFormSubmission = async (
 };
 export const getTaskFormSchema = async (requestId, approverId) => {
   try {
-    const { formFetched, taskApprovalData } = await fetchTaskFormSchema(
-      requestId,
-      approverId
-    );
-
+    const response = await fetchTaskFormSchema(requestId, approverId);
+    console.log("Response from fetchTaskFormSchema:", response);
+    const { formFetched, enabledField } = response;
     if (!formFetched?.fields || formFetched.fields.length === 0) {
       throw new Error("Schema fields are empty or undefined");
     }
 
+    console.log("enabled field list from controller:");
+    console.dir(enabledField);
+
     return {
-      formSchema: formFetched.fields, // Pass fields for the form
-      progressData: taskApprovalData, // Task approval-related data
+      formData: formFetched.fields,
+      formAttachments: formFetched.attachments || [],
+      enabledField: enabledField || [],
     };
   } catch (error) {
     console.error("Error in getTaskFormSchema:", error.message);

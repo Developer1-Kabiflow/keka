@@ -2,20 +2,19 @@ import {
   fetchAllTasks,
   fetchcompletedTasks,
   fetchPendingTasks,
+  fetchProgressStepContainerData,
 } from "../models/taskModels";
 
 // Fetch all employee requests
 export const fetchAll = async (approverId, page) => {
   try {
+    console.log("test");
     const data = await fetchAllTasks(approverId, page);
-    const { totalPages, currentPage, totalResults } = data;
-    const paginationDetails = [totalPages, currentPage, totalResults];
-    console.log("paginationDetails-->" + paginationDetails);
-    const employeeAllTaskLists = data.taskResult?.flatMap(
-      (result) => result.employee_approval_list || []
-    );
+    const { currentPage, totalPages, totalTasks } = data;
+    const paginationDetails = [totalPages, currentPage, totalTasks];
+    console.dir(paginationDetails);
     return {
-      Allrequests: employeeAllTaskLists || [],
+      Allrequests: data.taskResult?.employee_approval_list || [],
       pagination: paginationDetails,
     };
   } catch (error) {
@@ -28,8 +27,9 @@ export const fetchAll = async (approverId, page) => {
 export const fetchCompleted = async (approverId, page) => {
   try {
     const data = await fetchcompletedTasks(approverId, page);
-    const { totalPages, currentPage, totalResults } = data;
-    const paginationDetails = [totalPages, currentPage, totalResults];
+    const { currentPage, totalPages, totalTasks } = data;
+    const paginationDetails = [totalPages, currentPage, totalTasks];
+    console.dir(paginationDetails);
     const employeeCompletedTaskLists = data.taskResult?.flatMap(
       (result) => result.employee_approval_list || []
     );
@@ -51,15 +51,32 @@ export const fetchPending = async (approverId, page) => {
     const data = await fetchPendingTasks(approverId, page); // Fetch the response
 
     // Extract pagination details
-    const { totalPages, currentPage, totalResults } = data;
-    const paginationDetails = [totalPages, currentPage, totalResults];
-    const employeePendingTaskLists = data.taskResult?.flatMap(
-      (result) => result.employee_approval_list || []
-    );
+    const { currentPage, totalPages, totalTasks } = data;
+    const paginationDetails = [totalPages, currentPage, totalTasks];
+    console.dir(paginationDetails);
+    const employeePendingTaskLists =
+      data.taskResult?.employee_approval_list || [];
 
     return {
       Pendingrequests: employeePendingTaskLists || [],
       pagination: paginationDetails,
+    };
+  } catch (error) {
+    // throw new Error(
+    //   error.response?.data?.message || "Error fetching rejected requests"
+    // );
+  }
+};
+
+export const fetchProgress = async (requestId) => {
+  try {
+    const data = await fetchProgressStepContainerData(requestId);
+    const { approvalData, taskData } = data;
+    console.dir(taskData);
+    console.dir(approvalData);
+    return {
+      RequestData: approvalData || [],
+      TaskData: taskData || [],
     };
   } catch (error) {
     // throw new Error(
