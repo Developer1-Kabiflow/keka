@@ -33,7 +33,10 @@ export default function ProgressStepsContainer({ approvalData }) {
               (action) => action.approved_by === approval.employee_id
             );
 
-            const approvalStatus = approverAction?.task_status || "Pending";
+            let approvalStatus = approverAction?.task_status || "Pending";
+            if (approvalStatus === "Completed") {
+              approvalStatus = "Approved";
+            }
 
             let feedback = "";
             if (approvalStatus === "Rejected" && approverAction?.notes) {
@@ -101,6 +104,8 @@ export default function ProgressStepsContainer({ approvalData }) {
     if (approvalData) {
       const transformedData = transformApprovalData(approvalData);
       setNewApprovalData(transformedData);
+      console.log("transformedData");
+      console.dir(transformedData);
     }
   }, [approvalData]);
 
@@ -110,7 +115,7 @@ export default function ProgressStepsContainer({ approvalData }) {
 
   const hasApprovals = () =>
     newApprovalData.approval_step.every((step) =>
-      step.approval_list.every(
+      step.approval_list.some(
         (approval) => approval.approval_status !== "Pending"
       )
     );

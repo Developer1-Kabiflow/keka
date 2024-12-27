@@ -30,7 +30,6 @@ export const fetchCompleted = async (approverId, page) => {
     const data = await fetchcompletedTasks(approverId, page);
     const { currentPage, totalPages, totalTasks } = data;
     const paginationDetails = [totalPages, currentPage, totalTasks];
-    console.dir(paginationDetails);
     const CompletedTaskLists = data.taskResult?.flatMap(
       (result) => result.employee_approval_list || []
     );
@@ -54,7 +53,6 @@ export const fetchPending = async (approverId, page) => {
     // Extract pagination details
     const { currentPage, totalPages, totalTasks } = data;
     const paginationDetails = [totalPages, currentPage, totalTasks];
-    console.dir(paginationDetails);
     const PendingTaskLists = data.taskResult?.flatMap(
       (result) => result.employee_approval_list || []
     );
@@ -74,8 +72,6 @@ export const fetchProgress = async (requestId) => {
   try {
     const data = await fetchProgressStepContainerData(requestId);
     const { approvalData, taskData } = data;
-    console.dir(taskData);
-    console.dir(approvalData);
     return {
       RequestData: approvalData || [],
       TaskData: taskData || [],
