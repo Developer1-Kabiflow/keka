@@ -8,13 +8,14 @@ import {
 // Fetch all employee requests
 export const fetchAll = async (approverId, page) => {
   try {
-    console.log("test");
     const data = await fetchAllTasks(approverId, page);
     const { currentPage, totalPages, totalTasks } = data;
     const paginationDetails = [totalPages, currentPage, totalTasks];
-    console.dir(paginationDetails);
+    const AllTaskLists = data.taskResult?.flatMap(
+      (result) => result.employee_approval_list || []
+    );
     return {
-      Allrequests: data.taskResult?.employee_approval_list || [],
+      Allrequests: AllTaskLists || [],
       pagination: paginationDetails,
     };
   } catch (error) {
@@ -30,12 +31,12 @@ export const fetchCompleted = async (approverId, page) => {
     const { currentPage, totalPages, totalTasks } = data;
     const paginationDetails = [totalPages, currentPage, totalTasks];
     console.dir(paginationDetails);
-    const employeeCompletedTaskLists = data.taskResult?.flatMap(
+    const CompletedTaskLists = data.taskResult?.flatMap(
       (result) => result.employee_approval_list || []
     );
 
     return {
-      Completedrequests: employeeCompletedTaskLists || [],
+      Completedrequests: CompletedTaskLists || [],
       pagination: paginationDetails,
     };
   } catch (error) {
@@ -54,11 +55,12 @@ export const fetchPending = async (approverId, page) => {
     const { currentPage, totalPages, totalTasks } = data;
     const paginationDetails = [totalPages, currentPage, totalTasks];
     console.dir(paginationDetails);
-    const employeePendingTaskLists =
-      data.taskResult?.employee_approval_list || [];
+    const PendingTaskLists = data.taskResult?.flatMap(
+      (result) => result.employee_approval_list || []
+    );
 
     return {
-      Pendingrequests: employeePendingTaskLists || [],
+      Pendingrequests: PendingTaskLists || [],
       pagination: paginationDetails,
     };
   } catch (error) {
