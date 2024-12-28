@@ -25,44 +25,38 @@ const Modal = ({
   const [requestStatus, setRequestStatus] = useState();
   const [taskStatus, setTaskStatus] = useState();
   const [selectedFiles, setSelectedFiles] = useState([]);
-  const approverId = Cookies.get("userId");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isUrlCopied, setIsUrlCopied] = useState(false);
   const [formAttachments, setFormAttachments] = useState([]);
   const [enabledField, setEnabledField] = useState([]);
   const progressStepsRef = useRef(null);
-  const fetchForm = useCallback(async () => {
-    if (isOpen && requestId) {
-      setLoading(true);
-      try {
-        const { formData, formAttachments, enabledField } =
-          await getTaskFormSchema(requestId, approverId);
-        const { RequestData, TaskData } = await fetchProgress(requestId);
-        setRequestStatus(RequestData);
-        setTaskStatus(TaskData);
-        console.log("formAttachments:");
-        console.dir(formAttachments);
-        console.log("formData: ");
-        console.dir(formData);
-        console.log("enabledField: ");
-        console.dir(enabledField);
-        console.log("RequestData: ");
-        console.dir(RequestData);
-        console.log("TaskData: ");
-        console.dir(TaskData);
-        setFormAttachments(formAttachments);
-        setEnabledField(enabledField);
-        setFormData(formData);
-      } catch (err) {
-        onToast("Failed to load form data. Please try again.", "error");
-      } finally {
-        setLoading(false);
+
+  const fetchForm = useCallback(
+    async (approverId) => {
+      if (isOpen && requestId) {
+        setLoading(true);
+        try {
+          const { formData, formAttachments, enabledField } =
+            await getTaskFormSchema(requestId, approverId);
+          const { RequestData, TaskData } = await fetchProgress(requestId);
+          setRequestStatus(RequestData);
+          setTaskStatus(TaskData);
+          setFormAttachments(formAttachments);
+          setEnabledField(enabledField);
+          setFormData(formData);
+        } catch (err) {
+          onToast("Failed to load form data. Please try again.", "error");
+        } finally {
+          setLoading(false);
+        }
       }
-    }
-  }, [isOpen, approverId, onToast, requestId]);
+    },
+    [isOpen, requestId, onToast]
+  );
 
   useEffect(() => {
-    fetchForm();
+    const approverId = Cookies.get("userId");
+    fetchForm(approverId);
   }, [fetchForm]);
 
   const handleInputChange = (name, value) => {
@@ -90,17 +84,16 @@ const Modal = ({
     if (isSubmitting) return;
 
     setIsSubmitting(true);
+    const approverId = Cookies.get("userId");
 
     try {
       const formDataToSubmit = new FormData();
       formDataToSubmit.append("EmployeeId", approverId);
 
-      // Append form data fields
       formData.forEach(({ field_name, field_value }) => {
-        formDataToSubmit.append(field_name, field_value);
+        formDataToSubmit.append(field_name, field_value || "");
       });
 
-      // Append file attachments
       selectedFiles.forEach((file, index) => {
         if (file) {
           formDataToSubmit.append(`file_${index}`, file);
@@ -126,69 +119,63 @@ const Modal = ({
   };
 
   const copyUrlToClipboard = () => {
-    const url = window.location.href; // Get the current URL
+    const url = window.location.href;
     navigator.clipboard
       .writeText(url)
       .then(() => {
-        setIsUrlCopied(true); // Set state to indicate URL has been copied
-        setTimeout(() => setIsUrlCopied(false), 2000); // Reset the state after 2 seconds
+        setIsUrlCopied(true);
+        setTimeout(() => setIsUrlCopied(false), 2000);
       })
       .catch((err) => console.error("Error copying URL to clipboard: ", err));
   };
 
-  const renderUploadedFiles = () => {
-    return (
-      <div className="mt-6">
-        <h3 className="text-lg font-semibold mb-4">Uploaded Files</h3>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {formAttachments.map((file) => (
-            <div
-              key={file._id}
-              className="bg-white p-4 rounded-lg shadow-md hover:shadow-lg transition-all flex items-center justify-between"
-            >
-              <div className="flex items-center gap-4">
-                <Tooltip title="Open File" arrow>
-                  <a
-                    href={file.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-blue-600 hover:text-blue-800"
-                  >
-                    {file.url &&
-                    typeof file.url === "string" &&
-                    file.url.endsWith(".pdf") ? (
-                      <PictureAsPdfIcon fontSize="large" />
-                    ) : (
-                      <span className="text-sm font-semibold text-gray-800">
-                        Open
-                      </span>
-                    )}
-                  </a>
-                </Tooltip>
-                <span className="text-sm font-semibold text-gray-800">
-                  {file.originalname}
-                </span>
-              </div>
-              <Tooltip title="Download File" arrow>
-                <button
-                  onClick={() => handleDownload(file.url)}
-                  className="text-black hover:bg-gray-300 py-2 px-4 rounded-md text-sm flex items-center justify-center gap-2"
+  const renderUploadedFiles = () => (
+    <div className="mt-6">
+      <h3 className="text-lg font-semibold mb-4">Uploaded Files</h3>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        {formAttachments.map((file) => (
+          <div
+            key={file._id}
+            className="bg-white p-4 rounded-lg shadow-md hover:shadow-lg transition-all flex items-center justify-between"
+          >
+            <div className="flex items-center gap-4">
+              <Tooltip title="Open File" arrow>
+                <a
+                  href={file.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-600 hover:text-blue-800"
                 >
-                  <DownloadIcon fontSize="small" />
-                  Download
-                </button>
+                  {file.url?.endsWith(".pdf") ? (
+                    <PictureAsPdfIcon fontSize="large" />
+                  ) : (
+                    <span className="text-sm font-semibold text-gray-800">
+                      Open
+                    </span>
+                  )}
+                </a>
               </Tooltip>
+              <span className="text-sm font-semibold text-gray-800">
+                {file.originalname}
+              </span>
             </div>
-          ))}
-        </div>
+            <Tooltip title="Download File" arrow>
+              <button
+                onClick={() => handleDownload(file.url)}
+                className="text-black hover:bg-gray-300 py-2 px-4 rounded-md text-sm flex items-center justify-center gap-2"
+              >
+                <DownloadIcon fontSize="small" />
+                Download
+              </button>
+            </Tooltip>
+          </div>
+        ))}
       </div>
-    );
-  };
+    </div>
+  );
 
-  const renderFileInput = () => {
-    if (!formAttachments.length) return null;
-
-    return (
+  const renderFileInput = () =>
+    formAttachments.length > 0 && (
       <div className="mb-6">
         <h3 className="text-lg font-semibold mb-4">File Attachments</h3>
         {formAttachments.map((attachment, index) => (
@@ -205,7 +192,6 @@ const Modal = ({
         ))}
       </div>
     );
-  };
 
   if (!isOpen) return null;
 
@@ -244,7 +230,6 @@ const Modal = ({
           </div>
         ) : (
           <>
-            {/* Progress Steps Container */}
             <span className="text-2xl font-semibold text-blue-600">
               Request Status
             </span>
@@ -285,7 +270,6 @@ const Modal = ({
                 </div>
               ))}
 
-              {/* Render File Inputs */}
               {renderFileInput()}
               {showSubmit && (
                 <button
