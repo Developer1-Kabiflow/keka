@@ -137,7 +137,6 @@ const Modal = ({
   };
 
   const renderUploadedFiles = () => {
-    if (!formAttachments.length) return null;
     return (
       <div className="mt-6">
         <h3 className="text-lg font-semibold mb-4">Uploaded Files</h3>

@@ -23,7 +23,6 @@ export function middleware(req) {
   // If no authToken, redirect to login page
   if (!authToken) {
     url.pathname = "/"; // Set the pathname to the login page
-    url.search = ""; // Clear all URL parameters
 
     const redirectTo = req.nextUrl.pathname + req.nextUrl.search;
     console.log("Redirecting to login. Redirect URL:", redirectTo);
