@@ -35,6 +35,7 @@ const EmployeeTask = () => {
   const requestId = searchParams.get("requestId");
   const [error, setError] = useState(null); // Initialize error state
   useEffect(() => {
+    console.log("requestId from cookie " + requestId);
     if (requestId) {
       setSelectedRequestId(requestId);
       setIsModalOpen(true);
