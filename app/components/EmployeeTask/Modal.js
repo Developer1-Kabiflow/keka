@@ -56,13 +56,18 @@ const Modal = ({
   );
 
   useEffect(() => {
-    const userId = Cookies.get("userId");
-    if (userId) {
-      setApproverId(userId);
-      fetchForm(userId);
-    } else {
-      console.error("UserId not found in cookies");
-    }
+    let intervalId;
+
+    const waitForUserId = () => {
+      const approverId = Cookies.get("userId");
+      if (approverId) {
+        setApproverId(approverId);
+        clearInterval(intervalId);
+        fetchForm(approverId);
+      }
+    };
+    intervalId = setInterval(waitForUserId, 500);
+    return () => clearInterval(intervalId);
   }, [fetchForm]);
 
   const handleInputChange = (name, value) => {

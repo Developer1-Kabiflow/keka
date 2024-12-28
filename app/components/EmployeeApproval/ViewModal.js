@@ -31,8 +31,7 @@ const ViewModal = ({
   const bottomRef = useRef(null);
   const progressStepsRef = useRef(null);
   const [isUrlCopied, setIsUrlCopied] = useState(false);
-  const approverId = Cookies.get("userId");
-  console.log("showAcceptReject-->" + showAcceptReject);
+  const [approverId, setApproverId] = useState(null);
 
   // Fetch Form Data
   const fetchForm = useCallback(async () => {
@@ -51,7 +50,18 @@ const ViewModal = ({
   }, [isOpen, requestId, onToast]);
 
   useEffect(() => {
-    fetchForm();
+    let intervalId;
+
+    const waitForUserId = () => {
+      const approverId = Cookies.get("userId");
+      if (approverId) {
+        setApproverId(approverId);
+        clearInterval(intervalId);
+        fetchForm(approverId);
+      }
+    };
+    intervalId = setInterval(waitForUserId, 500);
+    return () => clearInterval(intervalId);
   }, [fetchForm]);
 
   // Handle Reject Button Click
