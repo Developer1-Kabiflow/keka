@@ -77,7 +77,12 @@ export default function Callback() {
           const { user_id } = userInfo;
           const { userData } = await fetchEmployeeDetails(user_id);
           const isSSO = true;
-
+          Cookies.set("LoggedinUserId", response.user_id, {
+            expires: 1,
+            path: "/",
+            secure: false, // Use false for localhost
+            sameSite: "Lax",
+          });
           const cookieData = {
             kekaId: user_id,
             userName: userData?.DisplayName,
