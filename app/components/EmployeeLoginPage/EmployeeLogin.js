@@ -41,7 +41,7 @@ const EmployeeLoginPage = () => {
 
         console.log("Redirecting to:", finalRedirectTo);
 
-        router.replace(finalRedirectTo);
+        router.push(finalRedirectTo);
         // Redirect to the original URL
         Cookies.remove("redirectTo"); // Clean up the cookie after redirection
       } else {

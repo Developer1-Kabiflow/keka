@@ -80,8 +80,7 @@ export default function Callback() {
           Cookies.set("LoggedinUserId", response.user_id, {
             expires: 1,
             path: "/",
-            secure: false, // Use false for localhost
-            sameSite: "Lax",
+            secure: true,
           });
           const cookieData = {
             kekaId: user_id,
@@ -97,7 +96,7 @@ export default function Callback() {
           Cookies.set("userInfo", JSON.stringify(cookieData), {
             expires: 1,
             path: "/",
-            secure: true,
+            secure: false,
             sameSite: "Strict",
           });
 

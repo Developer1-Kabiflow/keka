@@ -32,7 +32,7 @@ const Modal = ({
   const [enabledField, setEnabledField] = useState([]);
   const progressStepsRef = useRef(null);
   const fetchForm = useCallback(async () => {
-    if (isOpen && approverId) {
+    if (isOpen && requestId) {
       setLoading(true);
       try {
         const { formData, formAttachments, enabledField } =

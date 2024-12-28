@@ -42,7 +42,7 @@ const EmployeeSidebar = ({ closeSidebar }) => {
                 Cookies.set("userId", userInfo.EmployeeId, {
                   expires: 1,
                   path: "/",
-                  secure: true,
+                  secure: false,
                   sameSite: "Strict",
                 });
                 clearInterval(interval);
@@ -62,7 +62,7 @@ const EmployeeSidebar = ({ closeSidebar }) => {
             Cookies.set("userId", userData?.EmployeeId, {
               expires: 1,
               path: "/",
-              secure: true,
+              secure: false,
               sameSite: "Strict",
             });
             setEmployeeData({
