@@ -17,7 +17,10 @@ const clearCookies = () =>
       domain: window.location.hostname,
     });
     Cookies.remove("userInfo", { path: "/", domain: window.location.hostname });
-
+    Cookies.remove("LoggedinUserId", {
+      path: "/",
+      domain: window.location.hostname,
+    });
     document.cookie = "userId=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
     document.cookie =
       "redirectTo=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
@@ -25,6 +28,8 @@ const clearCookies = () =>
       "userInfo=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
     document.cookie =
       "isPassBasedAuth=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
+    document.cookie =
+      "LoggedinUserId=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
 
     setTimeout(() => {
       console.log("Remaining cookies:", document.cookie);

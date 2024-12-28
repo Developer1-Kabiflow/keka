@@ -36,13 +36,10 @@ const EmployeeTask = () => {
   const [error, setError] = useState(null); // Initialize error state
   useEffect(() => {
     if (requestId) {
-      if (activeTab !== "All Tasks") {
-        setActiveTab("All Tasks");
-      }
       setSelectedRequestId(requestId);
       setIsModalOpen(true);
     }
-  }, [requestId, activeTab]);
+  }, [requestId]);
   const openModal = (requestId, isPending) => {
     setShowSubmit(isPending);
     setSelectedRequestId(requestId);

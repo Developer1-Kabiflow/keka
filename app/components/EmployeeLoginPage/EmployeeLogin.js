@@ -11,19 +11,7 @@ const EmployeeLoginPage = () => {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [redirectTo, setRedirectTo] = useState(""); // State to store redirectTo value
   const router = useRouter();
-
-  // Retrieve the redirect URL from cookies when the page loads
-  useEffect(() => {
-    const cookieRedirectTo = Cookies.get("redirectTo");
-    if (cookieRedirectTo) {
-      console.log("Redirect URL found in cookies:", cookieRedirectTo);
-      setRedirectTo(cookieRedirectTo); // Store in state
-      // Clean up the cookie after reading it
-    }
-  }, []); // Only run on initial render
-
   const handleLogin = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -34,25 +22,28 @@ const EmployeeLoginPage = () => {
       const response = await employeeLoginRequest(formData);
 
       if (response.redirectUrl) {
-        Cookies.set("LoggedinUserId", response.userId, {
+        Cookies.set("userId", response.userId, {
           expires: 1,
           path: "/",
-          secure: true,
-          sameSite: "Strict",
+          secure: false, // Use false for localhost
+          sameSite: "Lax",
         });
 
         Cookies.set("isPassBasedAuth", true, {
           expires: 1,
           path: "/",
-          secure: true,
-          sameSite: "Strict",
+          secure: false,
+          sameSite: "Lax",
         });
 
-        // Use the redirectTo from state (which was set in useEffect)
-        const finalRedirectTo = redirectTo || response.redirectUrl;
+        const finalRedirectTo =
+          Cookies.get("redirectTo") || response.redirectUrl;
+
         console.log("Redirecting to:", finalRedirectTo);
-        Cookies.remove("redirectTo");
-        router.push(finalRedirectTo); // Redirect to the saved URL
+
+        router.replace(finalRedirectTo);
+        // Redirect to the original URL
+        Cookies.remove("redirectTo"); // Clean up the cookie after redirection
       } else {
         setError("Unexpected response from server.");
       }

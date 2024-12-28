@@ -3,7 +3,13 @@ import { NextResponse } from "next/server";
 export function middleware(req) {
   const url = req.nextUrl.clone();
   const authToken = req.cookies.get("userId"); // Getting cookie from the request
+  // const hiddenPages = ["", "/employee/logout", "/callback"];
 
+  // // Skip middleware for paths in hiddenPages
+  // if (hiddenPages.includes(url.pathname)) {
+  //   console.log("Skipping middleware for hidden page:", url.pathname);
+  //   return NextResponse.next();
+  // }
   const isIncludePath =
     url.search.includes("requestId") || url.search.includes("FormId");
 
@@ -16,16 +22,16 @@ export function middleware(req) {
 
   // If no authToken, redirect to login page
   if (!authToken) {
-    url.pathname = "/"; // Redirect to the login page
+    url.pathname = "/"; // Set the pathname to the login page
+    url.search = ""; // Clear all URL parameters
+
     const redirectTo = req.nextUrl.pathname + req.nextUrl.search;
     console.log("Redirecting to login. Redirect URL:", redirectTo);
 
-    // Setting a cookie to store the redirect URL
+    // Setting a cookie to store the original URL
     const response = NextResponse.redirect(url);
     response.cookies.set("redirectTo", redirectTo, {
-      // expires: new Date(Date.now() + 60 * 1000), // 1-minute expiration
       path: "/", // Make sure it's accessible across your app
-      // secure: process.env.NODE_ENV === "production", // Use secure cookies in production
       sameSite: "Strict", // Helps to avoid cross-site request issues
     });
 

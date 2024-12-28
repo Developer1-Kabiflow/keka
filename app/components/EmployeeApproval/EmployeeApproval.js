@@ -38,13 +38,10 @@ const EmployeeApproval = () => {
   const [error, setError] = useState(null); // Initialize error state
   useEffect(() => {
     if (requestId) {
-      if (activeTab !== "All Requests") {
-        setActiveTab("All Requests");
-      }
       setSelectedRequestId(requestId);
       setIsModalOpen(true);
     }
-  }, [requestId, activeTab]);
+  }, [requestId]);
   const openModal = (requestId, isPending) => {
     setShowAcceptReject(isPending);
     setSelectedRequestId(requestId);
