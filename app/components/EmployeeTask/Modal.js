@@ -20,7 +20,7 @@ const Modal = ({
   refreshData,
 }) => {
   const [loading, setLoading] = useState(false);
-  const [formErrors, setFormErrors] = useState({});
+  const [approverId, setApproverId] = useState(null);
   const [formData, setFormData] = useState([]);
   const [requestStatus, setRequestStatus] = useState();
   const [taskStatus, setTaskStatus] = useState();
@@ -32,12 +32,12 @@ const Modal = ({
   const progressStepsRef = useRef(null);
 
   const fetchForm = useCallback(
-    async (approverId) => {
+    async (id) => {
       if (isOpen && requestId) {
         setLoading(true);
         try {
           const { formData, formAttachments, enabledField } =
-            await getTaskFormSchema(requestId, approverId);
+            await getTaskFormSchema(requestId, id);
           const { RequestData, TaskData } = await fetchProgress(requestId);
           setRequestStatus(RequestData);
           setTaskStatus(TaskData);
@@ -45,6 +45,7 @@ const Modal = ({
           setEnabledField(enabledField);
           setFormData(formData);
         } catch (err) {
+          console.error("Error fetching form data:", err);
           onToast("Failed to load form data. Please try again.", "error");
         } finally {
           setLoading(false);
@@ -55,8 +56,13 @@ const Modal = ({
   );
 
   useEffect(() => {
-    const approverId = Cookies.get("userId");
-    fetchForm(approverId);
+    const userId = Cookies.get("userId");
+    if (userId) {
+      setApproverId(userId);
+      fetchForm(userId);
+    } else {
+      console.error("UserId not found in cookies");
+    }
   }, [fetchForm]);
 
   const handleInputChange = (name, value) => {
@@ -68,10 +74,8 @@ const Modal = ({
   };
 
   const handleFileChange = (event, index) => {
-    const fileInput = event.target;
-    const newFile = fileInput.files[0];
+    const newFile = event.target.files[0];
     if (!newFile) return;
-
     setSelectedFiles((prevFiles) => {
       const updatedFiles = [...prevFiles];
       updatedFiles[index] = newFile;
@@ -84,7 +88,6 @@ const Modal = ({
     if (isSubmitting) return;
 
     setIsSubmitting(true);
-    const approverId = Cookies.get("userId");
 
     try {
       const formDataToSubmit = new FormData();
@@ -105,6 +108,7 @@ const Modal = ({
       refreshData();
       handleClose();
     } catch (err) {
+      console.error("Error submitting form:", err);
       onToast("Failed to submit the form. Please try again.", "error");
     } finally {
       setIsSubmitting(false);
