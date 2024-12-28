@@ -55,7 +55,7 @@ const EmployeeSidebar = ({ closeSidebar }) => {
           }, 500);
           return () => clearInterval(interval);
         } else {
-          const userIdFromCookie = Cookies.get("userId");
+          const userIdFromCookie = Cookies.get("LoggedinUserId");
 
           if (userIdFromCookie) {
             const { userData } = await fetchEmployeeDetails(userIdFromCookie);

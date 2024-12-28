@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 
 export function middleware(req) {
   const url = req.nextUrl.clone();
-  const authToken = req.cookies.get("userId"); // Getting cookie from the request
+  const authToken = req.cookies.get("LoggedinUserId"); // Getting cookie from the request
   // const hiddenPages = ["", "/employee/logout", "/callback"];
 
   // // Skip middleware for paths in hiddenPages
