@@ -25,15 +25,15 @@ const EmployeeLoginPage = () => {
         Cookies.set("LoggedinUserId", response.userId, {
           expires: 1,
           path: "/",
-          secure: false, // Use false for localhost
-          sameSite: "Lax",
+          secure: process.env.NODE_ENV === "production", // Use secure cookies in production
+          sameSite: "Lax", // Default cross-site setting for navigation requests
         });
 
         Cookies.set("isPassBasedAuth", true, {
           expires: 1,
           path: "/",
-          secure: false,
-          sameSite: "Lax",
+          secure: process.env.NODE_ENV === "production", // Use secure cookies in production
+          sameSite: "Lax", // Default cross-site setting for navigation requests
         });
 
         const finalRedirectTo =

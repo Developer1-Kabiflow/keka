@@ -31,7 +31,8 @@ export function middleware(req) {
     const response = NextResponse.redirect(url);
     response.cookies.set("redirectTo", redirectTo, {
       path: "/", // Make sure it's accessible across your app
-      sameSite: "Strict", // Helps to avoid cross-site request issues
+      sameSite: "Lax", // Allows cross-origin GET requests (e.g., redirects)
+      secure: process.env.NODE_ENV === "production", // Use secure cookies in production
     });
 
     console.log("Cookie 'redirectTo' set with value:", redirectTo);

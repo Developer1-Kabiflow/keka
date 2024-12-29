@@ -79,8 +79,8 @@ export default function Callback() {
           const isSSO = true;
           Cookies.set("LoggedinUserId", response.user_id, {
             expires: 1,
-            path: "/",
-            secure: true,
+            secure: process.env.NODE_ENV === "production", // Use secure cookies in production
+            sameSite: "Lax", // Default cross-site setting for navigation requests
           });
           const cookieData = {
             kekaId: user_id,
@@ -96,8 +96,8 @@ export default function Callback() {
           Cookies.set("userInfo", JSON.stringify(cookieData), {
             expires: 1,
             path: "/",
-            secure: false,
-            sameSite: "Strict",
+            secure: process.env.NODE_ENV === "production", // Use secure cookies in production
+            sameSite: "Lax", // Default cross-site setting for navigation requests
           });
 
           const cookieRedirectTo = Cookies.get("redirectTo");

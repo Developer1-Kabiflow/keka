@@ -42,8 +42,8 @@ const EmployeeSidebar = ({ closeSidebar }) => {
                 Cookies.set("userId", userInfo.EmployeeId, {
                   expires: 1,
                   path: "/",
-                  secure: false,
-                  sameSite: "Strict",
+                  secure: process.env.NODE_ENV === "production", // Use secure cookies in production
+                  sameSite: "Lax", // Default cross-site setting for navigation requests
                 });
                 clearInterval(interval);
                 setIsLoading(false);
@@ -62,8 +62,8 @@ const EmployeeSidebar = ({ closeSidebar }) => {
             Cookies.set("userId", userData?.EmployeeId, {
               expires: 1,
               path: "/",
-              secure: false,
-              sameSite: "Strict",
+              secure: process.env.NODE_ENV === "production", // Use secure cookies in production
+              sameSite: "Lax", // Default cross-site setting for navigation requests
             });
             setEmployeeData({
               Department: userData?.Department,
