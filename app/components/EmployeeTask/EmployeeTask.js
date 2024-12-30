@@ -21,8 +21,10 @@ const EmployeeTask = () => {
     all: { data: [], pagination: { currentPage: 1, totalPages: 1 } },
     approved: { data: [], pagination: { currentPage: 1, totalPages: 1 } },
     pending: { data: [], pagination: { currentPage: 1, totalPages: 1 } },
-    rejected: { data: [], pagination: { currentPage: 1, totalPages: 1 } },
   });
+  const searchParams = useSearchParams();
+  const requestId = searchParams.get("requestId");
+
   const tabs = useMemo(
     () => [
       { key: "All Tasks", label: "All Tasks" },
@@ -31,105 +33,63 @@ const EmployeeTask = () => {
     ],
     []
   );
-  const searchParams = useSearchParams();
-  const requestId = searchParams.get("requestId");
-  const [error, setError] = useState(null); // Initialize error state
-  useEffect(() => {
-    console.log("requestId from cookie " + requestId);
-    if (requestId) {
-      setSelectedRequestId(requestId);
-      setIsModalOpen(true);
-    }
-  }, [requestId]);
-  const openModal = (requestId, isPending) => {
-    setShowSubmit(isPending);
-    setSelectedRequestId(requestId);
-    setIsModalOpen(true);
-    const query = new URLSearchParams(window.location.search);
-    query.set("requestId", requestId);
-    window.history.pushState(
-      null,
-      "",
-      `${window.location.pathname}?${query.toString()}`
-    );
-  };
 
-  const closeModal = () => {
-    setIsModalOpen(false);
-    setSelectedRequestId(null);
-    const query = new URLSearchParams(window.location.search);
-    query.delete("requestId");
-    window.history.pushState(
-      null,
-      "",
-      `${window.location.pathname}?${query.toString()}`
-    );
-  };
-
-  const handlePageChange = (type, newPage) => {
-    const approverId = Cookies.get("userId");
-    if (approverId) {
-      loadTaskData(type, approverId, newPage);
-    }
-  };
-
-  const handleToast = (message, type) => {
-    if (type === "success") {
-      toast.success(message);
-    } else if (type === "error") {
-      toast.error(message);
-    }
-  };
-
-  const loadTaskData = useCallback(async (type, approverId, page = 1) => {
-    try {
-      setLoading(true);
-      setError(null);
-      let response;
-      switch (type) {
-        case "all":
-          response = await fetchAll(approverId, page);
-          break;
-        case "completed":
-          response = await fetchCompleted(approverId, page);
-          break;
-        case "pending":
-          response = await fetchPending(approverId, page);
-          break;
-        default:
-          return;
-      }
-      const {
-        Allrequests = [],
-        Completedrequests = [],
-        Pendingrequests = [],
-        pagination = { currentPage: 1, totalPages: 1 },
-      } = response || {};
-
-      setTaskData((prevState) => ({
-        ...prevState,
-        [type]: {
-          data:
-            type === "pending"
-              ? Pendingrequests
-              : type === "completed"
-              ? Completedrequests
-              : Allrequests,
-          pagination: {
-            currentPage: pagination?.[1] || 1,
-            totalPages: pagination?.[0] || 1,
-          },
-        },
-      }));
-    } catch (err) {
-      console.error("Error fetching task data:", err);
-      setError("Failed to load data. Please try again.");
-    } finally {
-      setLoading(false);
-    }
+  const handleToast = useCallback((message, type) => {
+    type === "success" ? toast.success(message) : toast.error(message);
   }, []);
 
-  useEffect(() => {
+  const loadTaskData = useCallback(
+    async (type, approverId, page = 1) => {
+      try {
+        setLoading(true);
+        let response;
+        switch (type) {
+          case "all":
+            response = await fetchAll(approverId, page);
+            break;
+          case "completed":
+            response = await fetchCompleted(approverId, page);
+            break;
+          case "pending":
+            response = await fetchPending(approverId, page);
+            break;
+          default:
+            throw new Error("Invalid task type");
+        }
+
+        const {
+          Allrequests = [],
+          Completedrequests = [],
+          Pendingrequests = [],
+          pagination = { currentPage: 1, totalPages: 1 },
+        } = response || {};
+
+        setTaskData((prevState) => ({
+          ...prevState,
+          [type]: {
+            data:
+              type === "pending"
+                ? Pendingrequests
+                : type === "completed"
+                ? Completedrequests
+                : Allrequests,
+            pagination: {
+              currentPage: pagination.currentPage || 1,
+              totalPages: pagination.totalPages || 1,
+            },
+          },
+        }));
+      } catch (err) {
+        console.error("Error fetching task data:", err);
+        handleToast("Failed to load data. Please try again.", "error");
+      } finally {
+        setLoading(false);
+      }
+    },
+    [handleToast]
+  );
+
+  const refreshData = useCallback(() => {
     const approverId = Cookies.get("userId");
     if (approverId) {
       loadTaskData("all", approverId);
@@ -138,50 +98,84 @@ const EmployeeTask = () => {
     }
   }, [loadTaskData]);
 
-  const refreshData = () => {
+  useEffect(() => {
     const approverId = Cookies.get("userId");
-    loadTaskData("all", approverId);
-    loadTaskData("completed", approverId);
-    loadTaskData("pending", approverId);
-  };
+    if (approverId) refreshData();
+  }, [refreshData]);
 
-  const renderContent = () => {
+  useEffect(() => {
+    if (requestId) {
+      setSelectedRequestId(requestId);
+      refreshData();
+      setIsModalOpen(true);
+    }
+  }, [requestId, refreshData]);
+
+  const openModal = useCallback((requestId, isPending) => {
+    setShowSubmit(isPending);
+    setSelectedRequestId(requestId);
+    setIsModalOpen(true);
+
+    const query = new URLSearchParams(window.location.search);
+    query.set("requestId", requestId);
+    window.history.pushState(null, "", `${window.location.pathname}?${query}`);
+  }, []);
+
+  const closeModal = useCallback(() => {
+    setIsModalOpen(false);
+    setSelectedRequestId(null);
+
+    const query = new URLSearchParams(window.location.search);
+    query.delete("requestId");
+    window.history.pushState(null, "", `${window.location.pathname}?${query}`);
+  }, []);
+
+  const handlePageChange = useCallback(
+    (type, newPage) => {
+      const approverId = Cookies.get("userId");
+      if (approverId) loadTaskData(type, approverId, newPage);
+    },
+    [loadTaskData]
+  );
+
+  const renderContent = useCallback(() => {
+    const tableProps = {
+      loading,
+      handleViewModal: openModal,
+    };
+
     switch (activeTab) {
       case "All Tasks":
         return (
           <RequestTable
+            {...tableProps}
             data={taskData.all.data}
-            loading={loading}
             pagination={taskData.all.pagination}
-            handleViewModal={openModal}
             handlePageChange={(page) => handlePageChange("all", page)}
           />
         );
       case "Pending Tasks":
         return (
           <RequestTable
+            {...tableProps}
             data={taskData.pending.data}
-            loading={loading}
             pagination={taskData.pending.pagination}
-            handleViewModal={openModal}
             handlePageChange={(page) => handlePageChange("pending", page)}
           />
         );
       case "Completed Tasks":
         return (
           <RequestTable
-            data={taskData.completed.data}
-            loading={loading}
+            {...tableProps}
+            data={taskData.approved.data}
             pagination={taskData.approved.pagination}
-            handleViewModal={openModal}
             handlePageChange={(page) => handlePageChange("approved", page)}
           />
         );
-
       default:
         return <div>Invalid Tab</div>;
     }
-  };
+  }, [activeTab, taskData, loading, openModal, handlePageChange]);
 
   return (
     <div className="flex flex-col md:flex-row h-screen">
@@ -194,7 +188,7 @@ const EmployeeTask = () => {
                   activeTab === tab.key
                     ? "text-blue-600 font-bold bg-white"
                     : "hover:text-gray-600 hover:bg-gray-50"
-                } `}
+                }`}
                 onClick={() => setActiveTab(tab.key)}
               >
                 {tab.label}
@@ -204,7 +198,6 @@ const EmployeeTask = () => {
         </ul>
         {renderContent()}
       </div>
-      {/* Modal Component */}
       {isModalOpen && (
         <Modal
           isOpen={isModalOpen}
