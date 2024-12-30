@@ -49,9 +49,9 @@ export const fetchPendingTasks = async (approverId, page) => {
 export const fetchProgressStepContainerData = async (requestId) => {
   try {
     const response = await axios.get(
-      `http://localhost:5000/api/v1/progress/status/${requestId}`
+      `${BASE_URL}/progress/status/${requestId}`
     );
-    console.log(`http://localhost:5000/api/v1/progress/status/${requestId}`);
+    console.log(`${BASE_URL}/progress/status/${requestId}`);
     console.dir(response.data);
     return response.data;
   } catch (err) {
