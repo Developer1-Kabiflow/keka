@@ -12,13 +12,14 @@ import UnpublishedIcon from "@mui/icons-material/Unpublished";
 
 export default function ProgressStepsContainer({ approvalData }) {
   const [newApprovalData, setNewApprovalData] = useState(null);
-
+  const [isTaskFlow, setIsTaskFlow] = useState(false);
   const transformApprovalData = (approvalData) => {
     if (!approvalData) return null;
 
     const approvalStepsKey = approvalData.approval_step
       ? "approval_step"
       : "task_levels";
+    setIsTaskFlow(approvalStepsKey === "task_levels");
     const approvalListKey = "approval_list";
     const taskOwnersKey = "task_owners";
 
@@ -203,12 +204,22 @@ export default function ProgressStepsContainer({ approvalData }) {
 
   const stepperHeading = () => {
     const overallThemeColor = getOverallThemeColor();
-    const headingText =
-      overallThemeColor === "#FAA0A0"
-        ? "Request Rejected"
-        : overallThemeColor === "#93C572"
-        ? "All Steps Completed"
-        : "Approval Process Ongoing";
+    let headingText;
+    if (isTaskFlow === true) {
+      headingText =
+        overallThemeColor === "#FAA0A0"
+          ? "Request Rejected"
+          : overallThemeColor === "#93C572"
+          ? "All Steps Completed"
+          : "Task Process Ongoing";
+    } else {
+      headingText =
+        overallThemeColor === "#FAA0A0"
+          ? "Request Rejected"
+          : overallThemeColor === "#93C572"
+          ? "All Steps Completed"
+          : "Approval Process Ongoing";
+    }
 
     return (
       <Typography
