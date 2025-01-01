@@ -279,6 +279,7 @@ const Modal = ({
                   />
                 </div>
               ))}
+              {formData?.files?.length > 0 && { renderUploadedFiles }}
 
               {renderFileInput()}
               {showSubmit && (
