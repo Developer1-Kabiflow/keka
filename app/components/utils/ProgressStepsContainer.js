@@ -12,49 +12,56 @@ import UnpublishedIcon from "@mui/icons-material/Unpublished";
 
 export default function ProgressStepsContainer({ approvalData }) {
   const [newApprovalData, setNewApprovalData] = useState(null);
-
-  console.log("approvalData-->", approvalData);
-
+  const [isTaskFlow, setIsTaskFlow] = useState(false);
   const transformApprovalData = (approvalData) => {
-    if (!approvalData || !approvalData.approval_step) return null;
+    if (!approvalData) return null;
+
+    const approvalStepsKey = approvalData.approval_step
+      ? "approval_step"
+      : "task_levels";
+    setIsTaskFlow(approvalStepsKey === "task_levels");
+    const approvalListKey = "approval_list";
+    const taskOwnersKey = "task_owners";
 
     return {
       ...approvalData,
-      approval_step: approvalData.approval_step.map((step) => ({
+      approval_step: (approvalData[approvalStepsKey] || []).map((step) => ({
         step: step.step,
         step_name: `Step ${step.step}`,
-        approval_list: step.approval_list.map((approval) => {
-          const approverAction = step.action_by?.find(
-            (action) => action.approved_by === approval.employee_id
-          );
+        approval_list: (step[approvalListKey] || step[taskOwnersKey] || []).map(
+          (approval) => {
+            const approverAction = (step.action_by || []).find(
+              (action) => action.approved_by === approval.employee_id
+            );
 
-          const approvalStatus = approverAction
-            ? approverAction.task_status
-            : "Pending";
+            let approvalStatus = approverAction?.task_status || "Pending";
+            if (approvalStatus === "Completed") {
+              approvalStatus = "Approved";
+            }
 
-          const feedback =
-            approvalStatus === "Rejected" && approverAction?.notes
-              ? (() => {
-                  try {
-                    return (
-                      JSON.parse(approverAction.notes)?.rejectionNote || ""
-                    );
-                  } catch {
-                    return "";
-                  }
-                })()
-              : "";
+            let feedback = "";
+            if (approvalStatus === "Rejected" && approverAction?.notes) {
+              try {
+                feedback =
+                  JSON.parse(approverAction.notes)?.rejectionNote || "";
+              } catch (error) {
+                console.error("Error parsing rejection notes:", error);
+              }
+            }
 
-          return {
-            employee_name: approval.employee_name,
-            role: approval.role,
-            approval_status: approvalStatus,
-            feedback,
-          };
-        }),
+            return {
+              employee_name:
+                approval.employee_name || `ID: ${approval.employee_id}`,
+              role: approval.role,
+              approval_status: approvalStatus,
+              feedback,
+            };
+          }
+        ),
       })),
     };
   };
+
   const renderSkeleton = () => (
     <Box
       sx={{
@@ -93,11 +100,13 @@ export default function ProgressStepsContainer({ approvalData }) {
       />
     </Box>
   );
+
   useEffect(() => {
     if (approvalData) {
       const transformedData = transformApprovalData(approvalData);
       setNewApprovalData(transformedData);
-      console.log("newApprovalData-->", transformedData);
+      console.log("transformedData");
+      console.dir(transformedData);
     }
   }, [approvalData]);
 
@@ -107,7 +116,7 @@ export default function ProgressStepsContainer({ approvalData }) {
 
   const hasApprovals = () =>
     newApprovalData.approval_step.every((step) =>
-      step.approval_list.every(
+      step.approval_list.some(
         (approval) => approval.approval_status !== "Pending"
       )
     );
@@ -120,16 +129,15 @@ export default function ProgressStepsContainer({ approvalData }) {
     );
 
   const getHeadingColor = (headingText) => {
-    console.log(headingText);
     if (headingText === "Request Rejected") return "#D22B2B"; //red
     if (headingText === "All Steps Completed") return "#008000"; //green
     return "#899499"; //grey
   };
 
   const getOverallThemeColor = () => {
-    if (hasRejections()) return "#FAA0A0";
-    if (hasApprovals()) return "#93C572";
-    return "#E5E4E2";
+    if (hasRejections()) return "#FAA0A0"; // Red theme if rejected
+    if (hasApprovals()) return "#93C572"; // Green theme if completed
+    return "#E5E4E2"; // Grey theme if pending
   };
 
   const renderStepIcon = ({ icon }) => {
@@ -196,13 +204,22 @@ export default function ProgressStepsContainer({ approvalData }) {
 
   const stepperHeading = () => {
     const overallThemeColor = getOverallThemeColor();
-    console.log("overallThemeColor-->" + overallThemeColor);
-    const headingText =
-      overallThemeColor === "#FAA0A0"
-        ? "Request Rejected"
-        : overallThemeColor === "#93C572"
-        ? "All Steps Completed"
-        : "Approval Process Ongoing";
+    let headingText;
+    if (isTaskFlow === true) {
+      headingText =
+        overallThemeColor === "#FAA0A0"
+          ? "Request Rejected"
+          : overallThemeColor === "#93C572"
+          ? "All Steps Completed"
+          : "Task Process Ongoing";
+    } else {
+      headingText =
+        overallThemeColor === "#FAA0A0"
+          ? "Request Rejected"
+          : overallThemeColor === "#93C572"
+          ? "All Steps Completed"
+          : "Approval Process Ongoing";
+    }
 
     return (
       <Typography

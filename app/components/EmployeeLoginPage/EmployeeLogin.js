@@ -2,7 +2,7 @@
 
 import { employeeLoginRequest } from "@/app/controllers/employeeController";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { IoMdLogIn } from "react-icons/io";
 import Cookies from "js-cookie";
 
@@ -11,9 +11,7 @@ const EmployeeLoginPage = () => {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-
   const router = useRouter();
-
   const handleLogin = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -24,13 +22,28 @@ const EmployeeLoginPage = () => {
       const response = await employeeLoginRequest(formData);
 
       if (response.redirectUrl) {
-        Cookies.set("userId", response.userId, {
+        Cookies.set("LoggedinUserId", response.userId, {
           expires: 1,
-          path: "",
-          secure: true,
-          sameSite: "Strict",
+          path: "/",
+          secure: process.env.NODE_ENV === "production", // Use secure cookies in production
+          sameSite: "Lax", // Default cross-site setting for navigation requests
         });
-        router.push(response.redirectUrl);
+
+        Cookies.set("isPassBasedAuth", true, {
+          expires: 1,
+          path: "/",
+          secure: process.env.NODE_ENV === "production", // Use secure cookies in production
+          sameSite: "Lax", // Default cross-site setting for navigation requests
+        });
+
+        const finalRedirectTo =
+          Cookies.get("redirectTo") || response.redirectUrl;
+
+        console.log("Redirecting to:", finalRedirectTo);
+
+        router.push(finalRedirectTo);
+        // Redirect to the original URL
+        Cookies.remove("redirectTo"); // Clean up the cookie after redirection
       } else {
         setError("Unexpected response from server.");
       }
@@ -42,6 +55,20 @@ const EmployeeLoginPage = () => {
     }
   };
 
+  const handleSSOLogin = async (e) => {
+    e.preventDefault();
+    console.log("reached handleSSOLogin");
+    const authorizeUrl = "https://login.kekademo.com/connect/authorize";
+    const params = new URLSearchParams({
+      response_type: "code",
+      client_id: process.env.NEXT_PUBLIC_CLIENT_ID,
+      redirect_uri: process.env.NEXT_PUBLIC_REDIRECT_URI,
+      state: "test",
+      scope: "openid",
+    });
+    window.location.href = `${authorizeUrl}?${params.toString()}`;
+  };
+
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
       <div className="w-full max-w-md bg-white shadow-md rounded-lg p-8">
@@ -51,7 +78,7 @@ const EmployeeLoginPage = () => {
         <h2 className="text-2xl font-bold text-center text-gray-800 mb-6">
           Employee Login
         </h2>
-        <form onSubmit={handleLogin} className="space-y-4">
+        <form className="space-y-4">
           {error && <div className="text-red-500 text-sm">{error}</div>}
           <div>
             <label
@@ -88,11 +115,19 @@ const EmployeeLoginPage = () => {
             />
           </div>
           <button
-            type="submit"
+            onClick={handleLogin}
             className="w-full bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 transition"
           >
             {loading ? "Logging in..." : "Login"}
           </button>
+          <div className="mt-4 text-center">
+            <button
+              onClick={handleSSOLogin}
+              className="w-full bg-green-500 text-white py-2 px-4 rounded-md hover:bg-green-600 transition"
+            >
+              Login with SSO
+            </button>
+          </div>
         </form>
       </div>
     </div>

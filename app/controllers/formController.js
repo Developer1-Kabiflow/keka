@@ -1,7 +1,9 @@
 import {
   fetchFormSchema,
   fetchMyFormdata,
+  fetchTaskFormSchema,
   submitFormData,
+  submitTaskFormData,
 } from "../models/formModels";
 
 // Process form schema and prepare initial data
@@ -54,12 +56,55 @@ export const getMyFormData = async (requestId) => {
 };
 
 // Prepare form submission data and handle submission
-export const handleFormSubmissionWithData = async (formId, submittedData) => {
+
+export const handleFormSubmissionWithData = async (
+  formId,
+  formDataToSubmit
+) => {
   try {
-    const result = await submitFormData(formId, submittedData);
-    return { submittedData, result };
+    const result = await submitFormData(formId, formDataToSubmit);
+    return { formDataToSubmit, result }; // Return both formData and response data
   } catch (error) {
     console.error("Error in handleFormSubmissionWithData:", error.message);
-    throw error;
+    throw error; // Propagate the error
+  }
+};
+export const handleTaskFormSubmission = async (
+  requestId,
+  approverId,
+  formDataToSubmit
+) => {
+  try {
+    const result = await submitTaskFormData(
+      requestId,
+      approverId,
+      formDataToSubmit
+    );
+    return { formDataToSubmit, result }; // Return both formData and response data
+  } catch (error) {
+    console.error("Error in handleFormSubmissionWithData:", error.message);
+    throw error; // Propagate the error
+  }
+};
+export const getTaskFormSchema = async (requestId, approverId) => {
+  try {
+    const response = await fetchTaskFormSchema(requestId, approverId);
+    console.log("Response from fetchTaskFormSchema:", response);
+    const { formFetched, enabledField } = response;
+    if (!formFetched?.fields || formFetched.fields.length === 0) {
+      throw new Error("Schema fields are empty or undefined");
+    }
+
+    console.log("enabled field list from controller:");
+    console.dir(enabledField);
+
+    return {
+      formData: formFetched.fields,
+      formAttachments: formFetched.attachments || [],
+      enabledField: enabledField || [],
+    };
+  } catch (error) {
+    console.error("Error in getTaskFormSchema:", error.message);
+    throw new Error("Failed to fetch and process form schema");
   }
 };

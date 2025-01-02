@@ -1,20 +1,23 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback } from "react";
-import ProgressStepsContainer from "../ProgressStepsContainer";
+import ProgressStepsContainer from "../utils/ProgressStepsContainer";
 import { getMyFormData } from "@/app/controllers/formController";
 import {
   handleApprove,
   handleReject,
 } from "@/app/controllers/approvalController";
 import Cookies from "js-cookie";
-
+import DownloadIcon from "@mui/icons-material/Download";
+import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
+import Tooltip from "@mui/material/Tooltip";
+import ShareIcon from "@mui/icons-material/Share";
 const ViewModal = ({
   isOpen,
   handleClose,
   showAcceptReject,
   requestId,
-  onToast, // Toast handler passed from parent
+  onToast,
   refreshData,
 }) => {
   const [loading, setLoading] = useState(false); // For fetching form data
@@ -27,9 +30,9 @@ const ViewModal = ({
   const [rejectionNote, setRejectionNote] = useState("");
   const bottomRef = useRef(null);
   const progressStepsRef = useRef(null);
+  const [isUrlCopied, setIsUrlCopied] = useState(false);
+  const [approverId, setApproverId] = useState(null);
 
-  const approverId = Cookies.get("userId");
-  console.log("requestId-->" + requestId);
   // Fetch Form Data
   const fetchForm = useCallback(async () => {
     if (isOpen && requestId) {
@@ -47,7 +50,18 @@ const ViewModal = ({
   }, [isOpen, requestId, onToast]);
 
   useEffect(() => {
-    fetchForm();
+    let intervalId;
+
+    const waitForUserId = () => {
+      const approverId = Cookies.get("userId");
+      if (approverId) {
+        setApproverId(approverId);
+        clearInterval(intervalId);
+        fetchForm(approverId);
+      }
+    };
+    intervalId = setInterval(waitForUserId, 500);
+    return () => clearInterval(intervalId);
   }, [fetchForm]);
 
   // Handle Reject Button Click
@@ -59,7 +73,16 @@ const ViewModal = ({
       0
     );
   };
-
+  const copyUrlToClipboard = () => {
+    const url = window.location.href; // Get the current URL
+    navigator.clipboard
+      .writeText(url)
+      .then(() => {
+        setIsUrlCopied(true); // Set state to indicate URL has been copied
+        setTimeout(() => setIsUrlCopied(false), 2000); // Reset the state after 2 seconds
+      })
+      .catch((err) => console.error("Error copying URL to clipboard: ", err));
+  };
   // Close Reject Textbox
   const handleRejectClose = () => setShowRejectTextbox(false);
 
@@ -93,7 +116,13 @@ const ViewModal = ({
       setRejecting(false); // End rejection loading
     }
   };
-
+  const handleDownload = (fileData, fileName) => {
+    const blob = new Blob([fileData], { type: "application/pdf" });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = fileName;
+    link.click();
+  };
   // Handle Approval
   const handleApproval = async (e) => {
     e.preventDefault();
@@ -113,17 +142,29 @@ const ViewModal = ({
       setApproving(false); // End approval loading
     }
   };
-
+  const isPdf = (url) => url.endsWith(".pdf");
   if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center z-50">
       <div className="relative bg-white p-6 rounded-lg w-full sm:w-[600px] md:w-[800px] lg:w-[900px] xl:w-[1000px] h-auto max-h-[80vh] overflow-y-auto">
-        <div className="flex justify-center items-center mb-4">
+        <div className="flex justify-center gap-10 items-center mb-4">
           <span className="text-2xl font-semibold text-blue-600">
-            Task Details
+            Approval Request Details
           </span>
+          <button
+            onClick={copyUrlToClipboard}
+            className="text-sm text-blue-600 hover:text-blue-800 font-medium"
+          >
+            <ShareIcon fontSize="medium" />
+          </button>
         </div>
+        {/* Show feedback when URL is copied */}
+        {isUrlCopied && (
+          <div className="text-green-500 text-sm mb-2">
+            URL copied to clipboard!
+          </div>
+        )}
         {loading ? (
           /* Skeletal Loader */
           <div className="animate-pulse space-y-4">
@@ -165,7 +206,54 @@ const ViewModal = ({
                     />
                   </div>
                 ))}
+                {/* Files Section */}
+                {formData?.files?.length > 0 && (
+                  <div className="mt-6">
+                    <h3 className="text-lg font-semibold mb-4">
+                      Uploaded Files
+                    </h3>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                      {formData.files.map((file) => (
+                        <div
+                          key={file._id}
+                          className="bg-white p-4 rounded-lg shadow-md hover:shadow-lg transition-all flex items-center justify-between"
+                        >
+                          <div className="flex items-center gap-4">
+                            <Tooltip title="Open File" arrow>
+                              <a
+                                href={file.url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-blue-600 hover:text-blue-800"
+                              >
+                                {isPdf(file.url) ? (
+                                  <PictureAsPdfIcon fontSize="large" />
+                                ) : (
+                                  <span className="text-sm font-semibold text-gray-800">
+                                    Open
+                                  </span>
+                                )}
+                              </a>
+                            </Tooltip>
+                            <span className="text-sm font-semibold text-gray-800">
+                              {file.originalname}
+                            </span>
+                          </div>
 
+                          <Tooltip title="Download File" arrow>
+                            <button
+                              onClick={() => handleDownload(file.url)}
+                              className="text-black hover:bg-gray-300 py-2 px-4 rounded-md text-sm flex items-center justify-center gap-2"
+                            >
+                              <DownloadIcon fontSize="small" />
+                              Download
+                            </button>
+                          </Tooltip>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
                 {showAcceptReject && (
                   <div className="flex flex-col sm:flex-row justify-center gap-6 sm:mx-48 mt-6">
                     <button

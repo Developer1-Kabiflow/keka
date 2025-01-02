@@ -16,11 +16,17 @@ const Modal = ({ isOpen, handleClose, itemId, onToast, refreshData }) => {
   const [formErrors, setFormErrors] = useState({});
   const [selectedFiles, setSelectedFiles] = useState([]);
   const [fileAttachments, setFileAttachments] = useState([]);
-
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const formId = itemId;
 
   useEffect(() => {
     if (isOpen) {
+      setFormSchema([]);
+      setFormData({});
+      setFormErrors({});
+      setSelectedFiles([]);
+      setFileAttachments([]);
+      setError(null);
       const fetchForm = async () => {
         try {
           setLoading(true);
@@ -48,10 +54,11 @@ const Modal = ({ isOpen, handleClose, itemId, onToast, refreshData }) => {
     }
   }, [isOpen, formId]);
 
-  const handleFileChange = (event) => {
-    const newFiles = Array.from(event.target.files);
-    setSelectedFiles((prevFiles) => [...prevFiles, ...newFiles]);
-  };
+  useEffect(() => {
+    if (isOpen) {
+      setSelectedFiles(new Array(fileAttachments.length).fill(null));
+    }
+  }, [isOpen, fileAttachments.length]);
 
   const validateField = (name, value, validationRules) => {
     for (const rule of validationRules) {
@@ -99,7 +106,9 @@ const Modal = ({ isOpen, handleClose, itemId, onToast, refreshData }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (isSubmitting) return; // Prevent further submissions if already submitting
 
+    setIsSubmitting(true); // Set submitting state
     // Step 1: Validate form fields
     const errors = formSchema.reduce((acc, field) => {
       const fieldValue = formData[field.name] || "";
@@ -117,9 +126,9 @@ const Modal = ({ isOpen, handleClose, itemId, onToast, refreshData }) => {
     setFormErrors(errors);
 
     if (Object.keys(errors).length > 0) {
+      setIsSubmitting(false); // Allow resubmission after resolving errors
       return; // Exit if there are validation errors
     }
-
     try {
       // Step 2: Prepare form data
       const submittedData = formSchema.reduce((acc, field) => {
@@ -138,46 +147,75 @@ const Modal = ({ isOpen, handleClose, itemId, onToast, refreshData }) => {
         formDataToSubmit.append(key, value);
       });
 
-      selectedFiles.forEach((file, index) => {
-        formDataToSubmit.append(`files[]`, file); // Append files to FormData
+      selectedFiles.forEach((file) => {
+        formDataToSubmit.append("files[]", file); // Append files to FormData
       });
-      // Step 3: Submit form data
 
+      // Step 3: Submit form data
       formDataToSubmit.forEach((value, key) => {
         console.log("new formDataToSubmit==>>", key, value);
       });
 
       await handleFormSubmissionWithData(formId, formDataToSubmit);
       onToast("Created Request Successfully", "success");
-      refreshData();
+
+      refreshData(); // Call refreshData from the grandparent
       handleClose();
     } catch (err) {
       console.error("Error submitting form:", err);
-      onToast("Failed to Create Request", "error");
       setError(err.message);
+    } finally {
+      setIsSubmitting(false); // Reset the submitting state
     }
   };
 
+  const handleFileChange = (event, index) => {
+    const fileInput = event.target;
+    const newFile = fileInput.files[0]; // Get the first file from the input
+
+    if (!newFile) return; // Exit if no file is selected
+
+    setSelectedFiles((prevFiles) => {
+      const updatedFiles = [...prevFiles];
+      updatedFiles[index] = newFile; // Replace the file at the specific index
+      return updatedFiles;
+    });
+
+    // Clear the file input value to allow re-uploading the same file
+    fileInput.value = "";
+  };
+
   const renderFile = (attachment, index) => (
-    <div key={index} className="mb-4">
+    <div
+      key={index}
+      className="mb-6 border rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow"
+    >
       <label
         htmlFor={`file-upload-${index}`}
-        className="block text-sm font-semibold"
+        className="block text-sm font-medium text-gray-700 mb-2"
       >
         {attachment.display}
       </label>
-      <input
-        type={attachment.type}
-        id={`file-upload-${index}`}
-        name={`file-upload-${index}`}
-        onChange={(e) => handleFileChange(e, index)} // Handles file selection
-        className="mt-2"
-      />
-      {selectedFiles[index] && (
-        <p className="mt-2 text-sm text-gray-600">
-          Selected file: {selectedFiles[index].name}
-        </p>
-      )}
+      <div className="flex items-center space-x-4">
+        <input
+          type="file"
+          id={`file-upload-${index}`}
+          name={`file-upload-${index}`}
+          onChange={(e) => handleFileChange(e, index)} // Handle file change
+          className="hidden" // Hide the default input
+        />
+        <label
+          htmlFor={`file-upload-${index}`}
+          className="px-4 py-2 bg-blue-500 text-white text-sm font-semibold rounded cursor-pointer hover:bg-blue-600 focus:outline-none"
+        >
+          Choose File
+        </label>
+        <span className="text-sm text-gray-600 truncate max-w-xs">
+          {selectedFiles[index]
+            ? `Selected: ${selectedFiles[index].name}`
+            : "No file chosen"}
+        </span>
+      </div>
     </div>
   );
 
@@ -266,14 +304,18 @@ const Modal = ({ isOpen, handleClose, itemId, onToast, refreshData }) => {
           <h2 className="text-xl font-semibold">{formType || "Form"}</h2>
         </div>
         {loading ? (
-          <div>
-            {Array.from({ length: 6 }).map((_, index) => (
-              <div key={index} className="mb-4">
-                <div className="h-4 bg-gray-300 rounded w-1/3 mb-2"></div>
-                <div className="h-10 bg-gray-300 rounded"></div>
-              </div>
-            ))}
-            <div className="mt-4 h-10 bg-gray-300 rounded w-1/4"></div>
+          <div className="animate-pulse space-y-4">
+            <div className="h-8 bg-gray-200 rounded w-1/3 mx-auto"></div>
+            <div className="h-6 bg-gray-200 rounded w-2/3 mx-auto"></div>
+            <div className="space-y-2">
+              {[...Array(4)].map((_, index) => (
+                <div
+                  key={index}
+                  className="h-4 bg-gray-200 rounded w-full"
+                ></div>
+              ))}
+            </div>
+            <div className="h-48 bg-gray-200 rounded w-full"></div>
           </div>
         ) : (
           <form onSubmit={handleSubmit}>
@@ -283,7 +325,7 @@ const Modal = ({ isOpen, handleClose, itemId, onToast, refreshData }) => {
               type="submit"
               className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
             >
-              Submit
+              {isSubmitting ? "Submitting..." : "Submit"}
             </button>
           </form>
         )}

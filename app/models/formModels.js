@@ -48,14 +48,56 @@ export const fetchMyFormdata = async (requestId) => {
 
 // Submit form data to backend
 export const submitFormData = async (formId, formData) => {
+  formData.forEach((value, key) => {
+    console.log("FormData in models==>>", key, value);
+  });
+
   try {
     const response = await axios.post(
       `${BASE_URL}/request/addRequest/${formId}`,
-      formData
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data", // Ensure multipart header
+        },
+      }
     );
     return response.data;
   } catch (error) {
-    console.error("Error in submitFormData:", error.message);
+    console.error(
+      "Error in submitFormData:",
+      error.response?.data || error.message
+    );
     throw error;
+  }
+};
+// Fetch pending requests for an employee
+export const fetchTaskFormSchema = async (requestId, approverId) => {
+  try {
+    const response = await axios.get(
+      `${BASE_URL}/taskForm/getTaskForm/${requestId}/${approverId}`
+    );
+    console.log(`${BASE_URL}/taskForm/getTaskForm/${requestId}/${approverId}`);
+    console.dir(response.data);
+    return response.data;
+  } catch (error) {
+    //throw new Error(error.response?.data?.message || "Error fetching requests");
+  }
+};
+
+export const submitTaskFormData = async (requestId, approverId, formData) => {
+  try {
+    const response = await axios.post(
+      `${BASE_URL}/taskForm/formSubmit/${requestId}/${approverId}`,
+      formData
+    );
+
+    return response.status === 200;
+  } catch (error) {
+    console.error(
+      "Error in submitTaskFormData:",
+      error.response?.data?.message || error.message
+    );
+    return false;
   }
 };

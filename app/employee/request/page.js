@@ -1,12 +1,11 @@
 import React from "react";
-import Navbar from "@/app/components/NavbarPage/Navbar";
-import EmployeeNewRequest from "@/app/components/EmployeeRequest/EmployeeNewRequest";
+import Navbar from "@/app/components/utils/Navbar";
+import EmployeeRequest from "@/app/components/EmployeeRequest/EmployeeRequest";
 
 const EmployeeRequestPage = () => {
   return (
     <div>
-      <Navbar />
-      <EmployeeNewRequest />
+      <EmployeeRequest />
     </div>
   );
 };

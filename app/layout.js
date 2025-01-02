@@ -1,16 +1,14 @@
 "use client";
 
+import React, { useEffect, useState } from "react";
 import localFont from "next/font/local";
 import "./globals.css";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
-import EmployeeSidebar from "@/app/components/EmployeeSidebarPage/EmployeeSidebar";
+import EmployeeSidebar from "./components/utils/EmployeeSidebar";
 import { metadata } from "./metadata";
-import { redirect } from "next/navigation";
-import Cookies from "js-cookie";
-
+import Navbar from "./components/utils/Navbar";
 export const Metadata = metadata;
 
 const geistSans = localFont({
@@ -25,30 +23,39 @@ const geistMono = localFont({
   weight: "100 900",
 });
 
+// RootLayout Component
 export default function RootLayout({ children }) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const pathname = usePathname(); // Get the current pathname
+  const pathname = usePathname();
 
-  // Define pages where the sidebar is not needed
-  const pagesWithoutSidebar = ["/", "/employee/logout"]; // Add more paths here if needed
+  // Define pages where the sidebar and navbar should not be shown
+  const hiddenPages = ["/", "/employee/logout", "/login", "/callback"];
 
-  // Determine whether the sidebar should be displayed
-  const shouldDisplaySidebar = !pagesWithoutSidebar.includes(pathname);
+  // Determine visibility of Sidebar and Navbar
+  const shouldDisplaySidebar = !hiddenPages.includes(pathname);
+  const shouldDisplayNavbar = !hiddenPages.includes(pathname);
 
-  // Toggle sidebar visibility for mobile
+  // Toggle Sidebar open/close
   const toggleMenu = () => {
     setIsSidebarOpen(!isSidebarOpen);
   };
 
+  // Close the sidebar when clicking outside of it or on any sidebar menu item
+  const closeSidebar = () => {
+    setIsSidebarOpen(false);
+  };
   useEffect(() => {
-    const userId = Cookies.get("userId");
-
-    // Redirect only if the current page is not `/`
-    if (!userId && pathname !== "/") {
-      redirect("/");
+    if (isSidebarOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "auto";
     }
-  }, [pathname]); // Add pathname to dependencies to re-run the effect when it changes
 
+    // Cleanup the effect on component unmount or sidebar close
+    return () => {
+      document.body.style.overflow = "auto";
+    };
+  }, [isSidebarOpen]);
   return (
     <html lang="en">
       <head>
@@ -58,68 +65,37 @@ export default function RootLayout({ children }) {
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <div className="flex min-h-screen">
-          {/* Sidebar Toggle Button for Mobile */}
-          {shouldDisplaySidebar && (
-            <div className="-mr-2 flex md:hidden">
-              <button
-                onClick={toggleMenu}
-                className="bg-blue-100 inline-flex items-center justify-center p-2 rounded-md text-blue-700 hover:bg-blue-200 focus:outline-none"
-              >
-                <svg
-                  className="h-6 w-6"
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  aria-hidden="true"
-                >
-                  {isSidebarOpen ? (
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M6 18L18 6M6 6l12 12"
-                    />
-                  ) : (
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M4 6h16M4 12h16m-7 6h7"
-                    />
-                  )}
-                </svg>
-              </button>
-            </div>
-          )}
-
-          {/* Mobile Sidebar Overlay */}
-          {shouldDisplaySidebar && (
+        <div className="flex h-screen">
+          {/* Mobile Sidebar with Overlay */}
+          {shouldDisplaySidebar && isSidebarOpen && (
             <div
-              className={`fixed inset-0 z-40 bg-gray-800 bg-opacity-75 md:hidden transition-transform ${
-                isSidebarOpen ? "block" : "hidden"
-              }`}
+              className="fixed inset-0 z-40 bg-black bg-opacity-50 md:hidden"
+              onClick={closeSidebar} // Close the sidebar when overlay is clicked
             >
-              <EmployeeSidebar closeSidebar={toggleMenu} />
+              <aside
+                className="fixed left-0 top-16 w-64  z-50"
+                onClick={(e) => e.stopPropagation()} // Prevent closing when clicking inside sidebar
+              >
+                <EmployeeSidebar closeSidebar={closeSidebar} />
+              </aside>
             </div>
           )}
 
           {/* Sidebar for Desktop */}
           {shouldDisplaySidebar && (
-            <div className="hidden md:block md:w-64 bg-gray-900 fixed h-full">
+            <aside className="hidden md:block md:w-64 bg-gray-900 h-full">
               <EmployeeSidebar />
-            </div>
+            </aside>
           )}
 
-          {/* Main content */}
-          <main
-            className={`flex-1 bg-gray-100 ${
-              shouldDisplaySidebar ? "md:ml-64" : ""
-            } ${isSidebarOpen ? "md:ml-0" : ""} transition-all duration-300`}
-          >
-            {children}
-          </main>
+          {/* Main Content Area */}
+          <div className="flex flex-col flex-1">
+            {/* Navbar */}
+            {shouldDisplayNavbar && <Navbar toggleMenu={toggleMenu} />}
+
+            {/* Main Content */}
+            <main className="flex-1 bg-gray-100 ">{children}</main>
+          </div>
         </div>
 
         {/* Toast notifications */}

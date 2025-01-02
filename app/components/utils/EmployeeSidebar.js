@@ -13,57 +13,87 @@ const EmployeeSidebar = ({ closeSidebar }) => {
   const [employeeData, setEmployeeData] = useState(null); // Store employee data
   const [isLoading, setIsLoading] = useState(true); // Loading state
   const [error, setError] = useState(null); // Error state
+  const [userId, setUserId] = useState();
 
   const handleItemClick = () => {
     if (isMobileOrTablet && closeSidebar) {
       closeSidebar();
     }
   };
-
-  const getEmployeeDetails = async () => {
-    const employeeId = Cookies.get("userId");
-    try {
-      if (!employeeId) {
-        throw new Error("No employee ID found in cookies.");
-      }
-      const { userData } = await fetchEmployeeDetails(employeeId);
-      setEmployeeData(userData);
-    } catch (err) {
-      setError(err.message || "Error fetching employee details.");
-    } finally {
-      setIsLoading(false); // Stop loading once data is fetched
-    }
-  };
-
   useEffect(() => {
-    getEmployeeDetails();
+    const fetchData = async () => {
+      try {
+        const isPassBasedAuth = Cookies.get("isPassBasedAuth") === "true";
+
+        if (!isPassBasedAuth) {
+          const interval = setInterval(() => {
+            const userInfoCookie = Cookies.get("userInfo");
+
+            if (userInfoCookie) {
+              try {
+                const userInfo = JSON.parse(userInfoCookie);
+                setEmployeeData({
+                  Department: userInfo.Department,
+                  Designation: userInfo.Designation,
+                  Email: userInfo.email,
+                  DisplayName: userInfo.userName,
+                  EmployeeId: userInfo.EmployeeId,
+                });
+                Cookies.set("userId", userInfo.EmployeeId, {
+                  expires: 1,
+                  path: "/",
+                  secure: process.env.NODE_ENV === "production", // Use secure cookies in production
+                  sameSite: "Lax", // Default cross-site setting for navigation requests
+                });
+                clearInterval(interval);
+                setIsLoading(false);
+              } catch (parseError) {
+                setError("Invalid user info format in cookies.");
+                clearInterval(interval);
+              }
+            }
+          }, 500);
+          return () => clearInterval(interval);
+        } else {
+          const userIdFromCookie = Cookies.get("LoggedinUserId");
+
+          if (userIdFromCookie) {
+            const { userData } = await fetchEmployeeDetails(userIdFromCookie);
+            Cookies.set("userId", userData?.EmployeeId, {
+              expires: 1,
+              path: "/",
+              secure: process.env.NODE_ENV === "production", // Use secure cookies in production
+              sameSite: "Lax", // Default cross-site setting for navigation requests
+            });
+            setEmployeeData({
+              Department: userData?.Department,
+              Designation: userData?.JobTitle,
+              Email: userData?.Email,
+              DisplayName: userData?.DisplayName,
+              EmployeeId: userData?.EmployeeId,
+            });
+          }
+          setIsLoading(false);
+        }
+      } catch (err) {
+        setError(err.message || "Error fetching employee details.");
+        setIsLoading(false);
+      }
+    };
+
+    fetchData();
   }, []);
 
   const getActiveClass = (path) => {
-    if (pathname === path) {
-      return "bg-gray-300 font-semibold"; // Highlight if on "/employee/request"
-    }
-    if (pathname.includes("/employee/bankRequest")) {
-      return path === "/employee/request" ? "bg-gray-300 font-semibold" : "";
-    }
-    return ""; // Default class if no conditions are met
+    return pathname === path ? "bg-gray-300 font-semibold" : "";
   };
 
   return (
-    <div className="w-64 h-full bg-blue-50 text-black fixed md:static">
-      <div className="p-4 md:p-0 text-2xl font-bold flex justify-between items-center">
-        {closeSidebar && isMobileOrTablet && (
-          <button onClick={closeSidebar} className="md:hidden text-black ml-24">
-            &times;
-          </button>
-        )}
-      </div>
+    <div className="w-64 h-full bg-blue-50 text-black fixed">
       <nav className="mt-0">
         <ul>
-          {/* Skeleton loader or actual employee details */}
           <li className="mb-8 flex flex-col justify-center items-center bg-blue-100 p-4 rounded-lg shadow-lg hover:bg-blue-200 transition duration-300 ease-in-out">
             {isLoading ? (
-              // Skeleton Loader
               <div className="animate-pulse flex flex-col items-center">
                 <div className="w-20 h-20 bg-gray-300 rounded-full mb-4"></div>
                 <div className="h-4 w-32 bg-gray-300 rounded mb-2"></div>
@@ -71,12 +101,8 @@ const EmployeeSidebar = ({ closeSidebar }) => {
                 <div className="h-3 w-40 bg-gray-300 rounded"></div>
               </div>
             ) : error ? (
-              // Error Message
-              <div className="text-red-500 text-sm">
-                {error || "Error loading data"}
-              </div>
+              <div className="text-red-500 text-sm">{error}</div>
             ) : (
-              // Employee Details
               <>
                 <Image
                   src="/1.jpg"
@@ -88,22 +114,33 @@ const EmployeeSidebar = ({ closeSidebar }) => {
                   style={{ width: "auto", height: "auto" }}
                 />
                 <span className="mt-3 text-xl font-semibold text-blue-900">
-                  {employeeData?.DisplayName} ({employeeData?.EmployeeId})
+                  {typeof employeeData?.DisplayName === "string"
+                    ? employeeData.DisplayName
+                    : "N/A"}
+                  (
+                  {typeof employeeData?.EmployeeId === "string"
+                    ? employeeData.EmployeeId
+                    : "N/A"}
+                  )
                 </span>
                 <span className="mt-1 text-sm font-medium text-gray-600">
-                  {employeeData?.JobTitle}
+                  {typeof employeeData?.Designation === "string"
+                    ? employeeData.Designation
+                    : "N/A"}
                 </span>
                 <span className="mt-1 text-sm font-medium text-gray-600">
-                  {employeeData?.Department} Department
+                  {typeof employeeData?.Department === "string"
+                    ? `${employeeData.Department} Department`
+                    : "N/A"}
                 </span>
                 <span className="mt-1 text-sm text-gray-500 mb-4">
-                  {employeeData?.Email}
+                  {typeof employeeData?.Email === "string"
+                    ? employeeData.Email
+                    : "N/A"}
                 </span>
               </>
             )}
           </li>
-
-          {/* Links with conditional class based on pathname */}
           <li
             className={`mb-2 ${getActiveClass("/employee/request")}`}
             onClick={handleItemClick}
@@ -140,6 +177,7 @@ const EmployeeSidebar = ({ closeSidebar }) => {
               Notification
             </p>
           </li>
+
           <li
             className={`mb-2 ${getActiveClass("/employee/logout")}`}
             onClick={handleItemClick}
