@@ -87,33 +87,3 @@ export const approveRequest = async (approverId, requestId) => {
     return false; // Return false if there is any error
   }
 };
-export const showShare = async () => {
-  try {
-    const response = await axios.get(`${BASE_URL}/sharing/role`);
-
-    return response.data;
-  } catch (error) {
-    console.error(
-      "Error in handleReject:",
-      error.response?.data?.message || error.message
-    );
-    return false; // Return false if there is any error
-  }
-};
-export const submitShare = async (requestId, approverId, sharingFlowId) => {
-  try {
-    const response = await axios.post(
-      `${BASE_URL}/sharing/acceptSharing/${requestId}/${approverId}`,
-      { sharingFlowId }
-    );
-
-    // Check if the response status is 200 and return true or false
-    return response.status === 200;
-  } catch (error) {
-    console.error(
-      "Error in handleReject:",
-      error.response?.data?.message || error.message
-    );
-    return false; // Return false if there is any error
-  }
-};
