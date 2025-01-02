@@ -19,7 +19,7 @@ const EmployeeTask = () => {
   const [showSubmit, setShowSubmit] = useState(false);
   const [taskData, setTaskData] = useState({
     all: { data: [], pagination: { currentPage: 1, totalPages: 1 } },
-    approved: { data: [], pagination: { currentPage: 1, totalPages: 1 } },
+    completed: { data: [], pagination: { currentPage: 1, totalPages: 1 } },
     pending: { data: [], pagination: { currentPage: 1, totalPages: 1 } },
   });
   const searchParams = useSearchParams();
@@ -46,12 +46,18 @@ const EmployeeTask = () => {
         switch (type) {
           case "all":
             response = await fetchAll(approverId, page);
+            console.log("all data");
+            console.dir(response);
             break;
           case "completed":
             response = await fetchCompleted(approverId, page);
+            console.log("completed data");
+            console.dir(response);
             break;
           case "pending":
             response = await fetchPending(approverId, page);
+            console.log("pending data");
+            console.dir(response);
             break;
           default:
             throw new Error("Invalid task type");
@@ -167,9 +173,9 @@ const EmployeeTask = () => {
         return (
           <RequestTable
             {...tableProps}
-            data={taskData.approved.data}
-            pagination={taskData.approved.pagination}
-            handlePageChange={(page) => handlePageChange("approved", page)}
+            data={taskData.completed.data}
+            pagination={taskData.completed.pagination}
+            handlePageChange={(page) => handlePageChange("completed", page)}
           />
         );
       default:
