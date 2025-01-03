@@ -66,8 +66,8 @@ const EmployeeSidebar = ({ closeSidebar }) => {
               sameSite: "Lax", // Default cross-site setting for navigation requests
             });
             setEmployeeData({
-              Department: userData?.Department,
-              Designation: userData?.JobTitle,
+              Department: userData?.Department?.title,
+              Designation: userData?.JobTitle?.title,
               Email: userData?.Email,
               DisplayName: userData?.DisplayName,
               EmployeeId: userData?.EmployeeId,
@@ -103,7 +103,7 @@ const EmployeeSidebar = ({ closeSidebar }) => {
             ) : error ? (
               <div className="text-red-500 text-sm">{error}</div>
             ) : (
-              <>
+              <div className="flex flex-col items-center justify-center text-center">
                 <Image
                   src="/1.jpg"
                   alt="profile_pic"
@@ -116,7 +116,7 @@ const EmployeeSidebar = ({ closeSidebar }) => {
                 <span className="mt-3 text-xl font-semibold text-blue-900">
                   {typeof employeeData?.DisplayName === "string"
                     ? employeeData.DisplayName
-                    : "N/A"}
+                    : "N/A"}{" "}
                   (
                   {typeof employeeData?.EmployeeId === "string"
                     ? employeeData.EmployeeId
@@ -138,7 +138,7 @@ const EmployeeSidebar = ({ closeSidebar }) => {
                     ? employeeData.Email
                     : "N/A"}
                 </span>
-              </>
+              </div>
             )}
           </li>
           <li

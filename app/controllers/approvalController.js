@@ -5,6 +5,8 @@ import {
   fetchPendingRequests,
   fetchRejectedRequests,
   rejectRequest,
+  showShare,
+  submitShare,
 } from "../models/approvalModels";
 
 // Fetch all employee requests
@@ -118,6 +120,26 @@ export const handleApprove = async (approverId, requestId) => {
 export const handleReject = async (approverId, requestId, rejectionNote) => {
   try {
     const success = await rejectRequest(approverId, requestId, rejectionNote);
+    return success;
+  } catch (error) {
+    throw new Error(error.message);
+  }
+};
+export const showShareOption = async () => {
+  try {
+    const options = await showShare();
+    if (!options) {
+      throw new Error("Invalid data structure");
+    }
+    return options;
+  } catch (error) {
+    throw new Error(error.message);
+  }
+};
+
+export const handleShare = async (requestId, approverId, sharingFlowId) => {
+  try {
+    const success = await submitShare(requestId, approverId, sharingFlowId);
     return success;
   } catch (error) {
     throw new Error(error.message);

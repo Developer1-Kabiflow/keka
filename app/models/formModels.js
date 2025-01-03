@@ -7,22 +7,7 @@ export const fetchFormSchema = async (formId, employeeId) => {
     const response = await axios.get(
       `${BASE_URL}/template/fetchForm/${formId}/${employeeId}`
     );
-
-    if (
-      !response?.data?.data ||
-      !response?.data?.employeeData ||
-      !response?.data?.attachments
-    ) {
-      throw new Error("Incomplete or invalid form schema response");
-    }
-
-    console.log("employee in model-->", response.data.employeeData);
-
-    return {
-      fields: response.data.data, // Schema fields
-      employeeData: response.data.employeeData, // Employee-specific data
-      fileAttachments: response.data.attachments,
-    };
+    return response.data;
   } catch (error) {
     console.error("Error in fetchFormSchema:", error.message);
     throw error;
@@ -35,7 +20,7 @@ export const fetchMyFormdata = async (requestId) => {
     const response = await axios.get(
       `${BASE_URL}/request/getMyFormData/${requestId}`
     );
-    console.log(`${BASE_URL}/request/getMyFormData/${requestId}`);
+
     return response.data;
   } catch (error) {
     console.error(
@@ -48,10 +33,6 @@ export const fetchMyFormdata = async (requestId) => {
 
 // Submit form data to backend
 export const submitFormData = async (formId, formData) => {
-  formData.forEach((value, key) => {
-    console.log("FormData in models==>>", key, value);
-  });
-
   try {
     const response = await axios.post(
       `${BASE_URL}/request/addRequest/${formId}`,
@@ -77,8 +58,6 @@ export const fetchTaskFormSchema = async (requestId, approverId) => {
     const response = await axios.get(
       `${BASE_URL}/taskForm/getTaskForm/${requestId}/${approverId}`
     );
-    console.log(`${BASE_URL}/taskForm/getTaskForm/${requestId}/${approverId}`);
-    console.dir(response.data);
     return response.data;
   } catch (error) {
     //throw new Error(error.response?.data?.message || "Error fetching requests");

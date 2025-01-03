@@ -105,8 +105,6 @@ export default function ProgressStepsContainer({ approvalData }) {
     if (approvalData) {
       const transformedData = transformApprovalData(approvalData);
       setNewApprovalData(transformedData);
-      console.log("transformedData");
-      console.dir(transformedData);
     }
   }, [approvalData]);
 
