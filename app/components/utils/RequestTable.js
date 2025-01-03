@@ -9,8 +9,6 @@ const RequestTable = ({
   handlePageChange,
 }) => {
   const [isFetching, setIsFetching] = useState(false);
-  console.log("request table data");
-  console.dir(data);
   const handlePageClick = async (page) => {
     setIsFetching(true);
     await handlePageChange(page);

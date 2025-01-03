@@ -46,18 +46,12 @@ const EmployeeTask = () => {
         switch (type) {
           case "all":
             response = await fetchAll(approverId, page);
-            console.log("all data");
-            console.dir(response);
             break;
           case "completed":
             response = await fetchCompleted(approverId, page);
-            console.log("completed data");
-            console.dir(response);
             break;
           case "pending":
             response = await fetchPending(approverId, page);
-            console.log("pending data");
-            console.dir(response);
             break;
           default:
             throw new Error("Invalid task type");

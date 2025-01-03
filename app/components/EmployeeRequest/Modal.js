@@ -17,6 +17,10 @@ const Modal = ({ isOpen, handleClose, itemId, onToast, refreshData }) => {
   const [selectedFiles, setSelectedFiles] = useState([]);
   const [fileAttachments, setFileAttachments] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [fileErrors, setFileErrors] = useState([]);
+  const [startingDate, setStartingDate] = useState("");
+  const [initialDate, setInitialDate] = useState("");
+
   const formId = itemId;
 
   useEffect(() => {
@@ -37,7 +41,9 @@ const Modal = ({ isOpen, handleClose, itemId, onToast, refreshData }) => {
             initialData,
             employeeData,
             attachments,
+            date,
           } = await getProcessedFormSchema(formId, employeeId);
+          setInitialDate(date);
           setFormSchema(formSchema);
           setFormType(formType);
           setFormData(initialData);
@@ -62,9 +68,19 @@ const Modal = ({ isOpen, handleClose, itemId, onToast, refreshData }) => {
 
   const validateField = (name, value, validationRules) => {
     for (const rule of validationRules) {
-      const regex = new RegExp(rule.pattern);
-      if (!regex.test(value)) {
-        return rule.message;
+      if (rule.pattern) {
+        const regex = new RegExp(rule.pattern);
+        if (!regex.test(value)) {
+          return rule.message;
+        }
+      } else if (rule.maxSize && value.size > rule.maxSize) {
+        return `File size exceeds the limit of ${
+          rule.maxSize / 1024 / 1024
+        } MB.`;
+      } else if (rule.allowedTypes && !rule.allowedTypes.includes(value.type)) {
+        return `Invalid file type. Allowed types: ${rule.allowedTypes.join(
+          ", "
+        )}`;
       }
     }
     return null;
@@ -72,7 +88,9 @@ const Modal = ({ isOpen, handleClose, itemId, onToast, refreshData }) => {
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
-
+    if (type === "date" && name === "LeaveStartingDate") {
+      setStartingDate(value);
+    }
     setFormData((prevData) => ({
       ...prevData,
       [name]:
@@ -151,11 +169,6 @@ const Modal = ({ isOpen, handleClose, itemId, onToast, refreshData }) => {
         formDataToSubmit.append("files[]", file); // Append files to FormData
       });
 
-      // Step 3: Submit form data
-      formDataToSubmit.forEach((value, key) => {
-        console.log("new formDataToSubmit==>>", key, value);
-      });
-
       await handleFormSubmissionWithData(formId, formDataToSubmit);
       onToast("Created Request Successfully", "success");
 
@@ -169,20 +182,39 @@ const Modal = ({ isOpen, handleClose, itemId, onToast, refreshData }) => {
     }
   };
 
-  const handleFileChange = (event, index) => {
-    const fileInput = event.target;
-    const newFile = fileInput.files[0]; // Get the first file from the input
+  const handleFileChange = (e, attachment, index) => {
+    const file = e.target.files[0];
+    const updatedFileErrors = [...fileErrors];
+    updatedFileErrors[index] = null;
 
-    if (!newFile) return; // Exit if no file is selected
+    if (file) {
+      const validation = attachment.validation[0];
+      if (validation) {
+        if (validation.maxSize && file.size > validation.maxSize) {
+          updatedFileErrors[index] = `File size exceeds the limit of ${
+            validation.maxSize / 1024 / 1024
+          } MB.`;
+        } else if (
+          validation.allowedTypes &&
+          !validation.allowedTypes.includes(file.type)
+        ) {
+          updatedFileErrors[
+            index
+          ] = `Invalid file type. Allowed: ${validation.allowedTypes.join(
+            ", "
+          )}`;
+        }
+      }
+    }
 
-    setSelectedFiles((prevFiles) => {
-      const updatedFiles = [...prevFiles];
-      updatedFiles[index] = newFile; // Replace the file at the specific index
-      return updatedFiles;
-    });
-
-    // Clear the file input value to allow re-uploading the same file
-    fileInput.value = "";
+    if (!updatedFileErrors[index]) {
+      setSelectedFiles((prev) => {
+        const updatedFiles = [...prev];
+        updatedFiles[index] = file;
+        return updatedFiles;
+      });
+    }
+    setFileErrors(updatedFileErrors);
   };
 
   const renderFile = (attachment, index) => (
@@ -201,7 +233,7 @@ const Modal = ({ isOpen, handleClose, itemId, onToast, refreshData }) => {
           type="file"
           id={`file-upload-${index}`}
           name={`file-upload-${index}`}
-          onChange={(e) => handleFileChange(e, index)} // Handle file change
+          onChange={(e) => handleFileChange(e, attachment, index)} // Pass attachment for validation
           className="hidden" // Hide the default input
         />
         <label
@@ -216,6 +248,10 @@ const Modal = ({ isOpen, handleClose, itemId, onToast, refreshData }) => {
             : "No file chosen"}
         </span>
       </div>
+      {/* Validation Error Message */}
+      {fileErrors[index] && (
+        <p className="mt-2 text-sm text-red-500">{fileErrors[index]}</p>
+      )}
     </div>
   );
 
@@ -228,9 +264,9 @@ const Modal = ({ isOpen, handleClose, itemId, onToast, refreshData }) => {
             <div key={option} className="flex items-center mb-2">
               <input
                 type="radio"
-                name={field.label}
+                name={field.name} // Corrected to use field.name instead of field.label for grouping
                 value={option}
-                checked={employeeDetails[field.label] === option}
+                checked={employeeDetails[field.name] === option}
                 onChange={(e) => handleRadioChange(e, field.name)}
                 required={field.required}
                 className="mr-2"
@@ -262,7 +298,7 @@ const Modal = ({ isOpen, handleClose, itemId, onToast, refreshData }) => {
           </select>
           {formErrors[field.name] && (
             <p className="text-red-500 text-sm mt-1">
-              {formErrors[field.name]}
+              {formErrors[field.name] || "Invalid input."}
             </p>
           )}
         </div>
@@ -277,11 +313,20 @@ const Modal = ({ isOpen, handleClose, itemId, onToast, refreshData }) => {
             placeholder={field.placeholder}
             value={
               field.disabled && employeeDetails
-                ? employeeDetails[field.label]
+                ? employeeDetails[field.name]
                 : formData[field.name] || ""
             }
             onChange={handleChange}
             required={field.required}
+            min={
+              field.type === "date"
+                ? field.name === "LeaveStartingDate"
+                  ? initialDate
+                  : field.name === "LeaveEndingDate"
+                  ? startingDate
+                  : ""
+                : undefined
+            }
             disabled={field.disabled}
             className="w-full px-3 py-2 border rounded"
           />
@@ -319,8 +364,8 @@ const Modal = ({ isOpen, handleClose, itemId, onToast, refreshData }) => {
           </div>
         ) : (
           <form onSubmit={handleSubmit}>
-            {fileAttachments.map(renderFile)}
-            {formSchema.map(renderField)}
+            {fileAttachments?.map(renderFile)}
+            {formSchema?.map(renderField)}
             <button
               type="submit"
               className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"

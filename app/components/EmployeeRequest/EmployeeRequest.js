@@ -121,7 +121,6 @@ const EmployeeNewRequest = () => {
     setCategoryLoading(true);
     try {
       const { category } = await fetchCategoryList();
-      console.log("category-->" + category);
       setCategories(category || []);
     } catch (err) {
       setError(err.message || "Error fetching categories.");
