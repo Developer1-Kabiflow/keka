@@ -30,6 +30,7 @@ const Modal = ({
   const [isUrlCopied, setIsUrlCopied] = useState(false);
   const [formAttachments, setFormAttachments] = useState([]);
   const [enabledField, setEnabledField] = useState([]);
+  const [enabledAttatchments, setEnabledAttatchments] = useState([]);
   const progressStepsRef = useRef(null);
 
   const fetchForm = useCallback(
@@ -37,14 +38,19 @@ const Modal = ({
       if (isOpen && requestId) {
         setLoading(true);
         try {
-          const { formData, formAttachments, enabledField } =
-            await getTaskFormSchema(requestId, id);
+          const {
+            formData,
+            formAttachments,
+            enabledField,
+            enabledAttatchments,
+          } = await getTaskFormSchema(requestId, id);
           const { RequestData, TaskData } = await fetchProgress(requestId);
           setRequestStatus(RequestData);
           setTaskStatus(TaskData);
           setFormAttachments(formAttachments);
           setEnabledField(enabledField);
           setFormData(formData);
+          setEnabledAttatchments(enabledAttatchments);
         } catch (err) {
           console.error("Error fetching form data:", err);
           onToast("Failed to load form data. Please try again.", "error");
@@ -197,6 +203,7 @@ const Modal = ({
               type="file"
               onChange={(e) => handleFileChange(e, index)}
               className="w-full px-3 py-2 border rounded bg-gray-100"
+              disabled={!enabledAttatchments?.includes(field.field_label)}
             />
           </div>
         ))}
