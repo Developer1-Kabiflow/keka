@@ -55,12 +55,34 @@ const ViewModal = ({ isOpen, handleClose, requestId }) => {
     });
   };
 
-  const handleDownload = (fileData, fileName) => {
-    const blob = new Blob([fileData], { type: "application/pdf" });
-    const link = document.createElement("a");
-    link.href = URL.createObjectURL(blob);
-    link.download = fileName;
-    link.click();
+  const handleDownload = async (fileData, fileName) => {
+    try {
+      console.log("Downloading file...");
+      console.log("File URL:", fileData);
+      console.log("File Name:", fileName);
+
+      // Fetch the file data from the URL
+      const response = await fetch(fileData);
+      if (!response.ok) {
+        throw new Error(`Failed to fetch the file: ${response.statusText}`);
+      }
+
+      // Convert the response to a Blob
+      const blob = await response.blob();
+
+      // Create a download link and trigger the download
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = fileName;
+      link.click();
+
+      // Clean up the object URL to avoid memory leaks
+      URL.revokeObjectURL(link.href);
+
+      console.log("File download completed.");
+    } catch (error) {
+      console.error("Error downloading file:", error);
+    }
   };
 
   const copyUrlToClipboard = () => {
