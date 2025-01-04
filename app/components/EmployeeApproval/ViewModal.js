@@ -38,6 +38,7 @@ const ViewModal = ({
   const [approverId, setApproverId] = useState(null);
   const [shareOptions, setShareOptions] = useState([]);
   const [selectedShareOption, setSelectedShareOption] = useState(null);
+  const [isSharing, setIsSharing] = useState(false);
 
   const fetchForm = useCallback(async () => {
     if (isOpen && requestId) {
@@ -106,7 +107,7 @@ const ViewModal = ({
       onToast("Please select a role to share the request", "error");
       return;
     }
-
+    setIsSharing(true);
     try {
       const success = await handleShare(
         requestId,
@@ -122,6 +123,8 @@ const ViewModal = ({
       }
     } catch (err) {
       onToast("Error sharing request. Please try again.", "error");
+    } finally {
+      setIsSharing(false);
     }
   };
 
@@ -358,10 +361,12 @@ const ViewModal = ({
                       >
                         <button
                           onClick={handleShareSubmit}
-                          className="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition-colors duration-200"
-                          disabled={!selectedShareOption}
+                          className={`px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition-colors duration-200 ${
+                            isSharing ? "cursor-not-allowed opacity-50" : ""
+                          }`}
+                          disabled={isSharing}
                         >
-                          Confirm
+                          {isSharing ? "Sharing..." : "Confirm"}
                         </button>
                       </div>
                     </div>
