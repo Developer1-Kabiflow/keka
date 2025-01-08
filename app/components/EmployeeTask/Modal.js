@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect, useCallback, useRef } from "react";
 import {
+  downloadFile,
   getTaskFormSchema,
   handleTaskFormSubmission,
 } from "@/app/controllers/formController";
@@ -30,7 +31,9 @@ const Modal = ({
   const [isUrlCopied, setIsUrlCopied] = useState(false);
   const [formAttachments, setFormAttachments] = useState([]);
   const [enabledField, setEnabledField] = useState([]);
-  const [enabledAttatchments, setEnabledAttatchments] = useState([]);
+  const [fileInputList, setFileInputList] = useState([]);
+  const [enabledAttachments, setEnabledAttachments] = useState([]);
+  const [errorMessage, setErrorMessage] = useState(null); // Track error messages
   const progressStepsRef = useRef(null);
 
   const fetchForm = useCallback(
@@ -42,24 +45,27 @@ const Modal = ({
             formData,
             formAttachments,
             enabledField,
-            enabledAttatchments,
+            enabledAttachments,
+            attachedFiles,
           } = await getTaskFormSchema(requestId, id);
           const { RequestData, TaskData } = await fetchProgress(requestId);
           setRequestStatus(RequestData);
           setTaskStatus(TaskData);
-          setFormAttachments(formAttachments);
+          setFormAttachments(attachedFiles);
           setEnabledField(enabledField);
           setFormData(formData);
-          setEnabledAttatchments(enabledAttatchments);
+          setEnabledAttachments(enabledAttachments);
+          setFileInputList(formAttachments);
         } catch (err) {
-          console.error("Error fetching form data:", err);
-          onToast("Failed to load form data. Please try again.", "error");
+          setErrorMessage(
+            err.message || "Failed to load form data. Please try again."
+          );
         } finally {
           setLoading(false);
         }
       }
     },
-    [isOpen, requestId, onToast]
+    [isOpen, requestId]
   );
 
   useEffect(() => {
@@ -100,6 +106,7 @@ const Modal = ({
     if (isSubmitting) return;
 
     setIsSubmitting(true);
+    setErrorMessage(null);
 
     try {
       const formDataToSubmit = new FormData();
@@ -120,18 +127,43 @@ const Modal = ({
       refreshData();
       handleClose();
     } catch (err) {
-      console.error("Error submitting form:", err);
-      onToast("Failed to submit the form. Please try again.", "error");
+      setErrorMessage(
+        err.message || "Failed to submit the form. Please try again."
+      ); // Set the error message
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const handleDownload = (fileUrl) => {
-    const link = document.createElement("a");
-    link.href = fileUrl;
-    link.download = fileUrl.split("/").pop();
-    link.click();
+  const handleDownload = async (fileUrl, e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    try {
+      const downloadContent = await downloadFile(fileUrl);
+      const blob = new Blob([downloadContent], {
+        type: "application/octet-stream",
+      });
+      const link = document.createElement("a");
+      const fileName = fileUrl.split("/").pop();
+      link.href = URL.createObjectURL(blob);
+      link.download = fileName;
+      link.click();
+      URL.revokeObjectURL(link.href); // Cleanup after download
+    } catch (error) {
+      setErrorMessage(
+        error.message || "Failed to download the file. Please try again."
+      ); // Set the error message
+    }
+  };
+
+  const renderErrorBox = () => {
+    if (!errorMessage) return null;
+    return (
+      <div className="bg-red-500 text-white p-4 rounded-lg mb-4">
+        <strong>Error: </strong>
+        {errorMessage}
+      </div>
+    );
   };
 
   const copyUrlToClipboard = () => {
@@ -142,11 +174,11 @@ const Modal = ({
         setIsUrlCopied(true);
         setTimeout(() => setIsUrlCopied(false), 2000);
       })
-      .catch((err) => console.error("Error copying URL to clipboard: ", err));
+      .catch((err) => setErrorMessage("Failed to copy:" + err));
   };
 
   const renderUploadedFiles = () => (
-    <div className="mt-6">
+    <div className="mt-6 mb-6">
       <h3 className="text-lg font-semibold mb-4">Uploaded Files</h3>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {formAttachments.map((file) => (
@@ -175,13 +207,13 @@ const Modal = ({
                 {file.originalname}
               </span>
             </div>
+
             <Tooltip title="Download File" arrow>
               <button
-                onClick={() => handleDownload(file.url)}
+                onClick={(e) => handleDownload(file.url, e)}
                 className="text-black hover:bg-gray-300 py-2 px-4 rounded-md text-sm flex items-center justify-center gap-2"
               >
                 <DownloadIcon fontSize="small" />
-                Download
               </button>
             </Tooltip>
           </div>
@@ -190,11 +222,11 @@ const Modal = ({
     </div>
   );
 
-  const renderFileInput = () =>
-    formAttachments.length > 0 && (
+  const renderFileInput = () => {
+    return (
       <div className="mb-6">
         <h3 className="text-lg font-semibold mb-4">File Attachments</h3>
-        {formAttachments.map((attachment, index) => (
+        {fileInputList.map((attachment, index) => (
           <div key={index} className="mb-4">
             <label className="block text-gray-700 mb-2">
               {attachment.field_name || `Attachment ${index + 1}`}
@@ -203,12 +235,13 @@ const Modal = ({
               type="file"
               onChange={(e) => handleFileChange(e, index)}
               className="w-full px-3 py-2 border rounded bg-gray-100"
-              disabled={!enabledAttatchments?.includes(field.field_label)}
+              disabled={!enabledAttachments?.includes(attachment.field_name)}
             />
           </div>
         ))}
       </div>
     );
+  };
 
   if (!isOpen) return null;
 
@@ -231,6 +264,7 @@ const Modal = ({
             URL copied to clipboard!
           </div>
         )}
+        {renderErrorBox()}
         {loading ? (
           <div className="animate-pulse space-y-4">
             <div className="h-8 bg-gray-200 rounded w-1/3 mx-auto"></div>
@@ -268,7 +302,7 @@ const Modal = ({
               </>
             )}
 
-            <form onSubmit={handleSubmit}>
+            <form>
               {formData.map((field) => (
                 <div key={field.field_name} className="mb-4">
                   <label className="block text-gray-700">
@@ -278,6 +312,7 @@ const Modal = ({
                     type={field.type || "text"}
                     name={field.field_name}
                     value={field.field_value || ""}
+                    required={field.field_required || false}
                     onChange={(e) =>
                       handleInputChange(field.field_name, e.target.value)
                     }
@@ -286,14 +321,17 @@ const Modal = ({
                   />
                 </div>
               ))}
-              {formData?.files?.length > 0 && { renderUploadedFiles }}
+              {fileInputList && fileInputList.length > 0 && renderFileInput()}
+              {formAttachments &&
+                formAttachments.length > 0 &&
+                renderUploadedFiles()}
 
-              {renderFileInput()}
               {showSubmit && (
                 <button
-                  type="submit"
+                  type="button"
                   className="mt-4 px-4 py-2 bg-blue-500 text-white rounded"
                   disabled={isSubmitting}
+                  onClick={handleSubmit}
                 >
                   {isSubmitting ? "Submitting..." : "Submit"}
                 </button>

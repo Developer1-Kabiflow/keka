@@ -8,7 +8,8 @@ export const fetchEmployeeData = async (employeeId) => {
     );
     return response.data;
   } catch (error) {
-    console.error("Error fetching employee data:", error);
-    throw new Error(error.message || "Failed to fetch employee data.");
+    throw new Error(
+      error.response?.data?.message || "Failed to fetch employee data."
+    );
   }
 };

@@ -23,7 +23,6 @@ export const fetchSubCategory = async (categoryId) => {
     );
     return response.data.data; // Return only the 'data' array
   } catch (error) {
-    console.error("Error fetching subcategory:", error);
     throw new Error(
       error.response?.data?.message || "Error fetching subcategories"
     );

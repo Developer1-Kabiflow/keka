@@ -1,4 +1,5 @@
 import {
+  download,
   fetchFormSchema,
   fetchMyFormdata,
   fetchTaskFormSchema,
@@ -15,8 +16,8 @@ export const getProcessedFormSchema = async (formId, employeeId) => {
       throw new Error("Incomplete or invalid form schema response");
     }
 
-    const fields = response.data; // Schema fields
-    const employeeData = response.employeeData; // Employee-specific data
+    const fields = response.data;
+    const employeeData = response.employeeData;
     const fileAttachments = response.attachments;
     const date = response.date;
 
@@ -27,15 +28,14 @@ export const getProcessedFormSchema = async (formId, employeeId) => {
 
     return {
       formSchema: fields,
-      formType: fields.formType || null, // Default to null if not present
+      formType: fields.formType || null,
       initialData,
       employeeData,
       attachments: fileAttachments,
       date: date,
     };
   } catch (error) {
-    console.error("Error in getProcessedFormSchema:", error.message);
-    throw new Error("Failed to process form schema");
+    throw new Error(error.message || "Failed to process form schema");
   }
 };
 
@@ -47,28 +47,23 @@ export const getMyFormData = async (requestId) => {
     }
     return { requestData, approvalData };
   } catch (error) {
-    console.error(
-      "Error in getMyFormData:",
-      error.response?.data || error.message
-    );
-    throw error;
+    throw new Error(error.message || "Failed to fetch form data");
   }
 };
 
 // Prepare form submission data and handle submission
-
 export const handleFormSubmissionWithData = async (
   formId,
   formDataToSubmit
 ) => {
   try {
     const result = await submitFormData(formId, formDataToSubmit);
-    return { formDataToSubmit, result }; // Return both formData and response data
+    return { formDataToSubmit, result };
   } catch (error) {
-    console.error("Error in handleFormSubmissionWithData:", error.message);
-    throw error; // Propagate the error
+    throw new Error(error.message || "Failed to submit form data");
   }
 };
+
 export const handleTaskFormSubmission = async (
   requestId,
   approverId,
@@ -80,28 +75,40 @@ export const handleTaskFormSubmission = async (
       approverId,
       formDataToSubmit
     );
-    return { formDataToSubmit, result }; // Return both formData and response data
+    return { formDataToSubmit, result };
   } catch (error) {
-    console.error("Error in handleFormSubmissionWithData:", error.message);
-    throw error; // Propagate the error
+    throw new Error(error.message || "Failed to submit task form data");
   }
 };
+
 export const getTaskFormSchema = async (requestId, approverId) => {
   try {
     const response = await fetchTaskFormSchema(requestId, approverId);
-    const { formFetched, enabledField, enabledAttatchments } = response;
+    const { formFetched, enabledField, enabledAttachments } = response;
+
     if (!formFetched?.fields || formFetched.fields.length === 0) {
       throw new Error("Schema fields are empty or undefined");
     }
 
     return {
-      formData: formFetched.fields,
+      formData: formFetched.fields || [],
       formAttachments: formFetched.attachments || [],
+      attachedFiles: formFetched.attachedFiles || [],
       enabledField: enabledField || [],
-      enabledAttatchments: enabledAttatchments || [],
+      enabledAttachments: enabledAttachments || [],
     };
   } catch (error) {
-    console.error("Error in getTaskFormSchema:", error.message);
-    throw new Error("Failed to fetch and process form schema");
+    throw new Error(
+      error.message || "Failed to fetch and process task form schema"
+    );
+  }
+};
+
+export const downloadFile = async (requestId, fileUrl) => {
+  try {
+    const response = await download(requestId, fileUrl);
+    return response;
+  } catch (error) {
+    throw new Error(error.message || "Error in downloading the file");
   }
 };

@@ -2,23 +2,21 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import ProgressStepsContainer from "../utils/ProgressStepsContainer";
-import { getMyFormData } from "@/app/controllers/formController";
+import { downloadFile, getMyFormData } from "@/app/controllers/formController";
 import DownloadIcon from "@mui/icons-material/Download";
 import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
 import Tooltip from "@mui/material/Tooltip";
 import ShareIcon from "@mui/icons-material/Share";
+import { toast } from "react-toastify";
+
 const ViewModal = ({ isOpen, handleClose, requestId }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [formData, setFormData] = useState({});
   const [approvalData, setApprovalData] = useState({});
-  const [isUrlCopied, setIsUrlCopied] = useState(false); // State to track if URL is copied
+  const [isUrlCopied, setIsUrlCopied] = useState(false);
   const progressStepsRef = useRef(null);
-
-  // Define isPdf function inside the component scope
   const isPdf = (url) => url.endsWith(".pdf");
-
-  // Using useEffect to fetch data when the modal is open and requestId is available
   useEffect(() => {
     const fetchForm = async () => {
       if (!isOpen || !requestId) return;
@@ -30,14 +28,14 @@ const ViewModal = ({ isOpen, handleClose, requestId }) => {
         setFormData(requestData);
         setApprovalData(approvalData);
       } catch (err) {
-        console.error("Error fetching form data", err);
         setError("Failed to load form schema. Please try again.");
+        toast.error("Failed to load form schema. Please try again.");
       } finally {
         setLoading(false);
       }
     };
 
-    fetchForm(); // Call the function on mount or when `requestId` or `isOpen` changes
+    fetchForm();
   }, [isOpen, requestId]);
 
   const handleChange = (e) => {
@@ -55,45 +53,37 @@ const ViewModal = ({ isOpen, handleClose, requestId }) => {
     });
   };
 
-  const handleDownload = async (fileData, fileName) => {
+  const handleDownload = async (fileUrl, e) => {
+    e.preventDefault();
+    e.stopPropagation();
     try {
-      console.log("Downloading file...");
-      console.log("File URL:", fileData);
-      console.log("File Name:", fileName);
-
-      // Fetch the file data from the URL
-      const response = await fetch(fileData);
-      if (!response.ok) {
-        throw new Error(`Failed to fetch the file: ${response.statusText}`);
-      }
-
-      // Convert the response to a Blob
-      const blob = await response.blob();
-
-      // Create a download link and trigger the download
+      const downloadContent = await downloadFile(fileUrl);
+      const blob = new Blob([downloadContent], {
+        type: "application/octet-stream",
+      });
       const link = document.createElement("a");
+      const fileName = fileUrl.split("/").pop();
       link.href = URL.createObjectURL(blob);
       link.download = fileName;
       link.click();
-
-      // Clean up the object URL to avoid memory leaks
       URL.revokeObjectURL(link.href);
-
-      console.log("File download completed.");
     } catch (error) {
-      console.error("Error downloading file:", error);
+      toast.error("Failed to download the file. Please try again.");
     }
   };
 
   const copyUrlToClipboard = () => {
-    const url = window.location.href; // Get the current URL
+    const url = window.location.href;
     navigator.clipboard
       .writeText(url)
       .then(() => {
-        setIsUrlCopied(true); // Set state to indicate URL has been copied
-        setTimeout(() => setIsUrlCopied(false), 2000); // Reset the state after 2 seconds
+        setIsUrlCopied(true);
+        setTimeout(() => setIsUrlCopied(false), 2000);
       })
-      .catch((err) => console.error("Error copying URL to clipboard: ", err));
+      .catch((err) => {
+        setError("Failed to copy the URL. Please try again.");
+        toast.error("Failed to copy the URL. Please try again.");
+      });
   };
 
   if (!isOpen) return null;
@@ -196,9 +186,7 @@ const ViewModal = ({ isOpen, handleClose, requestId }) => {
 
                       <Tooltip title="Download File" arrow>
                         <button
-                          onClick={() =>
-                            handleDownload(file.url, file.originalname)
-                          }
+                          onClick={(e) => handleDownload(file.url, e)}
                           className="text-black hover:bg-gray-300 py-2 px-4 rounded-md text-sm flex items-center justify-center gap-2"
                         >
                           <DownloadIcon fontSize="small" />
@@ -212,7 +200,11 @@ const ViewModal = ({ isOpen, handleClose, requestId }) => {
           </>
         )}
 
-        {error && <div className="text-red-500 mt-2">{error}</div>}
+        {error && (
+          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative">
+            {error}
+          </div>
+        )}
       </div>
 
       {/* Close Button */}

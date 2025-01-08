@@ -9,8 +9,9 @@ export const fetchFormSchema = async (formId, employeeId) => {
     );
     return response.data;
   } catch (error) {
-    console.error("Error in fetchFormSchema:", error.message);
-    throw error;
+    throw new Error(
+      error.response?.data?.message || "Error fetching form schema."
+    );
   }
 };
 
@@ -20,14 +21,11 @@ export const fetchMyFormdata = async (requestId) => {
     const response = await axios.get(
       `${BASE_URL}/request/getMyFormData/${requestId}`
     );
-
     return response.data;
   } catch (error) {
-    console.error(
-      "Error in fetchFormSchema:",
-      error.response?.data || error.message
+    throw new Error(
+      error.response?.data?.message || "Error fetching form data."
     );
-    throw error;
   }
 };
 
@@ -45,14 +43,13 @@ export const submitFormData = async (formId, formData) => {
     );
     return response.data;
   } catch (error) {
-    console.error(
-      "Error in submitFormData:",
-      error.response?.data || error.message
+    throw new Error(
+      error.response?.data?.message || "Error submitting form data."
     );
-    throw error;
   }
 };
-// Fetch pending requests for an employee
+
+// Fetch task form schema
 export const fetchTaskFormSchema = async (requestId, approverId) => {
   try {
     const response = await axios.get(
@@ -60,23 +57,40 @@ export const fetchTaskFormSchema = async (requestId, approverId) => {
     );
     return response.data;
   } catch (error) {
-    //throw new Error(error.response?.data?.message || "Error fetching requests");
+    throw new Error(
+      error.response?.data?.message || "Error fetching task form schema."
+    );
   }
 };
 
+// Submit task form data
 export const submitTaskFormData = async (requestId, approverId, formData) => {
   try {
     const response = await axios.post(
       `${BASE_URL}/taskForm/formSubmit/${requestId}/${approverId}`,
       formData
     );
-
     return response.status === 200;
   } catch (error) {
-    console.error(
-      "Error in submitTaskFormData:",
-      error.response?.data?.message || error.message
+    throw new Error(
+      error.response?.data?.message || "Error submitting task form data."
     );
-    return false;
+  }
+};
+
+// Download a file
+export const download = async (fileUrl) => {
+  try {
+    const response = await axios.get(
+      `${BASE_URL}/download/downloadRDoc/${encodeURIComponent(fileUrl)}`,
+      {
+        responseType: "blob", // Expect binary data (file content)
+      }
+    );
+    return response.data;
+  } catch (error) {
+    throw new Error(
+      error.response?.data?.message || "Error downloading the file."
+    );
   }
 };

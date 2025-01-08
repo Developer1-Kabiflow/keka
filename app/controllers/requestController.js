@@ -11,12 +11,13 @@ export const fetchAllEmployeeRequests = async (employeeId, page) => {
 
     const { totalPages, currentPage, totalRequests } = data;
     const paginationDetails = [totalPages, currentPage, totalRequests];
+
     return {
       Allrequests: data.requests || [],
       pagination: paginationDetails,
     };
   } catch (error) {
-    throw new Error(error.message);
+    throw new Error(error.message || "Error fetching all employee requests");
   }
 };
 
@@ -24,11 +25,7 @@ export const fetchAllEmployeeRequests = async (employeeId, page) => {
 export const fetchApprovedEmployeeRequests = async (employeeId, page) => {
   try {
     const data = await fetchApprovedRequests(employeeId, page);
-
-    // Extract pagination details
     const { totalPages, currentPage, totalResults } = data;
-
-    // Flatten the nested `employee_request_list` from each result in `results`
     const employeeAcceptedRequestLists = data.results?.flatMap(
       (result) => result.employee_request_list || []
     );
@@ -38,7 +35,9 @@ export const fetchApprovedEmployeeRequests = async (employeeId, page) => {
       pagination: { totalPages, currentPage, totalResults },
     };
   } catch (error) {
-    throw new Error(error.message);
+    throw new Error(
+      error.message || "Error fetching approved employee requests"
+    );
   }
 };
 
@@ -50,11 +49,14 @@ export const fetchRejectedEmployeeRequests = async (employeeId, page) => {
     const employeeRejectedRequestLists = data.results?.flatMap(
       (result) => result.employee_request_list || []
     );
+
     return {
       Rejectedrequests: employeeRejectedRequestLists || [],
       pagination: { totalPages, currentPage, totalResults },
     };
   } catch (error) {
-    throw new Error(error.message);
+    throw new Error(
+      error.message || "Error fetching rejected employee requests"
+    );
   }
 };
