@@ -9,7 +9,9 @@ export const fetchAllRequests = async (approverId, page) => {
     );
     return response.data;
   } catch (error) {
-    // throw new Error(error.response?.data?.message || "Error fetching requests");
+    throw new Error(
+      error.response?.data?.message || "Error fetching all requests."
+    );
   }
 };
 
@@ -20,9 +22,12 @@ export const fetchApprovedRequests = async (approverId, page) => {
     );
     return response.data;
   } catch (error) {
-    //   throw new Error(error.response?.data?.message || "Error fetching requests");
+    throw new Error(
+      error.response?.data?.message || "Error fetching approved requests."
+    );
   }
 };
+
 // Fetch rejected requests for an employee
 export const fetchRejectedRequests = async (approverId, page) => {
   try {
@@ -31,9 +36,12 @@ export const fetchRejectedRequests = async (approverId, page) => {
     );
     return response.data;
   } catch (error) {
-    //  throw new Error(error.response?.data?.message || "Error fetching requests");
+    throw new Error(
+      error.response?.data?.message || "Error fetching rejected requests."
+    );
   }
 };
+
 // Fetch pending requests for an employee
 export const fetchPendingRequests = async (approverId, page) => {
   try {
@@ -42,7 +50,9 @@ export const fetchPendingRequests = async (approverId, page) => {
     );
     return response.data;
   } catch (error) {
-    //throw new Error(error.response?.data?.message || "Error fetching requests");
+    throw new Error(
+      error.response?.data?.message || "Error fetching pending requests."
+    );
   }
 };
 
@@ -56,11 +66,9 @@ export const rejectRequest = async (approverId, requestId, rejectionNote) => {
     // Check if the response status is 200 and return true or false
     return response.status === 200;
   } catch (error) {
-    console.error(
-      "Error in handleReject:",
-      error.response?.data?.message || error.message
+    return new Error(
+      error.response?.data?.message || "Error rejecting the request."
     );
-    return false; // Return false if there is any error
   }
 };
 
@@ -73,40 +81,34 @@ export const approveRequest = async (approverId, requestId) => {
     // Check if the response status is 200 and return true or false
     return response.status === 200;
   } catch (error) {
-    console.error(
-      "Error in handleReject:",
-      error.response?.data?.message || error.message
+    return new Error(
+      error.response?.data?.message || "Error approving the request."
     );
-    return false; // Return false if there is any error
   }
 };
+
 export const showShare = async () => {
   try {
     const response = await axios.get(`${BASE_URL}/sharing/role`);
 
     return response.data;
   } catch (error) {
-    console.error(
-      "Error in handleReject:",
-      error.response?.data?.message || error.message
+    return new Error(
+      error.response?.data?.message || "Error fetching sharing roles."
     );
-    return false; // Return false if there is any error
   }
 };
+
 export const submitShare = async (requestId, approverId, sharingFlowId) => {
   try {
     const response = await axios.post(
       `${BASE_URL}/sharing/acceptSharing/${requestId}/${approverId}`,
       { sharingFlowId }
     );
-
-    // Check if the response status is 200 and return true or false
     return response.status === 200;
   } catch (error) {
-    console.error(
-      "Error in handleReject:",
-      error.response?.data?.message || error.message
+    return new Error(
+      error.response?.data?.message || "Error submitting share request."
     );
-    return false; // Return false if there is any error
   }
 };

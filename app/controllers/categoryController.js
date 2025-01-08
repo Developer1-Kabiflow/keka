@@ -4,10 +4,10 @@ export const fetchCategoryList = async () => {
   try {
     const categoryData = await fetchCategory();
     return {
-      category: categoryData, // Check if this is an array
+      category: categoryData,
     };
   } catch (error) {
-    throw new Error(error.message);
+    throw new Error(error.message || "Error fetching category list");
   }
 };
 
@@ -18,9 +18,8 @@ export const fetchSubCategoryList = async (categoryId) => {
 
   try {
     const subCategoryData = await fetchSubCategory(categoryId);
-    return { subCategoryList: subCategoryData }; // Ensure correct return structure
+    return { subCategoryList: subCategoryData };
   } catch (error) {
-    console.error("Error fetching subcategory list:", error);
-    throw new Error(error.message);
+    throw new Error(error.message || "Error fetching subcategory list");
   }
 };

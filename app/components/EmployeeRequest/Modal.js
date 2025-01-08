@@ -303,6 +303,31 @@ const Modal = ({ isOpen, handleClose, itemId, onToast, refreshData }) => {
           )}
         </div>
       );
+    } else if (field.type === "date") {
+      return (
+        <div className="mb-4" key={field.name}>
+          <label className="block text-gray-700">{field.label}:</label>
+          <input
+            type="date"
+            name={field.name}
+            min={
+              field.name === "LeaveEndingDate" && startingDate
+                ? startingDate
+                : field.min
+                ? initialDate
+                : undefined
+            }
+            onChange={handleChange}
+            required={field.required}
+            className="w-full px-3 py-2 border rounded"
+          />
+          {formErrors[field.name] && (
+            <p className="text-red-500 text-sm mt-1">
+              {formErrors[field.name] || "Invalid input."}
+            </p>
+          )}
+        </div>
+      );
     } else {
       return (
         <div className="mb-4" key={field.name}>
@@ -318,15 +343,6 @@ const Modal = ({ isOpen, handleClose, itemId, onToast, refreshData }) => {
             }
             onChange={handleChange}
             required={field.required}
-            min={
-              field.type === "date"
-                ? field.name === "LeaveStartingDate"
-                  ? initialDate
-                  : field.name === "LeaveEndingDate"
-                  ? startingDate
-                  : ""
-                : undefined
-            }
             disabled={field.disabled}
             className="w-full px-3 py-2 border rounded"
           />
@@ -374,7 +390,11 @@ const Modal = ({ isOpen, handleClose, itemId, onToast, refreshData }) => {
             </button>
           </form>
         )}
-        {error && <div className="text-red-500 mt-2">{error}</div>}
+        {error && (
+          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative">
+            {error}
+          </div>
+        )}
       </div>
       <button
         onClick={handleClose}

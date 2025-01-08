@@ -16,6 +16,6 @@ export const employeeLoginRequest = async (formData) => {
   try {
     return await submitLogin(formData);
   } catch (error) {
-    throw error;
+    throw new Error(error.message || "Error during login request");
   }
 };

@@ -2,7 +2,7 @@
 
 import { employeeLoginRequest } from "@/app/controllers/employeeController";
 import { useRouter } from "next/navigation";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { IoMdLogIn } from "react-icons/io";
 import Cookies from "js-cookie";
 
@@ -12,6 +12,7 @@ const EmployeeLoginPage = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const router = useRouter();
+
   const handleLogin = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -25,25 +26,24 @@ const EmployeeLoginPage = () => {
         Cookies.set("LoggedinUserId", response.userId, {
           expires: 1,
           path: "/",
-          secure: process.env.NODE_ENV === "production", // Use secure cookies in production
-          sameSite: "Lax", // Default cross-site setting for navigation requests
+          secure: process.env.NODE_ENV === "production",
+          sameSite: "Lax",
         });
 
         Cookies.set("isPassBasedAuth", true, {
           expires: 1,
           path: "/",
-          secure: process.env.NODE_ENV === "production", // Use secure cookies in production
-          sameSite: "Lax", // Default cross-site setting for navigation requests
+          secure: process.env.NODE_ENV === "production",
+          sameSite: "Lax",
         });
 
         const finalRedirectTo =
           Cookies.get("redirectTo") || response.redirectUrl;
 
         console.log("Redirecting to:", finalRedirectTo);
-
         router.push(finalRedirectTo);
-        // Redirect to the original URL
-        Cookies.remove("redirectTo"); // Clean up the cookie after redirection
+
+        Cookies.remove("redirectTo");
       } else {
         setError("Unexpected response from server.");
       }
@@ -73,13 +73,17 @@ const EmployeeLoginPage = () => {
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
       <div className="w-full max-w-md bg-white shadow-md rounded-lg p-8">
         <div className="flex justify-center mb-4">
-          <IoMdLogIn className="w-16 h-16" />
+          <IoMdLogIn className="w-16 h-16 text-blue-500" />
         </div>
         <h2 className="text-2xl font-bold text-center text-gray-800 mb-6">
           Employee Login
         </h2>
         <form className="space-y-4">
-          {error && <div className="text-red-500 text-sm">{error}</div>}
+          {error && (
+            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative">
+              {error}
+            </div>
+          )}
           <div>
             <label
               htmlFor="email"

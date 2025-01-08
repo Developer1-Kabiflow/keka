@@ -5,7 +5,7 @@ import {
   fetchProgressStepContainerData,
 } from "../models/taskModels";
 
-// Fetch all employee requests
+// Fetch all employee tasks
 export const fetchAll = async (approverId, page) => {
   try {
     const data = await fetchAllTasks(approverId, page);
@@ -19,12 +19,11 @@ export const fetchAll = async (approverId, page) => {
       pagination: paginationDetails,
     };
   } catch (error) {
-    // throw new Error(
-    //   error.response?.data?.message || "Error fetching all requests"
-    // );
+    throw new Error(error.message || "Error fetching all tasks.");
   }
 };
-// Fetch approved employee requests
+
+// Fetch completed employee tasks
 export const fetchCompleted = async (approverId, page) => {
   try {
     const data = await fetchcompletedTasks(approverId, page);
@@ -39,18 +38,14 @@ export const fetchCompleted = async (approverId, page) => {
       pagination: paginationDetails,
     };
   } catch (error) {
-    // throw new Error(
-    //   error.response?.data?.message || "Error fetching approved requests"
-    // );
+    throw new Error(error.message || "Error fetching completed tasks.");
   }
 };
 
-// Fetch rejected employee requests
+// Fetch pending employee tasks
 export const fetchPending = async (approverId, page) => {
   try {
-    const data = await fetchPendingTasks(approverId, page); // Fetch the response
-
-    // Extract pagination details
+    const data = await fetchPendingTasks(approverId, page);
     const { currentPage, totalPages, totalTasks } = data;
     const paginationDetails = [totalPages, currentPage, totalTasks];
     const PendingTaskLists = data.taskResult?.flatMap(
@@ -62,12 +57,11 @@ export const fetchPending = async (approverId, page) => {
       pagination: paginationDetails,
     };
   } catch (error) {
-    // throw new Error(
-    //   error.response?.data?.message || "Error fetching rejected requests"
-    // );
+    throw new Error(error.message || "Error fetching pending tasks.");
   }
 };
 
+// Fetch progress data for a specific task
 export const fetchProgress = async (requestId) => {
   try {
     const data = await fetchProgressStepContainerData(requestId);
@@ -77,8 +71,6 @@ export const fetchProgress = async (requestId) => {
       TaskData: taskData || [],
     };
   } catch (error) {
-    // throw new Error(
-    //   error.response?.data?.message || "Error fetching rejected requests"
-    // );
+    throw new Error(error.message || "Error fetching progress data.");
   }
 };
