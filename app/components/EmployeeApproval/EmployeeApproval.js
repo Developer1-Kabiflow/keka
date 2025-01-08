@@ -12,7 +12,6 @@ import Cookies from "js-cookie";
 import { toast } from "react-toastify";
 import { useSearchParams } from "next/navigation";
 import ViewModal from "./ViewModal";
-
 const EmployeeApproval = () => {
   const [activeTab, setActiveTab] = useState("All Requests");
   const [loading, setLoading] = useState(false);
@@ -37,20 +36,19 @@ const EmployeeApproval = () => {
   const searchParams = useSearchParams();
   const requestId = searchParams.get("requestId");
   const [error, setError] = useState(null); // Initialize error state
-
   useEffect(() => {
     if (requestId) {
       setSelectedRequestId(requestId);
       setIsModalOpen(true);
     }
   }, [requestId]);
-
   const openModal = (requestId, isPending) => {
     setShowAcceptReject(isPending);
     setSelectedRequestId(requestId);
     setIsModalOpen(true);
     const query = new URLSearchParams(window.location.search);
     query.set("requestId", requestId); // Add or update requestId
+    // query.set("formTemplateId", formTemplateId); // Add or update formTemplateId
 
     // Update the URL without reloading the page
     window.history.pushState(
@@ -65,6 +63,8 @@ const EmployeeApproval = () => {
     setSelectedRequestId(null);
     const query = new URLSearchParams(window.location.search);
     query.delete("requestId"); // Remove requestId
+    // query.delete("formTemplateId"); // Remove formTemplateId
+    // query.delete("modalOpen"); // Optionally remove modalOpen state if you are tracking it
 
     // Update the URL without reloading the page, removing the query parameters
     window.history.pushState(
@@ -92,7 +92,7 @@ const EmployeeApproval = () => {
   const loadRequestData = useCallback(async (type, approverId, page = 1) => {
     try {
       setLoading(true);
-      setError(null);
+      setError(null); // Reset error state before fetching data
       let response;
       switch (type) {
         case "all":
@@ -137,9 +137,7 @@ const EmployeeApproval = () => {
       }));
     } catch (err) {
       console.error("Error fetching request data:", err);
-      setError(
-        err.response?.data?.message || "Failed to load data. Please try again."
-      );
+      setError("Failed to load data. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -213,12 +211,6 @@ const EmployeeApproval = () => {
   return (
     <div className="flex flex-col md:flex-row h-screen">
       <div className="flex-1 p-6 bg-gray-100">
-        {error && (
-          <div className="bg-red-100 text-red-800 border-l-4 border-red-500 p-3 mb-4 rounded-md">
-            <span>{error}</span>
-          </div>
-        )}
-
         <ul className="flex text-sm font-medium text-gray-500 border-b">
           {tabs.map((tab) => (
             <li key={tab.key} className="mr-2">
