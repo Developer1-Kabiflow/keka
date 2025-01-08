@@ -54,8 +54,6 @@ const SubMenu = ({
     );
   }
 
-  if (error) return <p className="text-red-500">{error}</p>;
-
   // Handle the modal toggle
   const handleClick = (itemId) => {
     setSubCategoryId(itemId);
@@ -65,6 +63,11 @@ const SubMenu = ({
   return (
     <>
       <div className="flex flex-col p-4 bg-white text-center">
+        {error && (
+          <div className="bg-red-100 text-red-800 border-l-4 border-red-500 p-3 mb-4 rounded-md">
+            <span>{error}</span>
+          </div>
+        )}
         {subCategoryList.length > 0 ? (
           subCategoryList.map((item) => (
             <div key={item._id} className="mb-4">

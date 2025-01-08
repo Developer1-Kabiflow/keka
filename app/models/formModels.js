@@ -9,6 +9,10 @@ export const fetchFormSchema = async (formId, employeeId) => {
     );
     return response.data;
   } catch (error) {
+    console.error(
+      "Error in fetchFormSchema:",
+      error.response?.data?.message || error.message
+    );
     throw new Error(
       error.response?.data?.message || "Error fetching form schema."
     );
@@ -23,6 +27,10 @@ export const fetchMyFormdata = async (requestId) => {
     );
     return response.data;
   } catch (error) {
+    console.error(
+      "Error in fetchMyFormdata:",
+      error.response?.data?.message || error.message
+    );
     throw new Error(
       error.response?.data?.message || "Error fetching form data."
     );

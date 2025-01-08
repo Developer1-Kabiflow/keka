@@ -33,7 +33,7 @@ const Modal = ({
   const [enabledField, setEnabledField] = useState([]);
   const [fileInputList, setFileInputList] = useState([]);
   const [enabledAttachments, setEnabledAttachments] = useState([]);
-  const [errorMessage, setErrorMessage] = useState(null); // Track error messages
+  const [error, setError] = useState(null); // Track error messages
   const progressStepsRef = useRef(null);
 
   const fetchForm = useCallback(
@@ -57,7 +57,7 @@ const Modal = ({
           setEnabledAttachments(enabledAttachments);
           setFileInputList(formAttachments);
         } catch (err) {
-          setErrorMessage(
+          setError(
             err.message || "Failed to load form data. Please try again."
           );
         } finally {
@@ -106,7 +106,7 @@ const Modal = ({
     if (isSubmitting) return;
 
     setIsSubmitting(true);
-    setErrorMessage(null);
+    setError(null);
 
     try {
       const formDataToSubmit = new FormData();
@@ -127,9 +127,7 @@ const Modal = ({
       refreshData();
       handleClose();
     } catch (err) {
-      setErrorMessage(
-        err.message || "Failed to submit the form. Please try again."
-      ); // Set the error message
+      setError(err.message || "Failed to submit the form. Please try again."); // Set the error message
     } finally {
       setIsSubmitting(false);
     }
@@ -150,18 +148,18 @@ const Modal = ({
       link.click();
       URL.revokeObjectURL(link.href); // Cleanup after download
     } catch (error) {
-      setErrorMessage(
+      setError(
         error.message || "Failed to download the file. Please try again."
       ); // Set the error message
     }
   };
 
   const renderErrorBox = () => {
-    if (!errorMessage) return null;
+    if (!error) return null;
     return (
       <div className="bg-red-500 text-white p-4 rounded-lg mb-4">
         <strong>Error: </strong>
-        {errorMessage}
+        {error}
       </div>
     );
   };
@@ -174,7 +172,7 @@ const Modal = ({
         setIsUrlCopied(true);
         setTimeout(() => setIsUrlCopied(false), 2000);
       })
-      .catch((err) => setErrorMessage("Failed to copy:" + err));
+      .catch((err) => setError("Failed to copy:" + err));
   };
 
   const renderUploadedFiles = () => (

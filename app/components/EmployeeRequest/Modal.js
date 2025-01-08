@@ -24,6 +24,9 @@ const Modal = ({ isOpen, handleClose, itemId, onToast, refreshData }) => {
   const formId = itemId;
 
   useEffect(() => {
+    if (!isOpen) {
+      setError(null);
+    }
     if (isOpen) {
       setFormSchema([]);
       setFormData({});
@@ -36,12 +39,12 @@ const Modal = ({ isOpen, handleClose, itemId, onToast, refreshData }) => {
           setLoading(true);
           const employeeId = Cookies.get("userId");
           const {
-            formSchema,
-            formType,
-            initialData,
-            employeeData,
-            attachments,
-            date,
+            formSchema = [],
+            formType = "",
+            initialData = {},
+            employeeData = {},
+            attachments = [],
+            date = "",
           } = await getProcessedFormSchema(formId, employeeId);
           setInitialDate(date);
           setFormSchema(formSchema);
@@ -50,7 +53,9 @@ const Modal = ({ isOpen, handleClose, itemId, onToast, refreshData }) => {
           setEmployeeDetails(employeeData);
           setFileAttachments(attachments || []);
         } catch (err) {
-          setError("Failed to load form schema. Please try again.");
+          setError(
+            err.message || "Failed to load form schema. Please try again."
+          );
         } finally {
           setLoading(false);
         }
@@ -175,46 +180,42 @@ const Modal = ({ isOpen, handleClose, itemId, onToast, refreshData }) => {
       refreshData(); // Call refreshData from the grandparent
       handleClose();
     } catch (err) {
-      console.error("Error submitting form:", err);
-      setError(err.message);
+      setError(err.message || "Error submitting form");
     } finally {
       setIsSubmitting(false); // Reset the submitting state
     }
   };
 
+  const validateFile = (file, validation) => {
+    if (validation.maxSize && file.size > validation.maxSize) {
+      return `File size exceeds the limit of ${
+        validation.maxSize / 1024 / 1024
+      } MB.`;
+    }
+    if (
+      validation.allowedTypes &&
+      !validation.allowedTypes.includes(file.type)
+    ) {
+      return `Invalid file type. Allowed types: ${validation.allowedTypes.join(
+        ", "
+      )}`;
+    }
+    return null;
+  };
+
   const handleFileChange = (e, attachment, index) => {
     const file = e.target.files[0];
+    const error = validateFile(file, attachment.validation[0]);
     const updatedFileErrors = [...fileErrors];
-    updatedFileErrors[index] = null;
-
-    if (file) {
-      const validation = attachment.validation[0];
-      if (validation) {
-        if (validation.maxSize && file.size > validation.maxSize) {
-          updatedFileErrors[index] = `File size exceeds the limit of ${
-            validation.maxSize / 1024 / 1024
-          } MB.`;
-        } else if (
-          validation.allowedTypes &&
-          !validation.allowedTypes.includes(file.type)
-        ) {
-          updatedFileErrors[
-            index
-          ] = `Invalid file type. Allowed: ${validation.allowedTypes.join(
-            ", "
-          )}`;
-        }
-      }
-    }
-
-    if (!updatedFileErrors[index]) {
+    updatedFileErrors[index] = error;
+    setFileErrors(updatedFileErrors);
+    if (!error) {
       setSelectedFiles((prev) => {
         const updatedFiles = [...prev];
         updatedFiles[index] = file;
         return updatedFiles;
       });
     }
-    setFileErrors(updatedFileErrors);
   };
 
   const renderFile = (attachment, index) => (
@@ -364,6 +365,12 @@ const Modal = ({ isOpen, handleClose, itemId, onToast, refreshData }) => {
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-semibold">{formType || "Form"}</h2>
         </div>
+        {error && (
+          <div className="bg-red-100 text-red-800 border-l-4 border-red-500 p-3 mb-4 rounded-md">
+            <span>{error}</span>
+            <button onClick={fetchForm}>Retry</button>
+          </div>
+        )}
         {loading ? (
           <div className="animate-pulse space-y-4">
             <div className="h-8 bg-gray-200 rounded w-1/3 mx-auto"></div>
@@ -389,11 +396,6 @@ const Modal = ({ isOpen, handleClose, itemId, onToast, refreshData }) => {
               {isSubmitting ? "Submitting..." : "Submit"}
             </button>
           </form>
-        )}
-        {error && (
-          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative">
-            {error}
-          </div>
         )}
       </div>
       <button
