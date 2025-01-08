@@ -1,3 +1,5 @@
+"use client";
+
 import { useState, useEffect, useRef, useCallback } from "react";
 import ProgressStepsContainer from "../utils/ProgressStepsContainer";
 import { downloadFile, getMyFormData } from "@/app/controllers/formController";
@@ -55,11 +57,7 @@ const ViewModal = ({
         setFormData(requestData);
         setApprovalData(approvalData);
       } catch (err) {
-        // Using error message from backend if available
-        const errorMessage =
-          err.response?.data?.message ||
-          "Failed to load form data. Please try again.";
-        onToast(errorMessage, "error");
+        onToast("Failed to load form data. Please try again.", "error");
       } finally {
         setLoading(false);
       }
@@ -124,11 +122,7 @@ const ViewModal = ({
         onToast("Failed to share the request. Please try again.", "error");
       }
     } catch (err) {
-      // Using error message from backend if available
-      const errorMessage =
-        err.response?.data?.message ||
-        "Error sharing request. Please try again.";
-      onToast(errorMessage, "error");
+      onToast("Error sharing request. Please try again.", "error");
     } finally {
       setIsSharing(false);
     }
@@ -157,11 +151,7 @@ const ViewModal = ({
         onToast("Rejection failed. Please try again.", "error");
       }
     } catch (err) {
-      // Using error message from backend if available
-      const errorMessage =
-        err.response?.data?.message ||
-        "Failed to Reject Request. Please try again.";
-      onToast(errorMessage, "error");
+      onToast("Failed to Reject Request. Please try again.", "error");
     } finally {
       setRejecting(false);
     }
@@ -183,11 +173,7 @@ const ViewModal = ({
       URL.revokeObjectURL(link.href); // Cleanup after download
     } catch (error) {
       console.error("Error downloading file:", error);
-      // Using error message from backend if available
-      const errorMessage =
-        error.response?.data?.message ||
-        "Failed to download the file. Please try again.";
-      onToast(errorMessage, "error");
+      onToast("Failed to download the file. Please try again.", "error"); // Toast only on failure
     }
   };
 
@@ -204,11 +190,7 @@ const ViewModal = ({
         onToast("Approval failed. Please try again.", "error");
       }
     } catch (err) {
-      // Using error message from backend if available
-      const errorMessage =
-        err.response?.data?.message ||
-        "Error during approval. Please try again.";
-      onToast(errorMessage, "error");
+      onToast("Error during approval. Please try again.", "error");
     } finally {
       setApproving(false);
     }
@@ -366,58 +348,116 @@ const ViewModal = ({
                           value={selectedShareOption}
                           className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                         >
+                          {/* Mapping over shareOptions */}
                           {shareOptions.map((option) => (
                             <option
                               key={option.sharingFlowId}
                               value={option.sharingFlowId}
                             >
-                              {option.roleName}
+                              {option.role}
                             </option>
                           ))}
                         </select>
+                      </div>
+                      <div
+                        className={`p-2 flex justify-end ${
+                          isOptionListOpen
+                            ? "bg-green-50 shadow-md rounded-lg"
+                            : ""
+                        }`}
+                      >
+                        <button
+                          onClick={handleShareSubmit}
+                          className={`px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition-colors duration-200 ${
+                            isSharing ? "cursor-not-allowed opacity-50" : ""
+                          }`}
+                          disabled={isSharing}
+                        >
+                          {isSharing ? "Sharing..." : "Confirm"}
+                        </button>
                       </div>
                     </div>
                   )}
                 </div>
               </div>
             )}
-            {/* Approve / Reject Buttons */}
-            <div className="flex justify-end gap-4 mt-6">
-              {showRejectTextbox && (
-                <div className="flex flex-col gap-2">
-                  <textarea
-                    value={rejectionNote}
-                    onChange={(e) => setRejectionNote(e.target.value)}
-                    className="w-full px-3 py-2 border rounded"
-                    rows={4}
-                    placeholder="Provide a reason for rejection"
-                  />
-                  <div className="flex justify-end gap-2">
-                    <button
-                      onClick={handleRejectClose}
-                      className="text-sm text-blue-500 hover:text-blue-700"
-                    >
-                      Cancel
-                    </button>
-                    <button
-                      onClick={handleRejection}
-                      className="text-sm text-red-500 hover:text-red-700"
-                    >
-                      {rejecting ? "Rejecting..." : "Reject"}
-                    </button>
-                  </div>
+
+            {/* Action Buttons */}
+            {showAcceptReject && !isOptionListOpen && (
+              <div className="flex justify-center gap-4 mt-6">
+                <button
+                  onClick={handleApproval}
+                  disabled={approving}
+                  className={`px-6 py-3 rounded-lg font-medium text-white ${
+                    approving
+                      ? "bg-green-400 cursor-not-allowed"
+                      : "bg-green-500 hover:bg-green-600"
+                  } transition`}
+                >
+                  {approving ? "Approving..." : "Approve"}
+                </button>
+                <button
+                  onClick={handleRejectClick}
+                  disabled={rejecting}
+                  className={`px-6 py-3 rounded-lg font-medium text-white ${
+                    rejecting
+                      ? "bg-red-400 cursor-not-allowed"
+                      : "bg-red-500 hover:bg-red-600"
+                  } transition`}
+                >
+                  {rejecting ? "Rejecting..." : "Reject"}
+                </button>
+              </div>
+            )}
+
+            {showRejectTextbox && (
+              <div className="flex flex-col items-center mt-6 p-4 bg-gray-100 rounded-lg shadow-md w-full">
+                <textarea
+                  placeholder="Please provide a reason for rejection..."
+                  className="w-full p-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-400 focus:border-red-400 transition duration-200 resize-none"
+                  value={rejectionNote}
+                  onChange={(e) => setRejectionNote(e.target.value)}
+                  rows={4}
+                />
+                <div className="flex mt-4 gap-4">
+                  <button
+                    type="button"
+                    className="px-6 py-2 bg-red-500 text-white font-medium rounded-lg shadow hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-400 focus:ring-offset-2 transition duration-200"
+                    onClick={handleRejection}
+                  >
+                    Reject
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleRejectClose}
+                    className="px-6 py-2 bg-gray-400 text-white font-medium rounded-lg shadow hover:bg-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-300 focus:ring-offset-2 transition duration-200"
+                  >
+                    Close
+                  </button>
                 </div>
-              )}
-              <button
-                onClick={handleApproval}
-                className="bg-green-500 text-white py-2 px-4 rounded-md hover:bg-green-600 transition-colors duration-200"
-              >
-                {approving ? "Approving..." : "Approve"}
-              </button>
-            </div>
+              </div>
+            )}
           </>
         )}
+        <div ref={bottomRef}></div>
       </div>
+      {/* Close Button */}
+      <button
+        onClick={handleClose}
+        className="absolute transition-all duration-300 ease-in-out top-[40px] right-[1px] sm:top-[40px] sm:right-[1px] md:top-[40px] md:right-[calc(50%-400px)] lg:top-[50px] lg:right-[calc(50%-450px)] xl:top-[50px] xl:right-[calc(50%-500px)] bg-blue-200 rounded-full w-10 h-10 flex items-center justify-center font-bold hover:bg-red-300 shadow-md z-20"
+        style={{ lineHeight: "0" }}
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          height="24px"
+          viewBox="0 0 24 24"
+          width="24px"
+          fill="#000000"
+        >
+          <path d="M0 0h24v24H0V0z" fill="none" />
+          <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z" />
+        </svg>
+      </button>
     </div>
   );
 };
