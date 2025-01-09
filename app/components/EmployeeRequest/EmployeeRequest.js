@@ -11,14 +11,12 @@ import {
 import RequestTable from "../utils/RequestTable"; // Import the RequestTable component
 import SubMenu from "./SubCategory"; // Import SubMenu component (if you need it)
 import { fetchCategoryList } from "@/app/controllers/categoryController";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import ViewModal from "./ViewModal";
 
 const EmployeeNewRequest = () => {
-  const router = useRouter();
-  const p = usePathname(); // Get the current pathname
   const [activeTab, setActiveTab] = useState("New Request");
-  const [pathname, setPathname] = useState(p);
+
   const [requestData, setRequestData] = useState({
     all: { data: [], pagination: { currentPage: 1, totalPages: 1 } },
     approved: { data: [], pagination: { currentPage: 1, totalPages: 1 } },
@@ -84,9 +82,7 @@ const EmployeeNewRequest = () => {
         },
       }));
     } catch (err) {
-      if (err.message !== "No requests found for this user") {
-        setError("Failed to load data. Please try again.");
-      }
+      setError(err.message || "error in fetching requests");
     } finally {
       setLoading(false);
     }
@@ -288,7 +284,11 @@ const EmployeeNewRequest = () => {
               </li>
             ))}
           </ul>
-
+          {error && (
+            <div className="bg-red-100 text-red-800 border-l-4 border-red-500 p-3 mb-4 rounded-md">
+              <span>{error}</span>
+            </div>
+          )}
           <div className="flex-1 overflow-auto">{renderContent()}</div>
         </div>
         {isViewModalOpen && (

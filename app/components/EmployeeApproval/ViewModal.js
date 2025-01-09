@@ -33,7 +33,7 @@ const ViewModal = ({
   const [showRejectTextbox, setShowRejectTextbox] = useState(false);
   const [rejectionNote, setRejectionNote] = useState("");
   const bottomRef = useRef(null);
-  const progressStepsRef = useRef(null);
+  const [error, setError] = useState(null);
   const [isUrlCopied, setIsUrlCopied] = useState(false);
   const [approverId, setApproverId] = useState(null);
   const [shareOptions, setShareOptions] = useState([]);
@@ -44,20 +44,22 @@ const ViewModal = ({
     if (isOpen && requestId) {
       setLoading(true);
       try {
+        setError(null);
         const { requestData, approvalData } = await getMyFormData(requestId);
         const options = await showShareOption();
-
-        if (options && Array.isArray(options)) {
-          setShareOptions(options);
-          setSelectedShareOption(options[0].sharingFlowId);
-        } else {
-          onToast("Failed to load share options.", "error");
+        if (!Array.isArray(options)) {
+          throw new Error("Invalid share options received.");
         }
         setShareOptions(options);
+        setSelectedShareOption(options[0]?.sharingFlowId);
         setFormData(requestData);
         setApprovalData(approvalData);
       } catch (err) {
-        onToast("Failed to load form data. Please try again.", "error");
+        setError(err.message || "Failed to load form data.");
+        onToast(
+          err.message || "Failed to load form data. Please try again.",
+          "error"
+        );
       } finally {
         setLoading(false);
       }
@@ -122,6 +124,7 @@ const ViewModal = ({
         onToast("Failed to share the request. Please try again.", "error");
       }
     } catch (err) {
+      setError(err.message || "Failed to share the request");
       onToast("Error sharing request. Please try again.", "error");
     } finally {
       setIsSharing(false);
@@ -151,6 +154,7 @@ const ViewModal = ({
         onToast("Rejection failed. Please try again.", "error");
       }
     } catch (err) {
+      setError(err.message || "Failed to Reject Request");
       onToast("Failed to Reject Request. Please try again.", "error");
     } finally {
       setRejecting(false);
@@ -190,6 +194,7 @@ const ViewModal = ({
         onToast("Approval failed. Please try again.", "error");
       }
     } catch (err) {
+      setError(err.message || "Failed to Approve Request");
       onToast("Error during approval. Please try again.", "error");
     } finally {
       setApproving(false);
@@ -409,7 +414,11 @@ const ViewModal = ({
                 </button>
               </div>
             )}
-
+            {error && (
+              <div className="bg-red-100 text-red-800 border-l-4 border-red-500 p-3 mb-4 rounded-md">
+                <span>{error}</span>
+              </div>
+            )}
             {showRejectTextbox && (
               <div className="flex flex-col items-center mt-6 p-4 bg-gray-100 rounded-lg shadow-md w-full">
                 <textarea

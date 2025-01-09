@@ -12,7 +12,7 @@ export const getProcessedFormSchema = async (formId, employeeId) => {
   try {
     const response = await fetchFormSchema(formId, employeeId);
 
-    if (!response?.data || !response?.employeeData || !response?.attachments) {
+    if (!response?.data || !response?.employeeData) {
       throw new Error("Incomplete or invalid form schema response");
     }
 
@@ -41,7 +41,8 @@ export const getProcessedFormSchema = async (formId, employeeId) => {
 
 export const getMyFormData = async (requestId) => {
   try {
-    const { requestData, approvalData } = await fetchMyFormdata(requestId);
+    const response = await fetchMyFormdata(requestId);
+    const { requestData, approvalData } = response;
     if (!requestData || !approvalData) {
       throw new Error("Invalid form schema response");
     }

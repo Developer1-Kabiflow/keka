@@ -8,7 +8,7 @@ export const fetchAllTasks = async (approverId, page) => {
     );
     return response.data;
   } catch (error) {
-    // throw new Error(error.response?.data?.message || "Error fetching requests");
+    throw new Error(error.response?.data?.message || "Error fetching requests");
   }
 };
 
@@ -19,7 +19,7 @@ export const fetchcompletedTasks = async (approverId, page) => {
     );
     return response.data;
   } catch (error) {
-    //   throw new Error(error.response?.data?.message || "Error fetching requests");
+    throw new Error(error.response?.data?.message || "Error fetching requests");
   }
 };
 
@@ -30,7 +30,7 @@ export const fetchPendingTasks = async (approverId, page) => {
     );
     return response.data;
   } catch (error) {
-    //  throw new Error(error.response?.data?.message || "Error fetching requests");
+    throw new Error(error.response?.data?.message || "Error fetching requests");
   }
 };
 
@@ -41,7 +41,6 @@ export const fetchProgressStepContainerData = async (requestId) => {
     );
     return response.data;
   } catch (err) {
-    console.error("Error fetching progress status:", err);
     throw new Error("Failed to fetch progress status");
   }
 };

@@ -35,7 +35,7 @@ const EmployeeApproval = () => {
   );
   const searchParams = useSearchParams();
   const requestId = searchParams.get("requestId");
-  const [error, setError] = useState(null); // Initialize error state
+  const [error, setError] = useState(null);
   useEffect(() => {
     if (requestId) {
       setSelectedRequestId(requestId);
@@ -53,8 +53,8 @@ const EmployeeApproval = () => {
     // Update the URL without reloading the page
     window.history.pushState(
       null,
-      "", // You can leave the title empty
-      `${window.location.pathname}?${query.toString()}` // Set the updated URL
+      "",
+      `${window.location.pathname}?${query.toString()}`
     );
   };
 
@@ -62,11 +62,7 @@ const EmployeeApproval = () => {
     setIsModalOpen(false);
     setSelectedRequestId(null);
     const query = new URLSearchParams(window.location.search);
-    query.delete("requestId"); // Remove requestId
-    // query.delete("formTemplateId"); // Remove formTemplateId
-    // query.delete("modalOpen"); // Optionally remove modalOpen state if you are tracking it
-
-    // Update the URL without reloading the page, removing the query parameters
+    query.delete("requestId");
     window.history.pushState(
       null,
       "",
@@ -92,7 +88,9 @@ const EmployeeApproval = () => {
   const loadRequestData = useCallback(async (type, approverId, page = 1) => {
     try {
       setLoading(true);
-      setError(null); // Reset error state before fetching data
+      setError(null);
+
+      // Determine which controller method to call
       let response;
       switch (type) {
         case "all":
@@ -108,8 +106,9 @@ const EmployeeApproval = () => {
           response = await fetchRejected(approverId, page);
           break;
         default:
-          return;
+          throw new Error("Invalid request type");
       }
+
       const {
         Allrequests = [],
         Approvedrequests = [],
@@ -136,8 +135,7 @@ const EmployeeApproval = () => {
         },
       }));
     } catch (err) {
-      console.error("Error fetching request data:", err);
-      setError("Failed to load data. Please try again.");
+      setError(err.message || "An error occurred. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -227,6 +225,11 @@ const EmployeeApproval = () => {
             </li>
           ))}
         </ul>
+        {error && (
+          <div className="bg-red-100 text-red-800 border-l-4 border-red-500 p-3 mb-4 rounded-md">
+            <span>{error}</span>
+          </div>
+        )}
         {renderContent()}
       </div>
       {/* Modal Component */}

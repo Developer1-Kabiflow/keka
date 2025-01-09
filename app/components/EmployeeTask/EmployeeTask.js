@@ -22,10 +22,10 @@ const EmployeeTask = () => {
     completed: { data: [], pagination: { currentPage: 1, totalPages: 1 } },
     pending: { data: [], pagination: { currentPage: 1, totalPages: 1 } },
   });
-  const [errorMessage, setErrorMessage] = useState(null);
+
   const searchParams = useSearchParams();
   const requestId = searchParams.get("requestId");
-
+  const [error, setError] = useState(null);
   const tabs = useMemo(
     () => [
       { key: "All Tasks", label: "All Tasks" },
@@ -81,8 +81,9 @@ const EmployeeTask = () => {
           },
         }));
       } catch (err) {
-        setErrorMessage(
-          "An error occurred while fetching data. Please try again later."
+        setError(
+          err.message ||
+            "An error occurred while fetching data. Please try again later."
         ); // Set error message
         handleToast("Failed to load data. Please try again.", "error");
       } finally {
@@ -183,10 +184,9 @@ const EmployeeTask = () => {
   return (
     <div className="flex flex-col md:flex-row h-screen">
       <div className="flex-1 p-6 bg-gray-100">
-        {/* Error Message Display */}
-        {errorMessage && (
+        {error && (
           <div className="text-red-500 bg-red-100 p-4 mb-4 rounded-lg">
-            <strong>Error:</strong> {errorMessage}
+            <strong>Error:</strong> {error}
           </div>
         )}
 

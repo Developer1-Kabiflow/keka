@@ -28,7 +28,9 @@ const ViewModal = ({ isOpen, handleClose, requestId }) => {
         setFormData(requestData);
         setApprovalData(approvalData);
       } catch (err) {
-        setError("Failed to load form schema. Please try again.");
+        setError(
+          err.message || "Failed to load form schema. Please try again."
+        );
         toast.error("Failed to load form schema. Please try again.");
       } finally {
         setLoading(false);
@@ -68,6 +70,7 @@ const ViewModal = ({ isOpen, handleClose, requestId }) => {
       link.click();
       URL.revokeObjectURL(link.href);
     } catch (error) {
+      setError(error.message || "Failed to download the file");
       toast.error("Failed to download the file. Please try again.");
     }
   };
@@ -201,8 +204,8 @@ const ViewModal = ({ isOpen, handleClose, requestId }) => {
         )}
 
         {error && (
-          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative">
-            {error}
+          <div className="bg-red-100 text-red-800 border-l-4 border-red-500 p-3 mb-4 rounded-md">
+            <span>{error}</span>
           </div>
         )}
       </div>
