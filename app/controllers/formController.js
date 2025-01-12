@@ -28,7 +28,7 @@ export const getProcessedFormSchema = async (formId, employeeId) => {
 
     return {
       formSchema: fields,
-      formType: fields.formType || null,
+      formType: response.formType || null,
       initialData,
       employeeData,
       attachments: fileAttachments,
