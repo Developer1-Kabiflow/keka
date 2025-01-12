@@ -234,20 +234,9 @@ const Modal = ({ isOpen, handleClose, itemId, onToast, refreshData }) => {
           type="file"
           id={`file-upload-${index}`}
           name={`file-upload-${index}`}
+          required={attachment.required}
           onChange={(e) => handleFileChange(e, attachment, index)} // Pass attachment for validation
-          className="hidden" // Hide the default input
         />
-        <label
-          htmlFor={`file-upload-${index}`}
-          className="px-4 py-2 bg-blue-500 text-white text-sm font-semibold rounded cursor-pointer hover:bg-blue-600 focus:outline-none"
-        >
-          Choose File
-        </label>
-        <span className="text-sm text-gray-600 truncate max-w-xs">
-          {selectedFiles[index]
-            ? `Selected: ${selectedFiles[index].name}`
-            : "No file chosen"}
-        </span>
       </div>
       {/* Validation Error Message */}
       {fileErrors[index] && (
@@ -365,12 +354,7 @@ const Modal = ({ isOpen, handleClose, itemId, onToast, refreshData }) => {
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-semibold">{formType || "Form"}</h2>
         </div>
-        {error && (
-          <div className="bg-red-100 text-red-800 border-l-4 border-red-500 p-3 mb-4 rounded-md">
-            <span>{error}</span>
-            <button onClick={fetchForm}>Retry</button>
-          </div>
-        )}
+
         {loading ? (
           <div className="animate-pulse space-y-4">
             <div className="h-8 bg-gray-200 rounded w-1/3 mx-auto"></div>
@@ -389,6 +373,11 @@ const Modal = ({ isOpen, handleClose, itemId, onToast, refreshData }) => {
           <form onSubmit={handleSubmit}>
             {fileAttachments?.map(renderFile)}
             {formSchema?.map(renderField)}
+            {error && (
+              <div className="bg-red-100 text-red-800 border-l-4 border-red-500 p-3 mb-4 rounded-md">
+                <span>{error}</span>
+              </div>
+            )}
             <button
               type="submit"
               className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
@@ -398,6 +387,7 @@ const Modal = ({ isOpen, handleClose, itemId, onToast, refreshData }) => {
           </form>
         )}
       </div>
+
       <button
         onClick={handleClose}
         className="absolute transition-all duration-300 ease-in-out top-[40px] right-[1px] sm:top-[40px] sm:right-[1px] md:top-[40px] md:right-[calc(50%-400px)] lg:top-[50px] lg:right-[calc(50%-450px)] xl:top-[50px] xl:right-[calc(50%-500px)] bg-blue-200 rounded-full w-10 h-10 flex items-center justify-center font-bold hover:bg-red-300 shadow-md z-20"
