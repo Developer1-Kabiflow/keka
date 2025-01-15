@@ -56,6 +56,7 @@ const Modal = ({
           setFormData(formData);
           setEnabledAttachments(enabledAttachments);
           setFileInputList(formAttachments);
+          console.dir(formData);
         } catch (err) {
           setError(
             err.message || "Failed to load form data. Please try again."
@@ -156,6 +157,7 @@ const Modal = ({
 
   const renderErrorBox = () => {
     if (!error) return null;
+
     return (
       <div className="bg-red-500 text-white p-4 rounded-lg mb-4">
         <strong>Error: </strong>
@@ -262,8 +264,9 @@ const Modal = ({
             URL copied to clipboard!
           </div>
         )}
-        {renderErrorBox()}
-        {loading ? (
+        {error ? (
+          renderErrorBox()
+        ) : loading ? (
           <div className="animate-pulse space-y-4">
             <div className="h-8 bg-gray-200 rounded w-1/3 mx-auto"></div>
             <div className="h-6 bg-gray-200 rounded w-2/3 mx-auto"></div>
@@ -299,31 +302,126 @@ const Modal = ({
                 </div>
               </>
             )}
-
             <form>
               {formData.map((field) => (
                 <div key={field.field_name} className="mb-4">
                   <label className="block text-gray-700">
-                    {field.field_label}:
+                    {field.field_display}:
                   </label>
-                  <input
-                    type={field.type || "text"}
-                    name={field.field_name}
-                    value={field.field_value || ""}
-                    required={field.field_required || false}
-                    onChange={(e) =>
-                      handleInputChange(field.field_name, e.target.value)
-                    }
-                    disabled={!enabledField?.includes(field.field_label)}
-                    className="w-full px-3 py-2 border rounded bg-gray-100"
-                  />
+
+                  {field.field_type === "select" ? (
+                    // Dropdown
+                    <select
+                      name={field.field_name}
+                      required={field.field_required}
+                      value={field.field_value || ""}
+                      onChange={(e) =>
+                        handleInputChange(field.field_name, e.target.value)
+                      }
+                      disabled={!enabledField?.includes(field.field_label)}
+                      className="w-full px-3 py-2 border rounded bg-gray-100"
+                    >
+                      <option value="" disabled>
+                        {field.placeholder || "Select an option"}
+                      </option>
+                      {field.field_options?.map((option, index) => (
+                        <option key={index} value={option}>
+                          {option}
+                        </option>
+                      ))}
+                    </select>
+                  ) : field.field_type === "radio" ? (
+                    // Radio buttons
+                    <div>
+                      {field.options?.map((option, index) => (
+                        <label
+                          key={index}
+                          className="inline-flex items-center mr-4"
+                        >
+                          <input
+                            type="radio"
+                            name={field.field_name}
+                            value={option}
+                            checked={field.field_value === option}
+                            onChange={(e) =>
+                              handleInputChange(
+                                field.field_name,
+                                e.target.value
+                              )
+                            }
+                            disabled={
+                              !enabledField?.includes(field.field_label)
+                            }
+                            className="mr-2"
+                          />
+                          {option}
+                        </label>
+                      ))}
+                    </div>
+                  ) : field.field_type === "checkbox" ? (
+                    // Checkboxes
+                    <div>
+                      {field.field_options?.map((option, index) => (
+                        <label
+                          key={index}
+                          className="inline-flex items-center mr-4"
+                        >
+                          <input
+                            type="checkbox"
+                            name={field.field_name}
+                            value={option}
+                            checked={
+                              Array.isArray(field.field_value)
+                                ? field.field_value.includes(option) // For array
+                                : field.field_value === option // For string
+                            }
+                            onChange={(e) => {
+                              const valueArray = Array.isArray(
+                                field.field_value
+                              )
+                                ? field.field_value
+                                : [];
+                              if (e.target.checked) {
+                                handleInputChange(field.field_name, [
+                                  ...valueArray,
+                                  option,
+                                ]);
+                              } else {
+                                handleInputChange(
+                                  field.field_name,
+                                  valueArray.filter((v) => v !== option)
+                                );
+                              }
+                            }}
+                            disabled={
+                              !enabledField?.includes(field.field_label)
+                            }
+                            className="mr-2"
+                          />
+                          {option}
+                        </label>
+                      ))}
+                    </div>
+                  ) : (
+                    // Default input field
+                    <input
+                      type={field.field_type || "text"}
+                      name={field.field_name}
+                      required={field.field_required}
+                      value={field.field_value || ""}
+                      onChange={(e) =>
+                        handleInputChange(field.field_name, e.target.value)
+                      }
+                      disabled={!enabledField?.includes(field.field_label)}
+                      className="w-full px-3 py-2 border rounded bg-gray-100"
+                    />
+                  )}
                 </div>
               ))}
               {fileInputList && fileInputList.length > 0 && renderFileInput()}
               {formAttachments &&
                 formAttachments.length > 0 &&
                 renderUploadedFiles()}
-
               {showSubmit && (
                 <button
                   type="button"
