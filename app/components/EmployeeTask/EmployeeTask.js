@@ -57,7 +57,6 @@ const EmployeeTask = () => {
           default:
             throw new Error("Invalid task type");
         }
-
         const {
           Allrequests = [],
           Completedrequests = [],
@@ -75,8 +74,8 @@ const EmployeeTask = () => {
                 ? Completedrequests
                 : Allrequests,
             pagination: {
-              currentPage: pagination.currentPage || 1,
-              totalPages: pagination.totalPages || 1,
+              currentPage: pagination?.[1] || 1,
+              totalPages: pagination?.[0] || 1,
             },
           },
         }));
