@@ -256,7 +256,7 @@ const Modal = ({ isOpen, handleClose, itemId, onToast, refreshData }) => {
                 type="radio"
                 name={field.name} // Corrected to use field.name instead of field.label for grouping
                 value={option}
-                checked={employeeDetails[field.name] === option}
+                checked={employeeDetails[field.label] === option}
                 onChange={(e) => handleRadioChange(e, field.name)}
                 required={field.required}
                 className="mr-2"
@@ -328,7 +328,7 @@ const Modal = ({ isOpen, handleClose, itemId, onToast, refreshData }) => {
             placeholder={field.placeholder}
             value={
               field.disabled && employeeDetails
-                ? employeeDetails[field.name]
+                ? employeeDetails[field.label]
                 : formData[field.name] || ""
             }
             onChange={handleChange}
