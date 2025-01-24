@@ -18,7 +18,8 @@ export const fetchAll = async (approverId, page) => {
     }
     const { totalPages, currentPage, totalResults } = data;
     const paginationDetails = [totalPages, currentPage, totalResults];
-    const employeeRequestList = data.employeeApprovalList || [];
+    const employeeRequestList =
+      data.employeeApprovalList?.flatMap((result) => result || []) || [];
     return {
       Allrequests: employeeRequestList,
       pagination: paginationDetails,
@@ -37,10 +38,8 @@ export const fetchApproved = async (approverId, page) => {
     }
     const { totalPages, currentPage, totalResults } = data;
     const paginationDetails = [totalPages, currentPage, totalResults];
-    const filteredResults = data.filteredResults || [];
-    const employeeApprovedRequestLists = filteredResults
-      .map((item) => item.employee_approval_list || [])
-      .flat();
+    const employeeApprovedRequestLists =
+      data.results?.flatMap((result) => result || []) || [];
     return {
       Approvedrequests: employeeApprovedRequestLists,
       pagination: paginationDetails,
@@ -59,10 +58,8 @@ export const fetchRejected = async (approverId, page) => {
     }
     const { totalPages, currentPage, totalResults } = data;
     const paginationDetails = [totalPages, currentPage, totalResults];
-    const filteredResults = data.filteredResults || [];
-    const employeeRejectedRequestLists = filteredResults
-      .map((item) => item.employee_approval_list || [])
-      .flat();
+    const employeeRejectedRequestLists =
+      data.results?.flatMap((result) => result || []) || [];
     return {
       Rejectedrequests: employeeRejectedRequestLists,
       pagination: paginationDetails,
@@ -82,9 +79,8 @@ export const fetchPending = async (approverId, page) => {
     const { totalPages, currentPage, totalResults } = data;
     const paginationDetails = [totalPages, currentPage, totalResults];
     const results = data.results || [];
-    const employeePendingRequestLists = results
-      .map((item) => item.employee_approval_list || [])
-      .flat();
+    const employeePendingRequestLists =
+      data.results?.flatMap((result) => result || []) || [];
     return {
       Pendingrequests: employeePendingRequestLists,
       pagination: paginationDetails,
